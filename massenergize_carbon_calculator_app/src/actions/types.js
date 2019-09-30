@@ -1,0 +1,5 @@
+export const FETCH_ACTIONS = 'FETCH_ACTIONS';
+export const SIGN_IN = 'SIGN_IN';
+export const POST_ANS = 'POST_ANS';
+export const FETCH_ACTION_INFO = "FETCH_ACTION_INFO";
+export const QUESTION_ANSWERED = "QUESTION_ANSWERED";
