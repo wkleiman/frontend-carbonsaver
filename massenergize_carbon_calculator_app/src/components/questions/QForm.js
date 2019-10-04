@@ -13,32 +13,34 @@ class QForm extends React.Component {
     state = { value: '' };
 
     onChangeHandler(e, questionTag) {
+        e.preventDefault();
         this.setState({ value: e.target.value });
         this.props.onAnswered(e, questionTag);
     }
 
     renderAnswer() {
         const { question } = this.props;
-        if (typeof this.props.question.responses === 'object') {
+        if (question.questionType === "Choice") {
             return (
                 <RadioGroup aria-label="response" value={this.state.value} onChange={e => this.onChangeHandler(e, question.questionTag)}>
                     {this.props.question.responses.map(response => {
                         return (
                             <React.Fragment
                                 key={response}>
-                                <FormControlLabel value={response} control={<Radio />} label={response} />
+                                <FormControlLabel value={response} control={<Radio />} label={response.text} />
                             </React.Fragment>
                         );
                     })
                     }
                 </RadioGroup>
             );
-        } else if (this.props.question.responses.length === 0) {
+        } else {
             return <TextField value={this.state.value} placeholder="Please answer the above question" onChange={e => this.onChangeHandler(e, question.questionTag)} />
-        } else if (this.props.question.responses === 0) {
-            return <TextField value={this.state.value} placeholder="Please answer the above question" onChange={e => this.onChangeHandler(e, question.questionTag)} />
+            // } else if (this.props.question.responses === 0) {
+            //     return <TextField value={this.state.value} placeholder="Please answer the above question" onChange={e => this.onChangeHandler(e, question.questionTag)} />
+            // }
+            // else return <div>{this.props.question.responses}</div>
         }
-        else return <div>{this.props.question.responses}</div>
     }
 
     render() {
@@ -51,6 +53,7 @@ class QForm extends React.Component {
                     </FormControl>
                 </List >
             </>
+            // <div>QForm</div>
         );
 
     }

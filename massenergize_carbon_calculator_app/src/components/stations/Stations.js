@@ -1,11 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ActionList from '../actions/actionList';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
+import StationItem from './StationItem';
+import { withStyles } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
+
+const styles = theme => ({
+    root: {
+        backgroundColor: theme.palette.background.paper,
+        display: 'flex',
+        height: 224,
+    },
+    station: {
+        borderRight: `1px solid ${theme.palette.divider}`,
+    },
+});
 
 const TabPanel = (props) => {
     const { children, value, index, ...other } = props;
@@ -15,50 +26,20 @@ const TabPanel = (props) => {
             component="div"
             role="tabpanel"
             hidden={value !== index}
-            id={`full-width-tabpanel-${index}`}
-            aria-labelledby={`full-width-tab-${index}`}
+            id={`vertical-tabpanel-${index}`}
+            aria-labelledby={`vertical-tab-${index}`}
             {...other}
         >
             <Box>{children}</Box>
         </Typography>
     );
 }
-
-const StyledTabs = withStyles({
-    indicator: {
-        display: 'flex',
-        justifyContent: 'center',
-        backgroundColor: 'transparent',
-        '& > div': {
-            maxWidth: 40,
-            width: '100%',
-            backgroundColor: '#fff',
-        },
-    },
-})(props => <Tabs {...props} TabIndicatorProps={{ children: <div /> }} />);
-
-const StyledTab = withStyles(theme => ({
-    root: {
-        textTransform: 'none',
-        backgroundColor: '#1E73BE',
-        color: '#fff',
-        fontWeight: theme.typography.fontWeightRegular,
-        fontSize: theme.typography.pxToRem(15),
-        marginRight: theme.spacing(1),
-        '&:focus': {
-            opacity: 1,
-        },
-    },
-}))(props => <Tab disableRipple {...props} />);
-
-const styles = {
-    root: {
-        flexGrow: 1,
-    },
-    station: {
-        backgroundColor: '#fafafa'
-    },
-};
+function tabProps(index) {
+    return {
+        id: `vertical-tab-${index}`,
+        'aria-controls': `vertical-tabpanel-${index}`,
+    };
+}
 
 class Station extends React.Component {
     state = { value: 0 };
@@ -67,19 +48,41 @@ class Station extends React.Component {
         this.setState({ value: newValue });
     }
 
+    renderStationTabs() {
+        let idx = 0;
+        return this.props.stations.map(station => {
+            return (
+                <Tab key={station} label={station} {...tabProps(idx++)} />
+            );
+        });
+    }
+
+    renderStationItemList() {
+        let idx = 0;
+        return this.props.stations.map(station => {
+            return (
+                <TabPanel key={station} value={this.state.value} index={idx++}>
+                    <StationItem value={this.state.value} station={station} />
+                </TabPanel>
+            );
+        })
+    }
+
     render() {
         const { classes } = this.props;
         return (
             <div className={classes.root}>
-                <div className={classes.station}>
-                    <StyledTabs value={this.state.value} onChange={(e, newValue) => this.onChangeHandler(e, newValue)} aria-label="styled tabs example" >
-                        <StyledTab label="Station 1" />
-                        <StyledTab label="Station 2" />
-                    </StyledTabs>
-                    <TabPanel value={this.state.value} index={0}>
-                        <ActionList />
-                    </TabPanel>
-                </div>
+                <Tabs
+                    orientation="vertical"
+                    variant="scrollable"
+                    value={this.state.value}
+                    onChange={(e, newValue) => this.onChangeHandler(e, newValue)}
+                    aria-label="vertical tab"
+                    className={classes.station}
+                >
+                    {this.renderStationTabs()}
+                </Tabs>
+                {this.renderStationItemList()}
             </div>
         );
     }

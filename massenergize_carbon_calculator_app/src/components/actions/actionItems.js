@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { fetchActionInfo } from '../../actions';
-import _ from 'lodash';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Divider from '@material-ui/core/Divider';
 import QList from '../questions/QList';
@@ -26,11 +25,11 @@ const InfoTooltip = withStyles(theme => ({
 
 class ActionItems extends React.Component {
     componentDidMount() {
-        this.props.fetchActionInfo(this.props.action.name);
+        this.props.fetchActionInfo(this.props.action_tag);
     }
 
     render() {
-        if (typeof this.props.action.helptext === 'undefined') {
+        if (!this.props.action) {
             return (
                 <div>
                     <CircularProgress />
@@ -59,7 +58,7 @@ class ActionItems extends React.Component {
 
 const mapStateToProps = (state, ownProps) => {
     return {
-        action_info: state.action_info
+        action: state.actions[ownProps.action_tag]
     };
 }
 

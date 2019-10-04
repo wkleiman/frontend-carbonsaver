@@ -1,20 +1,50 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Logo from '../style/images/Logo.jpg';
+import { AppBar, Typography, Toolbar, Button } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
-export const header = () => {
+const useStyles = makeStyles(theme => ({
+    root: {
+        flexGrow: 1,
+    },
+    appBar: {
+        backgroundColor: '#fff'
+    },
+    button: {
+        marginRight: theme.spacing(2),
+        '& a:visited': {
+            textDecorationLine: 'none'
+        },
+        '& a:link': {
+            textDecorationLine: 'none'
+        }
 
+    },
+    logo: {
+        flexGrow: 1,
+        '& img': {
+            maxWidth: 100,
+        },
+        '& img::hover': {
+            opacity: 0.1,
+        }
+    },
+}))
+export default function Header() {
+    const classes = useStyles();
     return (
-        <header>
-            <nav>
-                <ul>
-                    <li><a href="#"><img src={Logo} style={{ maxWidth: 100 }} alt="MassEnergize banner" /></a></li>
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">Communities</a></li>
-                    <li><a href="#">Contact Us</a></li>
-                </ul>
-            </nav>
-        </header>
+        <div className={classes.root} >
+            <AppBar position="static" className={classes.appBar}>
+                <Toolbar>
+                    <Typography variant="h6" className={classes.logo}><Link to="/"><img src={Logo} alt="MassEnergize banner" /></Link></Typography>
+                    <Button className={classes.button}><a href="#">Home</a></Button>
+                    <Button className={classes.button}><a href="#">About Us</a></Button>
+                    <Button className={classes.button}><a href="#">Communities</a></Button>
+                    <Button className={classes.button}><a href="#">Contact Us</a></Button>
+                </Toolbar>
+            </AppBar>
+        </div >
 
     );
 }

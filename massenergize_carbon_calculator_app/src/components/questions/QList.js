@@ -1,34 +1,36 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { questionAnswered } from '../../actions';
-import List from '@material-ui/core/List';
 import QForm from './QForm';
+import List from '@material-ui/core/List';
 import Collapse from '@material-ui/core/Collapse';
 
 class QList extends React.Component {
-    state = { value: '' };
+    state = { firstQuestionAnswered: false };
 
     onChangeHandler = (e, questionTag) => {
-        this.setState({ value: e.target.value });
+        if (questionTag === this.props.questions[0].questionTag)
+            this.setState({ firstQuestionAnswered: true });
         this.props.questionAnswered(questionTag, e.target.value);
     }
 
 
     renderList() {
-        const { questions, answered } = this.props;
+        const { questions } = this.props;
         return (
             questions.map(question => {
                 return (
                     <React.Fragment key={question.questionTag}>
-                        {/* <Collapse in={(Object.entries(answered).length === 0 && answered.constructor === Object) || (questions[0].questionTag in answered)}> */}
-                        <QForm question={question} onAnswered={this.onChangeHandler} />
-                        {/* </Collapse> */}
-                    </React.Fragment>);
+                        <Collapse in={(this.state.firstQuestionAnswered && this.props.answered[questions[0].questionTag].answer === "Yes") || question.questionTag === questions[0].questionTag}>
+                            <QForm question={question} onAnswered={this.onChangeHandler} />
+                        </Collapse>
+                    </React.Fragment >);
             }));
     }
 
     render() {
         return (
+            // <div>QList</div>
             <List >
                 {this.renderList()}
             </List>
