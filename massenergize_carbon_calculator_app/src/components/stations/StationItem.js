@@ -22,8 +22,6 @@ class StationItems extends React.Component {
                 <Typography>{stationInfo.description}</Typography>
                 <ActionList actions={stationInfo.actions} />
             </div>
-
-            // <div>StationItem</div>
         );
     }
 }

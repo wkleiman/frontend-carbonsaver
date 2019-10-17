@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { fetchStations } from '../../actions';
 import PropTypes from 'prop-types';
 import StationItem from './StationItem';
 import { withStyles } from '@material-ui/core/styles';
@@ -6,15 +8,15 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
+import AppBar from '@material-ui/core/AppBar';
+import { CircularProgress } from '@material-ui/core';
+import Paper from '@material-ui/core/Paper';
 
 const styles = theme => ({
     root: {
         backgroundColor: theme.palette.background.paper,
-        display: 'flex',
-        height: 224,
-    },
-    station: {
-        borderRight: `1px solid ${theme.palette.divider}`,
+        flexGrow: 1,
+        width: '100%'
     },
 });
 
@@ -26,8 +28,8 @@ const TabPanel = (props) => {
             component="div"
             role="tabpanel"
             hidden={value !== index}
-            id={`vertical-tabpanel-${index}`}
-            aria-labelledby={`vertical-tab-${index}`}
+            id={`scrollable-auto-tabpanel-${index}`}
+            aria-labelledby={`scrollable-auto-tab-${index}`}
             {...other}
         >
             <Box>{children}</Box>
@@ -36,13 +38,16 @@ const TabPanel = (props) => {
 }
 function tabProps(index) {
     return {
-        id: `vertical-tab-${index}`,
-        'aria-controls': `vertical-tabpanel-${index}`,
+        id: `scrollable-auto-tab-${index}`,
+        'aria-controls': `scrollable-auto-tabpanel-${index}`,
     };
 }
 
 class Station extends React.Component {
     state = { value: 0 };
+    componentDidMount() {
+        this.props.fetchStations();
+    }
 
     onChangeHandler(e, newValue) {
         this.setState({ value: newValue });
@@ -51,8 +56,10 @@ class Station extends React.Component {
     renderStationTabs() {
         let idx = 0;
         return this.props.stations.map(station => {
+            const { stationsDisplay } = this.props;
+            const stationDisplayName = stationsDisplay.filter(stationName => stationName.name === station)
             return (
-                <Tab key={station} label={station} {...tabProps(idx++)} />
+                <Tab key={station} label={stationDisplayName[0].displayname} {...tabProps(idx++)} />
             );
         });
     }
@@ -62,7 +69,9 @@ class Station extends React.Component {
         return this.props.stations.map(station => {
             return (
                 <TabPanel key={station} value={this.state.value} index={idx++}>
-                    <StationItem value={this.state.value} station={station} />
+                    <Paper>
+                        <StationItem value={this.state.value} station={station} />
+                    </Paper>
                 </TabPanel>
             );
         })
@@ -70,21 +79,30 @@ class Station extends React.Component {
 
     render() {
         const { classes } = this.props;
+        if (this.props.stationsDisplay.length === 0) return <CircularProgress />
         return (
-            <div className={classes.root}>
-                <Tabs
-                    orientation="vertical"
-                    variant="scrollable"
-                    value={this.state.value}
-                    onChange={(e, newValue) => this.onChangeHandler(e, newValue)}
-                    aria-label="vertical tab"
-                    className={classes.station}
-                >
-                    {this.renderStationTabs()}
-                </Tabs>
+            <div className={classes.root} style={{ height: 'auto' }}>
+                <AppBar position="relative" color="default">
+                    <Tabs
+                        variant="scrollable"
+                        value={this.state.value}
+                        indicatorColor="primary"
+                        scrollButtons="auto"
+                        onChange={(e, newValue) => this.onChangeHandler(e, newValue)}
+                        aria-label="vertical tab"
+                    >
+                        {this.renderStationTabs()}
+                    </Tabs>
+                </AppBar>
                 {this.renderStationItemList()}
             </div>
         );
+    }
+}
+
+const mapStateToProps = state => {
+    return {
+        stationsDisplay: Object.values(state.stationInfo),
     }
 }
 
@@ -92,4 +110,4 @@ Station.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Station);
+export default connect(mapStateToProps, { fetchStations })(withStyles(styles)(Station));

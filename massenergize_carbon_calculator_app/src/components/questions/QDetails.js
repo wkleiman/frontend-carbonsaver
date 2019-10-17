@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import List from '@material-ui/core/List';
 import ListItemText from '@material-ui/core/ListItemText';
 import RadioGroup from '@material-ui/core/RadioGroup';
@@ -10,24 +9,23 @@ import TextField from '@material-ui/core/TextField';
 
 
 class QForm extends React.Component {
-    state = { value: '' };
+    state = { value: '' }
 
-    onChangeHandler(e, questionTag) {
-        e.preventDefault();
+    onChangeHandler(e) {
+        const { question } = this.props;
         this.setState({ value: e.target.value });
-        this.props.onAnswered(e, questionTag);
+        this.props.onAnswered(e, question.name, ...question.responses.filter(response => response.text === e.target.value));
     }
 
     renderAnswer() {
         const { question } = this.props;
         if (question.questionType === "Choice") {
             return (
-                <RadioGroup aria-label="response" value={this.state.value} onChange={e => this.onChangeHandler(e, question.questionTag)}>
+                <RadioGroup aria-label="response" value={this.state.value} onChange={e => this.onChangeHandler(e)}>
                     {this.props.question.responses.map(response => {
                         return (
-                            <React.Fragment
-                                key={response}>
-                                <FormControlLabel value={response} control={<Radio />} label={response.text} />
+                            <React.Fragment>
+                                <FormControlLabel value={response.text} control={<Radio />} label={response.text} />
                             </React.Fragment>
                         );
                     })
@@ -35,7 +33,7 @@ class QForm extends React.Component {
                 </RadioGroup>
             );
         } else {
-            return <TextField value={this.state.value} placeholder="Please answer the above question" onChange={e => this.onChangeHandler(e, question.questionTag)} />
+            return <TextField value={this.state.value} placeholder="Please answer the above question" onChange={e => this.onChangeHandler(e, question.name)} />
             // } else if (this.props.question.responses === 0) {
             //     return <TextField value={this.state.value} placeholder="Please answer the above question" onChange={e => this.onChangeHandler(e, question.questionTag)} />
             // }
@@ -59,10 +57,5 @@ class QForm extends React.Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        answered: state.answered_questions
-    }
-}
 
-export default connect(mapStateToProps, null)(QForm);
+export default QForm;

@@ -1,47 +1,74 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { questionAnswered } from '../../actions';
-import QForm from './QForm';
+import { questionAnswered, getScore } from '../../actions';
+import QDetails from './QDetails';
 import List from '@material-ui/core/List';
-import Collapse from '@material-ui/core/Collapse';
+import _ from 'lodash';
+
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+
 
 class QList extends React.Component {
-    state = { firstQuestionAnswered: false };
 
-    onChangeHandler = (e, questionTag) => {
-        if (questionTag === this.props.questions[0].questionTag)
-            this.setState({ firstQuestionAnswered: true });
-        this.props.questionAnswered(questionTag, e.target.value);
+    onChangeHandler = (e, questionTag, skipQTag) => {
+        const { questionAnswered, action } = this.props
+        e.preventDefault();
+        if (skipQTag) {
+            questionAnswered(action.name, questionTag, e.target.value, skipQTag.skip);
+        }
+        else questionAnswered(action.name, questionTag, e.target.value);
     }
 
+    isSkip = (question) => {
+        const { skipQs } = this.props;
+        if (!skipQs) return false;
+        let res = false;
+        Object.values(skipQs).forEach(questionTag => {
+            res = res || ((!questionTag.skipTags) ? false : (questionTag.skipTags.filter(skipQTags => {
+                return skipQTags === question
+            }).length !== 0));
+        })
+        return res;
+    }
 
     renderList() {
         const { questions } = this.props;
         return (
-            questions.map(question => {
+            _.tail(questions).map(question => {
                 return (
-                    <React.Fragment key={question.questionTag}>
-                        <Collapse in={(this.state.firstQuestionAnswered && this.props.answered[questions[0].questionTag].answer === "Yes") || question.questionTag === questions[0].questionTag}>
-                            <QForm question={question} onAnswered={this.onChangeHandler} />
-                        </Collapse>
-                    </React.Fragment >);
+                    <React.Fragment>{(this.isSkip(question.name)) ? <></> :
+                        <QDetails question={question} onAnswered={this.onChangeHandler} />}</React.Fragment>
+                );
             }));
     }
 
+    handleClick = (e) => {
+        const { action, answered } = this.props;
+        this.props.getScore(action.name, answered)
+    }
+
     render() {
+        const { questions, action } = this.props;
+        const { score } = action;
         return (
-            // <div>QList</div>
-            <List >
-                {this.renderList()}
-            </List>
+            <>
+                <List >
+                    <QDetails question={questions[0]} onAnswered={this.onChangeHandler} />
+                    {this.renderList()}
+                </List>
+                <Typography>{(!score) ? "Are You Going To Do This?" : `Congrats! You Earned ${Object.values(score).reduce((a, b) => a + b, 0)} / ${action.average_carbon_points} points!`}</Typography>
+                <Button onClick={this.handleClick}>I'll Do It!</Button>
+            </>
         );
     }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
     return {
-        answered: state.answered
+        skipQs: state.skip,
+        answered: state.answered[ownProps.action.name]
     }
 }
 
-export default connect(mapStateToProps, { questionAnswered })(QList);
+export default connect(mapStateToProps, { questionAnswered, getScore })(QList);
