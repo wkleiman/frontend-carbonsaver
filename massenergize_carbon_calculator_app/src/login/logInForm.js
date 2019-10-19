@@ -1,8 +1,9 @@
 import React from 'react';
+import FBAuth from './FBAuth';
 
 class LogInForm extends React.Component {
     render() {
-        <div>LogInForm</div>
+        return <FBAuth />
     }
 }
 

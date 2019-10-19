@@ -24,6 +24,19 @@ export const questionAnswered = (actionName, questionTag, answer, skipQs) => dis
     })
 }
 
+export const signIn = userId => {
+    return {
+        type: types.SIGN_IN,
+        payload: userId
+    };
+};
+
+export const signOut = () => {
+    return {
+        type: types.SIGN_OUT
+    };
+};
+
 export const fetchActionInfo = (name) => async dispatch => {
     const response = await api.get(`/cc/info/action/${name}`);
     dispatch({ type: types.FETCH_ACTION_INFO, payload: response.data })
