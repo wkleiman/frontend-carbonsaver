@@ -8,7 +8,7 @@ export default (state = {}, action) => {
         case FETCH_EVENTS:
             return { ...state, ..._.mapKeys(action.payload.eventList, 'name') };
         case FETCH_EVENT:
-            return { ...state, [action.payload.EventInfo.name]: action.payload.EventInfo };
+            return { ...state, [action.payload.eventInfo.name]: action.payload.eventInfo };
         default: return state;
     }
 }

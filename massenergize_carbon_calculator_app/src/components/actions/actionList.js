@@ -14,7 +14,7 @@ const style = makeStyles({
 const renderList = (actions) => {
     return actions.map(action => {
         return (
-            <React.Fragment key={action} ><ActionItems action_tag={action} /></React.Fragment>
+            <React.Fragment ><ActionItems action={action} /></React.Fragment>
             // <div>actionItem</div>
         );
     })

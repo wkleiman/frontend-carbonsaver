@@ -1,7 +1,5 @@
 //React and Redux Component
 import React from 'react';
-import { connect } from 'react-redux';
-import { fetchActionInfo } from '../../actions';
 
 //Styling Component
 import ExpandMore from '@material-ui/icons/ExpandMore';
@@ -17,12 +15,6 @@ import { withStyles } from '@material-ui/core/styles';
 
 
 class ActionItems extends React.Component {
-    componentDidMount() {
-        this.props.fetchActionInfo(this.props.action_tag);
-    }
-
-
-
     render() {
         const { action } = this.props;
         if (!action) {
@@ -42,7 +34,7 @@ class ActionItems extends React.Component {
                     <ExpansionPanelDetails>
                         <Grid container direction="column">
                             <Grid item><Typography>{action.helptext}</Typography></Grid>
-                            <Grid item><QList action={action} questions={action.questions} /></Grid>
+                            <Grid item><QList action={action} questions={action.questionInfo} /></Grid>
                         </Grid>
                     </ExpansionPanelDetails>
                     <Divider />
@@ -52,11 +44,4 @@ class ActionItems extends React.Component {
     }
 }
 
-const mapStateToProps = (state, ownProps) => {
-    return {
-        action: state.actions[ownProps.action_tag],
-    };
-}
-
-
-export default connect(mapStateToProps, { fetchActionInfo })(ActionItems);
+export default ActionItems;

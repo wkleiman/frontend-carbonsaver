@@ -37,11 +37,6 @@ export const signOut = () => {
     };
 };
 
-export const fetchActionInfo = (name) => async dispatch => {
-    const response = await api.get(`/cc/info/action/${name}`);
-    dispatch({ type: types.FETCH_ACTION_INFO, payload: response.data })
-}
-
 export const fetchEvents = () => async dispatch => {
     const response = await api.get("/cc/info/events");
     dispatch({ type: types.FETCH_EVENTS, payload: response.data })
@@ -50,16 +45,6 @@ export const fetchEvents = () => async dispatch => {
 export const fetchEvent = id => async dispatch => {
     const response = await api.get(`/cc/info/event/${id}`);
     dispatch({ type: types.FETCH_EVENT, payload: response.data });
-}
-
-export const fetchStation = name => async dispatch => {
-    const response = await api.get(`/cc/info/station/${name}`);
-    dispatch({ type: types.FETCH_STATION, payload: response.data });
-}
-
-export const fetchStations = () => async dispatch => {
-    const response = await api.get("/cc/info/stations");
-    dispatch({ type: types.FETCH_STATIONS, payload: response.data })
 }
 
 export const getScore = (actionName, params) => async dispatch => {

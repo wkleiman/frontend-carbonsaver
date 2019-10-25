@@ -48,16 +48,23 @@ class QList extends React.Component {
         this.props.getScore(action.name, answered)
     }
 
+    renderActionScore() {
+        const { answered, action } = this.props;
+        if (!answered) { return "Are You Going To Do This?" }
+        else {
+            const { score } = answered;
+            return (!score) ? "Are You Going To Do This?" : `Congrats! You Earned ${Object.values(score).reduce((a, b) => a + b, 0)} / ${action.average_carbon_points} points!`
+        }
+    }
     render() {
-        const { questions, action } = this.props;
-        const { score } = action;
+        const { questions } = this.props;
         return (
             <>
                 <List >
                     <QDetails question={questions[0]} onAnswered={this.onChangeHandler} />
                     {this.renderList()}
                 </List>
-                <Typography>{(!score) ? "Are You Going To Do This?" : `Congrats! You Earned ${Object.values(score).reduce((a, b) => a + b, 0)} / ${action.average_carbon_points} points!`}</Typography>
+                <Typography>{this.renderActionScore()}</Typography>
                 <Button onClick={this.handleClick}>I'll Do It!</Button>
             </>
         );

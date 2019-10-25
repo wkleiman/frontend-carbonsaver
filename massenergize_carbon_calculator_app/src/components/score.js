@@ -9,10 +9,8 @@ class Score extends React.Component {
     }
 }
 
-const sumOfArrEl = arr => arr.reduce((a, b) => a + b, 0)
-
 const mapStateToProps = state => {
-    const actions = Object.values(state.actions).filter(action => action.score);
+    const actions = Object.values(state.answered).filter(action => action.score);
     let score = 0;
     if (actions.length === 0) score = 0;
     else if (actions.length !== 0) {
@@ -20,7 +18,6 @@ const mapStateToProps = state => {
             score += Object.values(action.score).reduce((a, b) => a + b, 0);
         })
     }
-    //const sumScore = scoredActions.length !== 0 ? scoredActions.reduce((a, b) => a + sumOfArrEl(Object.values(b.scores)), 0) : 0;
     return {
         totalScore: score,
     }

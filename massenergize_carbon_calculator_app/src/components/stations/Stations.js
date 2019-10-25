@@ -1,6 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { fetchStations } from '../../actions';
 import PropTypes from 'prop-types';
 import StationItem from './StationItem';
 import { withStyles } from '@material-ui/core/styles';
@@ -45,9 +43,6 @@ function tabProps(index) {
 
 class Station extends React.Component {
     state = { value: 0 };
-    componentDidMount() {
-        this.props.fetchStations();
-    }
 
     onChangeHandler(e, newValue) {
         this.setState({ value: newValue });
@@ -56,10 +51,12 @@ class Station extends React.Component {
     renderStationTabs() {
         let idx = 0;
         return this.props.stations.map(station => {
-            const { stationsDisplay } = this.props;
-            const stationDisplayName = stationsDisplay.filter(stationName => stationName.name === station)
+            if (station.name === 'Welcome_1')
+                return (
+                    <Tab label={station.displayname} {...tabProps(idx++)} />
+                );
             return (
-                <Tab key={station} label={stationDisplayName[0].displayname} {...tabProps(idx++)} />
+                <Tab icon={<img src={station.icon} style={{ width: '3vh' }} />} label={station.displayname} {...tabProps(idx++)} />
             );
         });
     }
@@ -68,7 +65,7 @@ class Station extends React.Component {
         let idx = 0;
         return this.props.stations.map(station => {
             return (
-                <TabPanel key={station} value={this.state.value} index={idx++}>
+                <TabPanel value={this.state.value} index={idx++}>
                     <Paper>
                         <StationItem value={this.state.value} station={station} />
                     </Paper>
@@ -79,7 +76,7 @@ class Station extends React.Component {
 
     render() {
         const { classes } = this.props;
-        if (this.props.stationsDisplay.length === 0) return <CircularProgress />
+        if (!this.props.stations) return <CircularProgress />
         return (
             <div className={classes.root} style={{ height: 'auto' }}>
                 <AppBar position="relative" color="default">
@@ -100,14 +97,8 @@ class Station extends React.Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        stationsDisplay: Object.values(state.stationInfo),
-    }
-}
-
 Station.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default connect(mapStateToProps, { fetchStations })(withStyles(styles)(Station));
+export default withStyles(styles)(Station);

@@ -8,28 +8,19 @@ import Typography from '@material-ui/core/Typography'
 
 
 class StationItems extends React.Component {
-    componentDidMount() {
-        this.props.fetchStation(this.props.station);
-    }
 
     render() {
-        const { stationInfo } = this.props;
-        if (!stationInfo)
+        const { station } = this.props;
+        if (!station)
             return <CircularProgress />;
         return (
             <div style={{ padding: '16px 16px' }}>
-                <Typography variant="h4">{stationInfo.displayname}</Typography>
-                <Typography>{stationInfo.description}</Typography>
-                <ActionList actions={stationInfo.actions} />
+                <Typography variant="h4">{station.displayname}</Typography>
+                <Typography>{station.description}</Typography>
+                <ActionList actions={station.actions} />
             </div>
         );
     }
 }
 
-const mapStateToProps = (state, ownProps) => {
-    return {
-        stationInfo: state.stationInfo[ownProps.station],
-    }
-}
-
-export default connect(mapStateToProps, { fetchStation })(StationItems);
+export default StationItems;
