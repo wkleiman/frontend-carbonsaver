@@ -17,10 +17,10 @@ class FBAuth extends React.Component {
         }
     }
     signIn = () => {
-        window.FB.login(response => this.props.signIn(response.authResponse.userID));
-    }
-    signOut = () => {
-        window.FB.logout(() => this.props.signOut());
+        window.FB.login(response => {
+            if (response.status === 'connected')
+                this.props.signIn(response.authResponse.userID, "Facebook")
+        });
     }
     render() {
         if (this.props.isSignedIn === null) return <CircularProgress />
@@ -30,7 +30,7 @@ class FBAuth extends React.Component {
             );
         }
         else {
-            return <Button onClick={this.signIn}><i class="fa fa-facebook-square" />Continue with Facebook</Button>
+            return <Button onClick={this.signIn}><i className="fa fa-facebook-square" />Continue with Facebook</Button>
         }
     }
 }

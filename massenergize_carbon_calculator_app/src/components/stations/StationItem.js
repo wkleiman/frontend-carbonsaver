@@ -1,6 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { fetchStation } from '../../actions';
 import ActionList from '../actions/actionList';
 import { CircularProgress } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography'

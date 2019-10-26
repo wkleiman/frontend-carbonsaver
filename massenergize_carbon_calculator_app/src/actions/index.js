@@ -24,10 +24,13 @@ export const questionAnswered = (actionName, questionTag, answer, skipQs) => dis
     })
 }
 
-export const signIn = userId => {
+export const signIn = (userId, method) => {
     return {
         type: types.SIGN_IN,
-        payload: userId
+        payload: {
+            userId,
+            method
+        }
     };
 };
 

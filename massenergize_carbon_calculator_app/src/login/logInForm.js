@@ -1,9 +1,16 @@
 import React from 'react';
 import FBAuth from './FBAuth';
+import GoogleAuth from './GoogleAuth';
 
 class LogInForm extends React.Component {
     render() {
-        return <FBAuth />
+        return (
+            <div>
+                <FBAuth />
+                <GoogleAuth />
+            </div>
+
+        );
     }
 }
 

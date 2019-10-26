@@ -58,7 +58,7 @@ class EventList extends React.Component {
                         <Link className={classes.link} to={`/event/${event.name}`}>
                             <Paper className={classes.paperContainer}>
                                 <Grid container direction="row" spacing={2}>
-                                    <Grid item xs={2} direction="column" alignItems="center">
+                                    <Grid item xs={2} container direction="column" alignItems="center">
                                         <Grid item><Typography >{months[date.getMonth()]}</Typography></Grid>
                                         <Grid item ><Typography variant="h5">{date.getDate()}</Typography></Grid>
                                     </Grid>

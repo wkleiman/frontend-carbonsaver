@@ -7,6 +7,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import AppBar from '@material-ui/core/AppBar';
+import Icon from '@material-ui/core/Icon';
 import { CircularProgress } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 
@@ -16,6 +17,9 @@ const styles = theme => ({
         flexGrow: 1,
         width: '100%'
     },
+    stationIcon: {
+        width: '3vh',
+    }
 });
 
 const TabPanel = (props) => {
@@ -50,13 +54,14 @@ class Station extends React.Component {
 
     renderStationTabs() {
         let idx = 0;
+        const { classes } = this.props;
         return this.props.stations.map(station => {
             if (station.name === 'Welcome_1')
                 return (
                     <Tab label={station.displayname} {...tabProps(idx++)} />
                 );
             return (
-                <Tab icon={<img src={station.icon} style={{ width: '3vh' }} />} label={station.displayname} {...tabProps(idx++)} />
+                <Tab icon={<img className={classes.stationIcon} src={station.icon} />} label={station.displayname} {...tabProps(idx++)} />
             );
         });
     }
@@ -75,11 +80,11 @@ class Station extends React.Component {
     }
 
     render() {
-        const { classes } = this.props;
-        if (!this.props.stations) return <CircularProgress />
+        const { classes, stations } = this.props;
+        if (!stations) return <CircularProgress />
         return (
             <div className={classes.root} style={{ height: 'auto' }}>
-                <AppBar position="relative" color="default">
+                <AppBar position="relative" style={{ backgroundColor: '#8dc63f', color: '#fff' }}>
                     <Tabs
                         variant="scrollable"
                         value={this.state.value}

@@ -35,6 +35,11 @@ const style = {
     },
     host_sponsor: {
         padding: '2vh 2vh',
+    },
+    title: {
+        fontWeight: 'bold',
+        color: '#fa4a21',
+
     }
 }
 
@@ -69,10 +74,18 @@ class EventItem extends React.Component {
             <Paper className={classes.root}>
                 <Grid container spacing={2}>
                     <Grid container item direction="column" className={classes.eventDetails}>
-                        <Grid item ><Typography variant="h3">{event.displayname}</Typography></Grid>
-                        <Grid item container direction="column">
-                            <Grid item ><Typography><LocationOnIcon />{event.location}</Typography></Grid>
-                            <Grid item ><Typography><ScheduleIcon />{`${week[eventDate.getDay()]}, ${months[eventDate.getMonth()]} ${eventDate.getDate()}, ${eventDate.getHours() % 12} ${eventDate.getHours() > 12 ? "PM" : "AM"}`}</Typography></Grid>
+                        <Grid item ><Typography variant="h3" className={classes.title}>{event.displayname.toUpperCase()}</Typography></Grid>
+                        <Grid item container direction="column" alignItems="center" justify="center">
+                            <Grid item container direction="column" style={{ width: '300px' }} justify="flex-start" alignItems="flex-start">
+                                <Grid item container xs={12} justify="center" alignItems="center">
+                                    <Grid item><LocationOnIcon style={{ color: '#8dc63f' }} /></Grid>
+                                    <Grid item><Typography>{event.location}</Typography></Grid>
+                                    <Grid item container xs={12} justify="center" alignItems="center">
+                                        <Grid item><ScheduleIcon style={{ color: '#8dc63f' }} /></Grid>
+                                        <Grid item><Typography>{`${week[eventDate.getDay()]}, ${months[eventDate.getMonth()]} ${eventDate.getDate()}, ${eventDate.getHours() % 12} ${eventDate.getHours() > 12 ? "PM" : "AM"}`}</Typography></Grid>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
                         </Grid>
                     </Grid>
                     <Grid item xs={12} ><Score /></Grid>
@@ -85,7 +98,7 @@ class EventItem extends React.Component {
                         </Grid>
                         <Grid item container xs={12} md={4} direction="column" spacing={2} className={classes.host_sponsor}>
                             <Grid item >
-                                <Grid item container><Typography variant="h5">About the Host</Typography></Grid>
+                                <Grid item container><Typography className={classes.title} style={{ color: '#8dc63f' }} variant="h5">About the Host</Typography></Grid>
                                 <Grid item container direction="column">
                                     <Grid item container direction="row">
                                         <Card>
@@ -112,7 +125,7 @@ class EventItem extends React.Component {
                                 </Grid>
                             </Grid>
                             <Grid item>
-                                <Grid item container><Typography variant="h5">Sponsors</Typography></Grid>
+                                <Grid item container><Typography className={classes.title} style={{ color: '#8dc63f' }} variant="h5">Sponsors</Typography></Grid>
                                 <Grid item container direction="column">
                                     <Grid item container direction="row">
                                         <Card>
