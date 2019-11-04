@@ -1,9 +1,9 @@
 import React from 'react';
 import '../style/App.css';
 import Header from './header';
-import EventList from './events/EventList';
 import EventItem from './events/EventItem';
-import LogInForm from '../login/logInForm';
+import SignUpPage from './auth/SignUpPage';
+import LogInPage from './auth/logInPage';
 import Grid from '@material-ui/core/Grid';
 import { Router, Route, Switch } from 'react-router-dom';
 import history from '../history';
@@ -19,9 +19,9 @@ class App extends React.Component {
               <Grid item xs={12}><Header /></Grid>
               <Grid item xs={12} >
                 <Switch>
-                  <Route path="/" exact component={EventList} />
                   <Route path="/event/:name" exact component={EventItem} />
-                  <Route path="/login" exact component={LogInForm} />
+                  <Route path="/login" exact component={LogInPage} />
+                  <Route path="/signup" exact component={SignUpPage} />
                 </Switch>
               </Grid>
             </Grid>

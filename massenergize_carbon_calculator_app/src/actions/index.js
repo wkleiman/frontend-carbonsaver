@@ -6,33 +6,17 @@ import api from '../api/massEnergize';
 
 //     dispatch({ type: SIGN_IN, payload: response.data });
 // }
-export const questionAnswered = (actionName, questionTag, answer, skipQs) => dispatch => {
+export const questionAnswered = (actionName, questionTag, answer, skip) => dispatch => {
     dispatch({
         type: types.QUESTION_ANSWERED,
         payload: {
             actionName,
-            question: questionTag,
+            questionTag,
             answer,
+            skip
         }
     });
-    dispatch({
-        type: types.SKIP,
-        payload: {
-            question: questionTag,
-            skipTags: skipQs,
-        }
-    })
 }
-
-export const signIn = (userId, method) => {
-    return {
-        type: types.SIGN_IN,
-        payload: {
-            userId,
-            method
-        }
-    };
-};
 
 export const signOut = () => {
     return {
@@ -53,4 +37,10 @@ export const fetchEvent = id => async dispatch => {
 export const getScore = (actionName, params) => async dispatch => {
     const response = await api.get(`/cc/estimate/${actionName}`, { params: { ...params } });
     dispatch({ type: types.GET_SCORE, payload: { response: response.data, actionType: actionName } });
+}
+
+
+export const signIn = (email) => async dispatch => {
+    const response = await api.get(`/v2/e/${email}`);
+    dispatch({ type: types.SIGN_IN, payload: response.data });
 }

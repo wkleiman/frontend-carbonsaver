@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import StationItem from './StationItem';
-import { withStyles } from '@material-ui/core/styles';
+import ActionItems from '../actions/actionItems';
+import _ from 'lodash';
+
+import { makeStyles } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import AppBar from '@material-ui/core/AppBar';
-import Icon from '@material-ui/core/Icon';
-import { CircularProgress } from '@material-ui/core';
+
 import Paper from '@material-ui/core/Paper';
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
     root: {
         backgroundColor: theme.palette.background.paper,
         flexGrow: 1,
@@ -20,12 +21,13 @@ const styles = theme => ({
     stationIcon: {
         width: '3vh',
     }
-});
+}));
 
 const TabPanel = (props) => {
     const { children, value, index, ...other } = props;
 
-    return (
+    return (value === index && (
+
         <Typography
             component="div"
             role="tabpanel"
@@ -36,7 +38,7 @@ const TabPanel = (props) => {
         >
             <Box>{children}</Box>
         </Typography>
-    );
+    ));
 }
 function tabProps(index) {
     return {
@@ -45,65 +47,76 @@ function tabProps(index) {
     };
 }
 
-class Station extends React.Component {
-    state = { value: 0 };
+const Stations = props => {
 
-    onChangeHandler(e, newValue) {
-        this.setState({ value: newValue });
+    const [value, setValue] = useState(0);
+    const { stations } = props;
+
+    const onChangeHandler = (e, newValue) => {
+        setValue(newValue);
     }
 
-    renderStationTabs() {
-        let idx = 0;
-        const { classes } = this.props;
-        return this.props.stations.map(station => {
-            if (station.name === 'Welcome_1')
-                return (
-                    <Tab label={station.displayname} {...tabProps(idx++)} />
-                );
+    const renderStationTabs = () => {
+        let idx = 1;
+        return _.tail(stations).map(station => {
             return (
-                <Tab icon={<img className={classes.stationIcon} src={station.icon} />} label={station.displayname} {...tabProps(idx++)} />
+                <Tab key={`${station.name}tab`} icon={<img className={classes.stationIcon} src={station.icon} />} label={station.displayname} {...tabProps(idx++)} />
             );
         });
     }
 
-    renderStationItemList() {
-        let idx = 0;
-        return this.props.stations.map(station => {
+
+    const renderActionList = (actions, station) => {
+        const res = actions.map(action => {
             return (
-                <TabPanel value={this.state.value} index={idx++}>
+                <ActionItems key={`${action.name}${station}`} action={action} />
+            );
+        })
+        return res;
+    }
+
+    const renderStationItemList = () => {
+        let idx = 1;
+        return _.tail(stations).map(station => {
+            return (
+                <TabPanel key={station.name} value={value} index={idx++}>
                     <Paper>
-                        <StationItem value={this.state.value} station={station} />
+                        <div style={{ padding: '16px 16px' }}>
+                            <Typography variant="h4">{station.displayname}</Typography>
+                            <Typography>{station.description}</Typography>
+                            {renderActionList(station.actions, station.name)}
+                        </div>
                     </Paper>
                 </TabPanel>
             );
         })
     }
-
-    render() {
-        const { classes, stations } = this.props;
-        if (!stations) return <CircularProgress />
-        return (
-            <div className={classes.root} style={{ height: 'auto' }}>
-                <AppBar position="relative" style={{ backgroundColor: '#8dc63f', color: '#fff' }}>
-                    <Tabs
-                        variant="scrollable"
-                        value={this.state.value}
-                        indicatorColor="primary"
-                        scrollButtons="auto"
-                        onChange={(e, newValue) => this.onChangeHandler(e, newValue)}
-                        aria-label="vertical tab"
-                    >
-                        {this.renderStationTabs()}
-                    </Tabs>
-                </AppBar>
-                {this.renderStationItemList()}
-            </div>
-        );
-    }
+    const classes = useStyles();
+    return (
+        <div className={classes.root} style={{ height: 'auto' }}>
+            <AppBar position="relative" style={{ backgroundColor: '#8dc63f', color: '#fff' }}>
+                <Tabs
+                    variant="scrollable"
+                    value={value}
+                    indicatorColor="primary"
+                    scrollButtons="auto"
+                    onChange={onChangeHandler}
+                    aria-label="vertical tab"
+                >
+                    <Tab key={`Welcome_1tab`} label={"Welcome"} {...tabProps(0)} />
+                    {renderStationTabs()}
+                </Tabs>
+            </AppBar>
+            <TabPanel key={stations[0].name} value={value} index={0}>
+                <Paper style={{ padding: '16px 16px' }}>
+                    <Typography variant="h4">{stations[0].displayname}</Typography>
+                    <Typography>{stations[0].description}</Typography>
+                    {renderActionList(stations[0].actions, stations[0].name)}
+                </Paper>
+            </TabPanel>
+            {renderStationItemList()}
+        </div>
+    );
 }
 
-Station.propTypes = {
-    classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(Station);
+export default Stations;

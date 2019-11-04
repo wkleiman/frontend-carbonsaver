@@ -1,11 +1,12 @@
-import { answeredReducer, skipReducer } from './answeredReducer';
+import { answeredReducer } from './answeredReducer';
 import eventsReducer from './eventsReducer';
 import authReducer from './authReducer';
 import { combineReducers } from 'redux';
+import { firebaseReducer } from 'react-redux-firebase'
 
 export default combineReducers({
+    firebase: firebaseReducer,
     answered: answeredReducer,
-    events: eventsReducer,
-    skip: skipReducer,
+    event: eventsReducer,
     auth: authReducer
 })
