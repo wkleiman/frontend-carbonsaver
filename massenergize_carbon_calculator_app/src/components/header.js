@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { signOut } from '../actions';
+import { signIn, signOut } from '../actions';
+import { withFirebase } from 'react-redux-firebase';
 import Logo from '../style/images/Logo.jpg';
+
 import { AppBar, Typography, Toolbar, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
@@ -92,7 +94,20 @@ const MyButton = withStyles({
 })(Button);
 
 class Header extends React.Component {
-    state = { left: false, };
+    state = { left: false, isSignedIn: false };
+    componentDidMount() {
+        if (this.props.firebase) {
+            this.props.firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    this.setState({ isSignedIn: true });
+                    this.props.signIn(user);
+                } else {
+                    this.setState({ isSignedIn: false });
+                    this.props.signOut();
+                }
+            })
+        }
+    }
 
     toggleDrawer = (open) => (e) => {
         if (e.type === 'keydown' && (e.key === 'Tab' || e.key === 'Shift')) {
@@ -121,20 +136,10 @@ class Header extends React.Component {
     }
 
     onSignOutClick = () => {
-        const { auth } = this.props;
-        switch (auth.method) {
-            case "Google":
-                {
-                    window.gapi.auth2.getAuthInstance().signOut();
-                }
-            case "Facebook":
-                {
-                    window.FB.logout(() => this.props.signOut());
-                }
-        }
-        this.props.signOut();
+        this.props.firebase.auth().signOut().then(() => {
+            this.props.signOut();
+        })
     };
-
 
     render() {
         const { classes, auth } = this.props;
@@ -149,7 +154,7 @@ class Header extends React.Component {
                             {this.sideList()}
                         </Drawer>
                         <Typography variant="h6" className={classes.logo}><Link to="/"><img src={Logo} alt="MassEnergize banner" /></Link></Typography>
-                        {!auth.isSignedIn ? <Link className={classes.link} to="/login" ><MyButton >Sign In</MyButton></Link> : <MyButton onClick={this.onSignOutClick}>Sign Out</MyButton>}
+                        {!this.state.isSignedIn ? <Link className={classes.link} to="/login" ><MyButton >Sign In</MyButton></Link> : <MyButton onClick={this.onSignOutClick}>Sign Out</MyButton>}
                     </Toolbar>
                 </AppBar>
             </div >
@@ -164,4 +169,4 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps, { signOut })(withStyles(useStyles)(Header));
+export default connect(mapStateToProps, { signIn, signOut })(withFirebase(withStyles(useStyles)(Header)));

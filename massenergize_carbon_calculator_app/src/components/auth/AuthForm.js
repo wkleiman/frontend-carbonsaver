@@ -1,4 +1,5 @@
 import React from 'react';
+import history from '../../history';
 import { Fields, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { withFirebase } from 'react-redux-firebase';
@@ -6,28 +7,13 @@ import { Link, Redirect } from 'react-router-dom';
 
 import { signIn } from '../../actions';
 import { facebookProvider, googleProvider } from './firebaseConfig';
-import { CircularProgress, Typography, Button } from '@material-ui/core';
+import { Grid, Typography, Button } from '@material-ui/core';
 
 /* Modal config */
-const INITIAL_STATE = {
-    email: '',
-    passwordOne: '',
-    passwordTwo: '',
-
-    firstName: '',
-    lastName: '',
-    preferredName: '',
-    serviceProvider: false,
-    termsAndServices: false,
-    showTOSError: false,
-    showTOS: false,
-    error: null,
-};
 
 class AuthForm extends React.Component {
     state = {
-        ...INITIAL_STATE,
-        persistence: this.props.firebase.auth.Auth.Persistence.SESSION,
+        error: '',
     }
 
     render() {
@@ -44,14 +30,20 @@ class AuthForm extends React.Component {
         );
     }
     renderPage = () => {
+        const googleSignIn = (this.props.otherOptionBtnText && this.props.otherOptionQuestion) && <Grid item><Button onClick={this.signInWithFacebook} id="facebook" className="img-circle facebook"><span className="fa fa-facebook-f"> Continue with Facebook</span></Button></Grid>;
+        const facebookSignIn = (this.props.otherOptionBtnText && this.props.otherOptionQuestion) && <Grid item><Button onClick={this.signInWithGoogle} id="google" className="img-circle google"><span className="fa fa-google"> Continue with Google</span></Button></Grid>;
+        const otherOpt = (this.props.otherOptionBtnText && this.props.otherOptionQuestion) && <Grid item><Typography>{this.props.otherOptionQuestion} <Link to={this.props.otherOptRoute}>{this.props.otherOptionBtnText}</Link></Typography></Grid>;
         return (
-            <form onSubmit={this.props.handleSubmit(this.onFormSubmit)}>
-                <Typography variant="h3">{this.props.title}</Typography>
-                <Fields names={this.props.fieldNames} component={this.props.renderFields} />
-                <Button type="submit" >{this.props.btnText}</Button>
-                <Button onClick={this.signInWithFacebook} id="facebook" className="img-circle facebook"><span className="fa fa-facebook-f"> Continue with Facebook</span></Button>
-                <Button onClick={this.signInWithGoogle} id="google" className="img-circle google"><span className="fa fa-google"> Continue with Google</span></Button>
-                <Typography>{this.props.otherOptionQuestion} <Link to={this.props.otherOptRoute}>{this.props.otherOptionBtnText}</Link></Typography>
+            <form onSubmit={this.props.handleSubmit(this.props.onFormSubmit)}>
+                <Grid container direction="column">
+                    <Grid item><Typography variant="h3">{this.props.title}</Typography></Grid>
+                    <Grid item><Fields names={this.props.fieldNames} component={this.props.renderFields} /></Grid>
+                    <Grid item><Button type="submit" >{this.props.btnText}</Button></Grid>
+                    {this.state.error && <Typography variant="h4">{this.state.error}</Typography>}
+                    {googleSignIn}
+                    {facebookSignIn}
+                    {otherOpt}
+                </Grid>
             </form>
         );
     }
@@ -94,15 +86,15 @@ class AuthForm extends React.Component {
     //KNOWN BUG : LOGGING IN WITH GOOGLE WILL DELETE ANY ACCOUNT WITH THE SAME PASSWORD: 
     //WOULD NOT DELETE DATA I THINK?
     signInWithGoogle = () => {
-
         this.props.firebase.auth().setPersistence(this.props.firebase.auth.Auth.Persistence.SESSION).then(() => {
             this.props.firebase.auth()
                 .signInWithPopup(googleProvider)
                 .then(auth => {
                     this.props.signIn(auth.user.email);
+                    history.push(`/event/CC_Event_1`);
                 })
                 .catch(err => {
-                    console.log(err);
+                    this.setState({ error: err.message });
                 });
         });
 
@@ -125,27 +117,34 @@ class AuthForm extends React.Component {
 const mapStoreToProps = (state) => {
     return {
         auth: state.firebase.auth,
+        event: state.event.CC_Event_1
     }
 }
 
 const validate = (formValues) => {
-    const erorrs = {};
+    const errors = {};
 
     if (!formValues.email) {
-        erorrs.email = 'You Must Enter an Email';
+        errors.email = 'You Must Enter an Email';
     }
 
     if (!formValues.password) {
-        erorrs.email = 'You Must Enter an Email';
+        errors.password = 'You Must Enter an Email';
     }
 
     if (!formValues.passwordOne) {
-        erorrs.email = 'You Must Enter an Email';
+        errors.passwordOne = 'You Must Enter an Email';
+    }
+
+    if (!formValues.passwordTwo) {
+        errors.passwordTwo = 'You Must Confirm Your Password'
     }
 
     if (formValues.passwordTwo !== formValues.passwordOne) {
-        erorrs.email = 'The Password You Enter Is Not Match';
+        errors.passwordTwo = 'The Password You Enter Is Not Match';
     }
+
+    return errors;
 }
 export default connect(mapStoreToProps, { signIn })(reduxForm({
     form: 'authForm',

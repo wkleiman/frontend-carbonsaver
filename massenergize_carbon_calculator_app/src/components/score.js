@@ -1,10 +1,12 @@
 import React from 'react'
 import { connect } from 'react-redux';
 
+import Typography from '@material-ui/core/Typography';
+
 class Score extends React.Component {
     render() {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center' }}> Score: {this.props.totalScore} </div>
+            <Typography variant="h4" style={{ fontWeight: 'bold', display: 'flex', justifyContent: 'center' }}>Total Score: {this.props.totalScore} </Typography>
         );
     }
 }
@@ -15,7 +17,9 @@ const mapStateToProps = state => {
     if (actions.length === 0) score = 0;
     else if (actions.length !== 0) {
         actions.forEach(action => {
-            score += Object.values(action.score).reduce((a, b) => a + b, 0);
+            let actionScore = Object.values(action.score);
+            actionScore.pop();
+            score += actionScore.reduce((a, b) => a + b, 0);
         })
     }
     return {

@@ -34,13 +34,23 @@ export const fetchEvent = id => async dispatch => {
     dispatch({ type: types.FETCH_EVENT, payload: response.data });
 }
 
-export const getScore = (actionName, params) => async dispatch => {
-    const response = await api.get(`/cc/estimate/${actionName}`, { params: { ...params } });
-    dispatch({ type: types.GET_SCORE, payload: { response: response.data, actionType: actionName } });
+export const getScore = (userId, actionName, params) => async dispatch => {
+    if (!userId) {
+        const response = await api.get(`/cc/estimate/${actionName}`, { params: { ...params } });
+        dispatch({ type: types.GET_SCORE, payload: { response: response.data, actionType: actionName } });
+    } else {
+        const csrfResponse = await api.get(`/auth/csrf`);
+        const { csrfToken } = csrfResponse.data;
+        const response = await api.post(`/cc/estimate/${actionName}`, { params: { ...params }, headers: { "X-CSRFToken": csrfToken } })
+        dispatch({ type: types.GET_SCORE, payload: { response: response.data, actionType: actionName } });
+    }
+
 }
 
 
-export const signIn = (email) => async dispatch => {
-    const response = await api.get(`/v2/e/${email}`);
-    dispatch({ type: types.SIGN_IN, payload: response.data });
+export const signIn = (user) => {
+    return {
+        type: types.SIGN_IN,
+        payload: { userId: user.uid, }
+    }
 }

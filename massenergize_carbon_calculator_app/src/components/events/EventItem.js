@@ -1,15 +1,18 @@
 //React and Redux Component
 import React from 'react';
 import { connect } from 'react-redux';
+import { withFirebase } from 'react-redux-firebase';
 import { fetchEvent } from '../../actions';
+import { signIn } from '../../actions';
 import Score from '../score';
 import Station from '../stations/Stations';
+import history from '../../history';
 
 //Styling Components
 import Paper from '@material-ui/core/Paper';
+import AppBar from '@material-ui/core/AppBar';
+import useScrollTrigger from '@material-ui/core/useScrollTrigger';
 import { withStyles } from '@material-ui/core/styles';
-import LocationOnIcon from '@material-ui/icons/LocationOn';
-import ScheduleIcon from '@material-ui/icons/Schedule';
 import EmailIcon from '@material-ui/icons/Email';
 import PhoneIcon from '@material-ui/icons/Phone';
 import { Card, CardActionArea, CardContent, CardMedia, CircularProgress, Typography, } from '@material-ui/core';
@@ -43,8 +46,36 @@ const style = {
     }
 }
 
+function ElevationScroll(props) {
+    const { children, window } = props;
+    // const [scrollTarget, setScrollTarget] = useState(undefined)
+    // const scrollTrigger = useScrollTrigger({ target: scrollTarget });
+    console.log(window ? window() : null)
+    // Note that you normally won't need to set the window ref as useScrollTrigger
+    // will default to window.
+    // This is only being set here because the demo is in an iframe.
+    const trigger = useScrollTrigger({
+        disableHysteresis: true,
+        threshold: 0,
+        target: window ? window() : undefined,
+    });
+
+    return React.cloneElement(children, {
+        elevation: trigger ? 4 : 0,
+    });
+}
+
+
+
 class EventItem extends React.Component {
     componentDidMount() {
+        if (this.props.firebase) {
+            this.props.firebase.auth().onAuthStateChanged(user => {
+                if (!user) {
+                    history.push('/login')
+                }
+            })
+        }
         this.props.fetchEvent(this.props.match.params.name);
     }
     renderHost() {
@@ -110,8 +141,7 @@ class EventItem extends React.Component {
 
     render() {
         const { event, classes } = this.props;
-        const week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
         if (!event) {
             return (
                 <Grid container alignItems="center" justify="center">
@@ -119,39 +149,24 @@ class EventItem extends React.Component {
                 </Grid>
             );
         }
-        const eventDate = new Date(event.datetime);
+
         return (
             <Paper className={classes.root}>
                 <Grid container spacing={2}>
-                    <Grid container item direction="column" className={classes.eventDetails}>
-                        <Grid item ><Typography variant="h3" className={classes.title}>{event.displayname.toUpperCase()}</Typography></Grid>
-                        <Grid item container direction="column" alignItems="center" justify="center">
-                            <Grid item container direction="column" style={{ width: '300px' }} justify="flex-start" alignItems="flex-start">
-                                <Grid item container xs={12} justify="center" alignItems="center">
-                                    <Grid item><LocationOnIcon style={{ color: '#8dc63f' }} /></Grid>
-                                    <Grid item><Typography>{event.location}</Typography></Grid>
-                                    <Grid item container xs={12} justify="center" alignItems="center">
-                                        <Grid item><ScheduleIcon style={{ color: '#8dc63f' }} /></Grid>
-                                        <Grid item><Typography>{`${week[eventDate.getDay()]}, ${months[eventDate.getMonth()]} ${eventDate.getDate()}, ${eventDate.getHours() % 12} ${eventDate.getHours() > 12 ? "PM" : "AM"}`}</Typography></Grid>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                    <Grid item xs={12} ><Score /></Grid>
                     <Grid item container xs={12}>
                         <Grid item container xs={12} md={8} direction="column">
-                            <Grid item container>
-                                <Station stations={event.stations} />
+                            <Grid container item>
+                                <Station event={event} stations={event.stations} />
                             </Grid>
                         </Grid>
+                        <Grid item xs={12} ><Score /></Grid>
                         <Grid item container xs={12} md={4} direction="column" spacing={2} className={classes.host_sponsor}>
                             {this.renderHost()}
                             {this.renderSponsor()}
                         </Grid>
                     </Grid>
                 </Grid>
-            </Paper>
+            </Paper >
         );
     }
 }
@@ -161,4 +176,4 @@ const mapStateToProps = (state, ownProps) => {
     };
 }
 
-export default connect(mapStateToProps, { fetchEvent })(withStyles(style)(EventItem));
+export default connect(mapStateToProps, { fetchEvent, signIn })(withStyles(style)(withFirebase(EventItem)));

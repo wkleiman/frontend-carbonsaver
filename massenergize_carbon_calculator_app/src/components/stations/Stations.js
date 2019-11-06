@@ -8,19 +8,46 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
-import AppBar from '@material-ui/core/AppBar';
-
+import Grid from '@material-ui/core/Grid';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
+import ScheduleIcon from '@material-ui/icons/Schedule';
+import { useTheme } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Paper from '@material-ui/core/Paper';
 
 const useStyles = makeStyles(theme => ({
-    root: {
+    rootHorizontal: {
         backgroundColor: theme.palette.background.paper,
         flexGrow: 1,
-        width: '100%'
+        width: '100%',
+        height: 'auto'
     },
     stationIcon: {
         width: '3vh',
-    }
+    },
+    tabs: {
+        backgroundColor: '#8dc63f',
+        color: '#fff',
+    },
+    rootVertical: {
+        backgroundColor: theme.palette.background.paper,
+        display: 'flex',
+        flexGrow: 1,
+        width: '100%',
+    },
+    station: {
+        width: '150vh',
+    },
+    indicator: {
+        backgroundColor: 'red'
+    },
+    title: {
+        fontWeight: 'bold',
+        color: '#fa4a21',
+    },
+    eventDetails: {
+        textAlign: 'center',
+    },
 }));
 
 const TabPanel = (props) => {
@@ -50,7 +77,14 @@ function tabProps(index) {
 const Stations = props => {
 
     const [value, setValue] = useState(0);
-    const { stations } = props;
+    const { stations, event } = props;
+    const theme = useTheme();
+    const phone = useMediaQuery(theme.breakpoints.up('sm'));
+    const tablet = useMediaQuery(theme.breakpoints.between('sm', 'md'))
+    const week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const eventDate = new Date(event.datetime);
+    const classes = useStyles();
 
     const onChangeHandler = (e, newValue) => {
         setValue(newValue);
@@ -79,7 +113,7 @@ const Stations = props => {
         let idx = 1;
         return _.tail(stations).map(station => {
             return (
-                <TabPanel key={station.name} value={value} index={idx++}>
+                <TabPanel className={tablet ? classes.station : null} key={station.name} value={value} index={idx++}>
                     <Paper>
                         <div style={{ padding: '16px 16px' }}>
                             <Typography variant="h4">{station.displayname}</Typography>
@@ -91,31 +125,46 @@ const Stations = props => {
             );
         })
     }
-    const classes = useStyles();
     return (
-        <div className={classes.root} style={{ height: 'auto' }}>
-            <AppBar position="relative" style={{ backgroundColor: '#8dc63f', color: '#fff' }}>
-                <Tabs
-                    variant="scrollable"
-                    value={value}
-                    indicatorColor="primary"
-                    scrollButtons="auto"
-                    onChange={onChangeHandler}
-                    aria-label="vertical tab"
-                >
-                    <Tab key={`Welcome_1tab`} label={"Welcome"} {...tabProps(0)} />
-                    {renderStationTabs()}
-                </Tabs>
-            </AppBar>
-            <TabPanel key={stations[0].name} value={value} index={0}>
+        <div className={(phone) ? classes.rootVertical : classes.rootHorizontal}>
+            <Tabs
+                style={(phone) ? { height: '90vh' } : null}
+                className={classes.tabs}
+                orientation={(phone) ? 'vertical' : 'horizontal'}
+                variant="scrollable"
+                value={value}
+                classes={{ indicator: classes.indicator }}
+                scrollButtons="auto"
+                onChange={onChangeHandler}
+                aria-label="vertical tab"
+            >
+                <Tab key={`Welcome_1tab`} label={"Welcome"} {...tabProps(0)} />
+                {renderStationTabs()}
+            </Tabs>
+            <TabPanel className={tablet ? classes.station : null} key={stations[0].name} value={value} index={0}>
                 <Paper style={{ padding: '16px 16px' }}>
-                    <Typography variant="h4">{stations[0].displayname}</Typography>
+                    <Typography variant="h3">{stations[0].displayname}</Typography>
+                    <Grid container direction="column" className={classes.eventDetails}>
+                        <Grid item ><Typography variant="h4" className={classes.title}>{event.displayname.toUpperCase()}</Typography></Grid>
+                        <Grid item container direction="column" alignItems="center" justify="center">
+                            <Grid item container direction="column" style={{ width: '300px' }} justify="flex-start" alignItems="flex-start">
+                                <Grid item container xs={12} justify="center" alignItems="center">
+                                    <Grid item><LocationOnIcon style={{ color: '#8dc63f' }} /></Grid>
+                                    <Grid item><Typography>{event.location}</Typography></Grid>
+                                    <Grid item container xs={12} justify="center" alignItems="center">
+                                        <Grid item><ScheduleIcon style={{ color: '#8dc63f' }} /></Grid>
+                                        <Grid item><Typography>{`${week[eventDate.getDay()]}, ${months[eventDate.getMonth()]} ${eventDate.getDate()}, ${eventDate.getHours() % 12} ${eventDate.getHours() > 12 ? "PM" : "AM"}`}</Typography></Grid>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
                     <Typography>{stations[0].description}</Typography>
                     {renderActionList(stations[0].actions, stations[0].name)}
                 </Paper>
             </TabPanel>
             {renderStationItemList()}
-        </div>
+        </div >
     );
 }
 

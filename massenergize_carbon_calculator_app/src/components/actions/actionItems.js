@@ -5,7 +5,6 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import { questionAnswered, getScore } from '../../actions';
 
-
 //Styling Component
 import List from '@material-ui/core/List';
 import Button from '@material-ui/core/Button';
@@ -19,6 +18,8 @@ import Grid from '@material-ui/core/Grid';
 
 
 class ActionItems extends React.Component {
+
+
     renderQuestionList() {
         const { action } = this.props;
         return (
@@ -34,7 +35,7 @@ class ActionItems extends React.Component {
 
     handleClick = (e) => {
         const { action } = this.props;
-        this.props.getScore(action.name, this.props.answered)
+        this.props.getScore(null, action.name, this.props.answered)
     }
 
     renderActionScore() {
