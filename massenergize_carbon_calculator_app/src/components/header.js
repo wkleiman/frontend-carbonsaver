@@ -103,7 +103,6 @@ class Header extends React.Component {
                     this.props.signIn(user);
                 } else {
                     this.setState({ isSignedIn: false });
-                    this.props.signOut();
                 }
             })
         }

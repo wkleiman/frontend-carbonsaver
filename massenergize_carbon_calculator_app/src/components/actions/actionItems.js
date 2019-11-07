@@ -35,7 +35,9 @@ class ActionItems extends React.Component {
 
     handleClick = (e) => {
         const { action } = this.props;
-        this.props.getScore(null, action.name, this.props.answered)
+        console.log(this.props.auth)
+        // this.props.getScore(this.props.auth.uid);
+        this.props.getScore(null, action.name, this.props.answered);
     }
 
     renderActionScore() {
@@ -90,7 +92,8 @@ const mapStateToProps = (state, ownProps) => {
     return {
         allAnswered: Object.values(allAnswered),
         answered: state.answered[ownProps.action.name],
-        skip: state.answered.skip
+        skip: state.answered.skip,
+        auth: state.auth,
     }
 }
 

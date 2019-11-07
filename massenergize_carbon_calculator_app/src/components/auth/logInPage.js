@@ -1,9 +1,11 @@
 import React from 'react';
+import history from '../../history';
 import { connect } from 'react-redux'
 import { signIn } from '../../actions'
 import AuthForm from './AuthForm';
-import { Grid, TextField, Paper } from '@material-ui/core';
-import history from '../../history';
+
+
+import { Grid, TextField, Paper, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { withFirebase } from 'react-redux-firebase';
 
@@ -36,21 +38,22 @@ class LogInForm extends React.Component {
     normalLogin({ email, password }) {
         let auth = this.props.firebase.auth();
         auth.signInWithEmailAndPassword(email, password).then(res => {
-            auth.currentUser.getIdToken(true).then(idToken => {
-                this.props.signIn(idToken);
-            })
+            let { user } = res;
+            this.props.signIn(user);
+            history.push('/event/CC_Event_1')
         })
             .catch(err => {
                 console.log("Error:", err.message);
-                this.setState({ error: err });
+                this.setState({ error: err.message });
             })
     }
 
     renderFields = (fields) => {
         const { classes } = this.props;
         return (
-            <Grid container>
-                <Grid item>
+            <Grid container style={{ marginTop: '2vh' }} spacing={2}>
+                {this.state.error ? <Typography>{this.state.error}</Typography> : <></>}
+                <Grid item xs={12}>
                     <TextField
                         className={classes.textInput}
                         {...fields.email.input}
@@ -59,7 +62,7 @@ class LogInForm extends React.Component {
                         variant="outlined"
                         required />
                 </Grid>
-                <Grid item>
+                <Grid item xs={12}>
                     <TextField
                         className={classes.textInput}
                         {...fields.password.input}
@@ -75,8 +78,9 @@ class LogInForm extends React.Component {
         this.normalLogin(formValues);
     }
     render() {
+        const { classes } = this.props;
         return (
-            <Paper>
+            <Paper className={classes.container}>
                 <AuthForm
                     title="Sign In"
                     onFormSubmit={this.onSubmit}

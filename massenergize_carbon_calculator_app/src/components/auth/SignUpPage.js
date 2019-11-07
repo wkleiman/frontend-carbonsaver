@@ -26,8 +26,6 @@ class SignUpPage extends React.Component {
         if (this.props.firebase) {
             this.props.firebase.auth().onAuthStateChanged(user => {
                 if (user) {
-                    console.log(user);
-                    this.props.signIn(user);
                     history.push('/event/CC_Event_1');
                 }
             })

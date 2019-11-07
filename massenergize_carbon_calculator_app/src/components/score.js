@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 class Score extends React.Component {
     render() {
         return (
-            <Typography variant="h4" style={{ fontWeight: 'bold', display: 'flex', justifyContent: 'center' }}>Total Score: {this.props.totalScore} </Typography>
+            <Typography variant="h4" style={{ color: '', fontWeight: 'bold', display: 'flex', justifyContent: 'center' }}>Total Score: {this.props.totalScore} </Typography>
         );
     }
 }

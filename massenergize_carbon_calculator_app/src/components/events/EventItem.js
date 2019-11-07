@@ -159,11 +159,11 @@ class EventItem extends React.Component {
                                 <Station event={event} stations={event.stations} />
                             </Grid>
                         </Grid>
-                        <Grid item xs={12} ><Score /></Grid>
                         <Grid item container xs={12} md={4} direction="column" spacing={2} className={classes.host_sponsor}>
                             {this.renderHost()}
                             {this.renderSponsor()}
                         </Grid>
+                        <Grid item xs={12} ><Score /></Grid>
                     </Grid>
                 </Grid>
             </Paper >
