@@ -1,29 +1,60 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { fetchStations } from '../../actions';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import StationItem from './StationItem';
-import { withStyles } from '@material-ui/core/styles';
+import ActionItems from '../actions/actionItems';
+import _ from 'lodash';
+
+import { makeStyles } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
-import AppBar from '@material-ui/core/AppBar';
-import { CircularProgress } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
+import ScheduleIcon from '@material-ui/icons/Schedule';
+import { useTheme } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Paper from '@material-ui/core/Paper';
 
-const styles = theme => ({
-    root: {
+const useStyles = makeStyles(theme => ({
+    rootHorizontal: {
         backgroundColor: theme.palette.background.paper,
         flexGrow: 1,
-        width: '100%'
+        width: '100%',
+        height: 'auto'
     },
-});
+    stationIcon: {
+        width: '3vh',
+    },
+    tabs: {
+        backgroundColor: '#8dc63f',
+        color: '#fff',
+    },
+    rootVertical: {
+        backgroundColor: theme.palette.background.paper,
+        display: 'flex',
+        flexGrow: 1,
+        width: '100%',
+    },
+    station: {
+        width: '150vh',
+    },
+    indicator: {
+        backgroundColor: 'red'
+    },
+    title: {
+        fontWeight: 'bold',
+        color: '#fa4a21',
+    },
+    eventDetails: {
+        textAlign: 'center',
+    },
+}));
 
 const TabPanel = (props) => {
     const { children, value, index, ...other } = props;
 
-    return (
+    return (value === index && (
+
         <Typography
             component="div"
             role="tabpanel"
@@ -34,7 +65,7 @@ const TabPanel = (props) => {
         >
             <Box>{children}</Box>
         </Typography>
-    );
+    ));
 }
 function tabProps(index) {
     return {
@@ -43,71 +74,98 @@ function tabProps(index) {
     };
 }
 
-class Station extends React.Component {
-    state = { value: 0 };
-    componentDidMount() {
-        this.props.fetchStations();
+const Stations = props => {
+
+    const [value, setValue] = useState(0);
+    const { stations, event } = props;
+    const theme = useTheme();
+    const phone = useMediaQuery(theme.breakpoints.up('sm'));
+    const tablet = useMediaQuery(theme.breakpoints.between('sm', 'md'))
+    const week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const eventDate = new Date(event.datetime);
+    const classes = useStyles();
+
+    const onChangeHandler = (e, newValue) => {
+        setValue(newValue);
     }
 
-    onChangeHandler(e, newValue) {
-        this.setState({ value: newValue });
-    }
-
-    renderStationTabs() {
-        let idx = 0;
-        return this.props.stations.map(station => {
-            const { stationsDisplay } = this.props;
-            const stationDisplayName = stationsDisplay.filter(stationName => stationName.name === station)
+    const renderStationTabs = () => {
+        let idx = 1;
+        return _.tail(stations).map(station => {
             return (
-                <Tab key={station} label={stationDisplayName[0].displayname} {...tabProps(idx++)} />
+                <Tab key={`${station.name}tab`} icon={<img className={classes.stationIcon} src={station.icon} />} label={station.displayname} {...tabProps(idx++)} />
             );
         });
     }
 
-    renderStationItemList() {
-        let idx = 0;
-        return this.props.stations.map(station => {
+
+    const renderActionList = (actions, station) => {
+        const res = actions.map(action => {
             return (
-                <TabPanel key={station} value={this.state.value} index={idx++}>
+                <ActionItems key={`${action.name}${station}`} action={action} />
+            );
+        })
+        return res;
+    }
+
+    const renderStationItemList = () => {
+        let idx = 1;
+        return _.tail(stations).map(station => {
+            return (
+                <TabPanel className={tablet ? classes.station : null} key={station.name} value={value} index={idx++}>
                     <Paper>
-                        <StationItem value={this.state.value} station={station} />
+                        <div style={{ padding: '16px 16px' }}>
+                            <Typography variant="h4">{station.displayname}</Typography>
+                            <Typography>{station.description}</Typography>
+                            {renderActionList(station.actions, station.name)}
+                        </div>
                     </Paper>
                 </TabPanel>
             );
         })
     }
-
-    render() {
-        const { classes } = this.props;
-        if (this.props.stationsDisplay.length === 0) return <CircularProgress />
-        return (
-            <div className={classes.root} style={{ height: 'auto' }}>
-                <AppBar position="relative" color="default">
-                    <Tabs
-                        variant="scrollable"
-                        value={this.state.value}
-                        indicatorColor="primary"
-                        scrollButtons="auto"
-                        onChange={(e, newValue) => this.onChangeHandler(e, newValue)}
-                        aria-label="vertical tab"
-                    >
-                        {this.renderStationTabs()}
-                    </Tabs>
-                </AppBar>
-                {this.renderStationItemList()}
-            </div>
-        );
-    }
+    return (
+        <div className={(phone) ? classes.rootVertical : classes.rootHorizontal}>
+            <Tabs
+                style={(phone) ? { height: '90vh' } : null}
+                className={classes.tabs}
+                orientation={(phone) ? 'vertical' : 'horizontal'}
+                variant="scrollable"
+                value={value}
+                classes={{ indicator: classes.indicator }}
+                scrollButtons="auto"
+                onChange={onChangeHandler}
+                aria-label="vertical tab"
+            >
+                <Tab key={`Welcome_1tab`} label={"Welcome"} {...tabProps(0)} />
+                {renderStationTabs()}
+            </Tabs>
+            <TabPanel className={tablet ? classes.station : null} key={stations[0].name} value={value} index={0}>
+                <Paper style={{ padding: '16px 16px' }}>
+                    <Typography variant="h3">{stations[0].displayname}</Typography>
+                    <Grid container direction="column" className={classes.eventDetails}>
+                        <Grid item ><Typography variant="h4" className={classes.title}>{event.displayname.toUpperCase()}</Typography></Grid>
+                        <Grid item container direction="column" alignItems="center" justify="center">
+                            <Grid item container direction="column" style={{ width: '300px' }} justify="flex-start" alignItems="flex-start">
+                                <Grid item container xs={12} justify="center" alignItems="center">
+                                    <Grid item><LocationOnIcon style={{ color: '#8dc63f' }} /></Grid>
+                                    <Grid item><Typography>{event.location}</Typography></Grid>
+                                    <Grid item container xs={12} justify="center" alignItems="center">
+                                        <Grid item><ScheduleIcon style={{ color: '#8dc63f' }} /></Grid>
+                                        <Grid item><Typography>{`${week[eventDate.getDay()]}, ${months[eventDate.getMonth()]} ${eventDate.getDate()}, ${eventDate.getHours() % 12} ${eventDate.getHours() > 12 ? "PM" : "AM"}`}</Typography></Grid>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Typography>{stations[0].description}</Typography>
+                    {renderActionList(stations[0].actions, stations[0].name)}
+                </Paper>
+            </TabPanel>
+            {renderStationItemList()}
+        </div >
+    );
 }
 
-const mapStateToProps = state => {
-    return {
-        stationsDisplay: Object.values(state.stationInfo),
-    }
-}
-
-Station.propTypes = {
-    classes: PropTypes.object.isRequired,
-};
-
-export default connect(mapStateToProps, { fetchStations })(withStyles(styles)(Station));
+export default Stations;

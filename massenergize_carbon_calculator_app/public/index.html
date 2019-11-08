@@ -23,6 +23,7 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
   <script src="https://apis.google.com/js/platform.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <title>Carbon Calculator</title>
 </head>
 
@@ -32,13 +33,10 @@
   window.fbAsyncInit = function() {
     FB.init({
       appId      : '1027499064260681',
-      cookie     : true,
       xfbml      : true,
       version    : 'v4.0'
     });
-      
-    FB.AppEvents.logPageView();   
-      
+    FB.AppEvents.logPageView();
   };
 
   (function(d, s, id){

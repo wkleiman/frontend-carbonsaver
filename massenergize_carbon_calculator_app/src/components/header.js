@@ -1,8 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { signIn, signOut } from '../actions';
+import { withFirebase } from 'react-redux-firebase';
 import Logo from '../style/images/Logo.jpg';
+
 import { AppBar, Typography, Toolbar, Button } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import Drawer from '@material-ui/core/Drawer';
@@ -10,7 +14,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = (theme => ({
     root: {
         flexGrow: 1,
     },
@@ -18,9 +22,15 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: '#fff'
     },
     button: {
+        backgroundColor: 'inherit',
         marginRight: theme.spacing(2),
-        '& a:visited & a:link & a': {
-            textDecoration: 'none'
+        '&:hover': {
+            backgroundColor: '#7aab37',
+            borderColor: '#6d9931',
+            boxShadow: 'none',
+            '& a': {
+                color: '#fff',
+            }
         },
 
     },
@@ -44,54 +54,118 @@ const useStyles = makeStyles(theme => ({
     },
     link: {
         textDecoration: 'none',
+        color: '#8dc63f',
+        fontWeight: 'bold'
     },
 }))
-export default function Header() {
-    const classes = useStyles();
-    const [state, setState] = React.useState({
-        left: false,
-    });
 
-    const toggleDrawer = (open) => event => {
-        if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+const MyButton = withStyles({
+    root: {
+        color: '#fff',
+        boxShadow: 'none',
+        textTransform: 'none',
+        fontSize: 16,
+        padding: '6px 12px',
+        border: '1px solid',
+        lineHeight: 1.5,
+        backgroundColor: '#8dc63f',
+        borderColor: '#8dc63f',
+        fontFamily: [
+            '-apple-system',
+            'BlinkMacSystemFont',
+            '"Segoe UI"',
+            'Roboto',
+            '"Helvetica Neue"',
+            'Arial',
+            'sans-serif',
+            '"Apple Color Emoji"',
+            '"Segoe UI Emoji"',
+            '"Segoe UI Symbol"',
+        ].join(','),
+        '&:hover': {
+            backgroundColor: '#7aab37',
+            borderColor: '#6d9931',
+            boxShadow: 'none',
+        },
+        '&:focus': {
+            boxShadow: '0 0 0 0.2rem rgba(141, 198, 63, .5)',
+        },
+    },
+})(Button);
+
+class Header extends React.Component {
+    state = { left: false, isSignedIn: false };
+    componentDidMount() {
+        if (this.props.firebase) {
+            this.props.firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    this.setState({ isSignedIn: true });
+                    this.props.signIn(user);
+                } else {
+                    this.setState({ isSignedIn: false });
+                }
+            })
+        }
+    }
+
+    toggleDrawer = (open) => (e) => {
+        if (e.type === 'keydown' && (e.key === 'Tab' || e.key === 'Shift')) {
             return;
         }
-
-        setState({ left: open });
+        this.setState({ left: open });
     };
 
-    const sideList = () => (
-        <div
-            className={classes.list}
-            role="presentation"
-            onClick={toggleDrawer(false)}
-            onKeyDown={toggleDrawer(false)}
-        >
-            <List>
-                <ListItem button className={classes.button}><a href="#"><ListItemText primary={'Home'} /></a></ListItem>
-                <ListItem button className={classes.button}><a href="#"><ListItemText primary={'About Us'} /></a></ListItem>
-                <ListItem button className={classes.button}><a href="#"><ListItemText primary={'Communities'} /></a></ListItem>
-                <ListItem button className={classes.button}><a href="#"><ListItemText primary={'Contact Us'} /></a></ListItem>
-            </List>
-        </div>
-    );
+    sideList() {
+        const { classes } = this.props;
+        return (
+            <div
+                className={classes.list}
+                role="presentation"
+                onClick={this.toggleDrawer(false)}
+                onKeyDown={this.toggleDrawer(false)}
+            >
+                <List >
+                    <ListItem button className={classes.button}><a className={classes.link} href="#"><ListItemText primary={'Home'} /></a></ListItem>
+                    <ListItem button className={classes.button}><a className={classes.link} href="#"><ListItemText primary={'About Us'} /></a></ListItem>
+                    <ListItem button className={classes.button}><a className={classes.link} href="#"><ListItemText primary={'Communities'} /></a></ListItem>
+                    <ListItem button className={classes.button}><a className={classes.link} href="#"><ListItemText primary={'Contact Us'} /></a></ListItem>
+                </List>
+            </div>
+        );
+    }
 
+    onSignOutClick = () => {
+        this.props.firebase.auth().signOut().then(() => {
+            this.props.signOut();
+        })
+    };
 
-    return (
-        <div className={classes.root} >
-            <AppBar position="static" className={classes.appBar}>
-                <Toolbar>
-                    <IconButton edge="start" onClick={toggleDrawer(true)} className={classes.menuButton} color="primary" aria-label="menu">
-                        <MenuIcon />
-                    </IconButton>
-                    <Drawer open={state.left} onClose={toggleDrawer(false)}>
-                        {sideList()}
-                    </Drawer>
-                    <Typography variant="h6" className={classes.logo}><Link to="/"><img src={Logo} alt="MassEnergize banner" /></Link></Typography>
-                    <Link className={classes.link} to="/login" ><Button color="primary" >Sign In</Button></Link>
-                </Toolbar>
-            </AppBar>
-        </div >
+    render() {
+        const { classes, auth } = this.props;
+        return (
+            <div className={classes.root} >
+                <AppBar position="static" className={classes.appBar}>
+                    <Toolbar>
+                        <IconButton edge="start" onClick={this.toggleDrawer(true)} className={classes.menuButton} stlye={{ color: '#8dc63f' }} aria-label="menu">
+                            <MenuIcon />
+                        </IconButton>
+                        <Drawer open={this.state.left} onClose={this.toggleDrawer(false)}>
+                            {this.sideList()}
+                        </Drawer>
+                        <Typography variant="h6" className={classes.logo}><Link to="/"><img src={Logo} alt="MassEnergize banner" /></Link></Typography>
+                        {!this.state.isSignedIn ? <Link className={classes.link} to="/login" ><MyButton >Sign In</MyButton></Link> : <MyButton onClick={this.onSignOutClick}>Sign Out</MyButton>}
+                    </Toolbar>
+                </AppBar>
+            </div >
 
-    );
+        );
+    }
 }
+
+const mapStateToProps = state => {
+    return {
+        auth: state.auth
+    }
+}
+
+export default connect(mapStateToProps, { signIn, signOut })(withFirebase(withStyles(useStyles)(Header)));
