@@ -42,7 +42,7 @@ export const getScore = (userId, actionName, params) => async dispatch => {
     } else {
         const csrfResponse = await api.get(`/auth/csrf`);
         const { csrfToken } = csrfResponse.data.data;
-        const response = await api.post(`/cc/estimate/${actionName}`, { body: { ...params, user_id: userId }, headers: { "X-CSRFToken": csrfToken } })
+        const response = await api.post(`/cc/estimate/${actionName}`, { ...params, user_id: userId, headers: { "X-CSRFToken": csrfToken } })
         dispatch({ type: types.GET_SCORE, payload: { response: response.data, actionType: actionName } });
     }
 }
