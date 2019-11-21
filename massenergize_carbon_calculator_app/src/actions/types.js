@@ -3,7 +3,7 @@ export const FETCH_EVENTS = 'FETCH_EVENTS';
 export const FETCH_EVENT = 'FETCH_EVENT';
 export const FETCH_STATION = 'FETCH_STATION';
 export const FETCH_STATIONS = 'FETCH_STATIONS';
-
+export const FETCH_GROUPS = 'FETCH_GROUPS';
 export const POST_ANS = 'POST_ANS';
 export const QUESTION_ANSWERED = "QUESTION_ANSWERED";
 export const SKIP = "SKIP";

@@ -3,8 +3,6 @@ import { connect } from 'react-redux';
 import { questionAnswered, getScore } from '../../actions';
 import _ from 'lodash';
 
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import List from '@material-ui/core/List';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -50,7 +48,7 @@ class QList extends React.Component {
             <>
                 <ListItemText primary={question.questionText} />
                 <List>
-                    <FormControl component="fieldset">
+                    <FormControl component="fieldset" style={{ width: '100%' }}>
                         {this.renderAnswer()}
                     </FormControl>
                 </List >

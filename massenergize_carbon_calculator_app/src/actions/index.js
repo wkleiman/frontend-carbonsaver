@@ -1,5 +1,6 @@
 import * as types from './types';
 import api from '../api/massEnergize';
+import history from '../history';
 
 // export const signIn = () => async dispatch => {
 //     const response = await api.get(`auth/login`);
@@ -40,11 +41,35 @@ export const getScore = (userId, actionName, params) => async dispatch => {
         dispatch({ type: types.GET_SCORE, payload: { response: response.data, actionType: actionName } });
     } else {
         const csrfResponse = await api.get(`/auth/csrf`);
-        const { csrfToken } = csrfResponse.data;
-        const response = await api.post(`/cc/estimate/${actionName}`, { params: { ...params }, headers: { "X-CSRFToken": csrfToken } })
+        const { csrfToken } = csrfResponse.data.data;
+        const response = await api.post(`/cc/estimate/${actionName}`, { ...params, user_id: userId, headers: { "X-CSRFToken": csrfToken } })
         dispatch({ type: types.GET_SCORE, payload: { response: response.data, actionType: actionName } });
     }
+}
 
+export const fetchGroups = () => async dispatch => {
+    const response = await api.get(`/cc/info/groups`);
+    dispatch({ type: types.FETCH_GROUPS, payload: response.data.groupList });
+}
+
+export const createUser = (formValues, email) => async dispatch => {
+    /*params :  
+    first_name, 
+    last_name, 
+    email, 
+    locality, 
+    groups, 
+    minimum_age: isOverThirteen,
+    accepts_terms_and_conditions: tnc*/
+
+    const params = {
+        ...formValues,
+        email,
+    }
+    const csrfResponse = await api.get(`/auth/csrf`);
+    const { csrfToken } = csrfResponse.data.data;
+    const response = await api.post(`/cc/users`, { ...params, headers: { "X-CSRFToken": csrfToken } })
+    history.push('/signin')
 }
 
 

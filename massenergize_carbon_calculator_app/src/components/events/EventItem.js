@@ -153,13 +153,13 @@ class EventItem extends React.Component {
         return (
             <Paper className={classes.root}>
                 <Grid container spacing={2}>
-                    <Grid item container xs={12}>
-                        <Grid item container xs={12} md={8} direction="column">
+                    <Grid item container xs={12} spacing={2}>
+                        <Grid item container xs={12} xl={8} direction="column">
                             <Grid container item>
                                 <Station event={event} stations={event.stations} />
                             </Grid>
                         </Grid>
-                        <Grid item container xs={12} md={4} direction="column" spacing={2} className={classes.host_sponsor}>
+                        <Grid item container xs={12} xl={4} direction="column" spacing={2} className={classes.host_sponsor}>
                             {this.renderHost()}
                             {this.renderSponsor()}
                         </Grid>

@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
         width: '100%',
     },
     station: {
-        width: '150vh',
+        width: '800px',
     },
     indicator: {
         backgroundColor: 'red'
@@ -114,12 +114,10 @@ const Stations = props => {
         return _.tail(stations).map(station => {
             return (
                 <TabPanel className={tablet ? classes.station : null} key={station.name} value={value} index={idx++}>
-                    <Paper>
-                        <div style={{ padding: '16px 16px' }}>
-                            <Typography variant="h4">{station.displayname}</Typography>
-                            <Typography>{station.description}</Typography>
-                            {renderActionList(station.actions, station.name)}
-                        </div>
+                    <Paper style={{ padding: '16px 16px' }}>
+                        <Typography variant="h4">{station.displayname}</Typography>
+                        <Typography>{station.description}</Typography>
+                        {renderActionList(station.actions, station.name)}
                     </Paper>
                 </TabPanel>
             );
@@ -128,7 +126,7 @@ const Stations = props => {
     return (
         <div className={(phone) ? classes.rootVertical : classes.rootHorizontal}>
             <Tabs
-                style={(phone) ? { height: '90vh' } : null}
+                style={(phone) ? { height: '100%' } : null}
                 className={classes.tabs}
                 orientation={(phone) ? 'vertical' : 'horizontal'}
                 variant="scrollable"
@@ -143,9 +141,8 @@ const Stations = props => {
             </Tabs>
             <TabPanel className={tablet ? classes.station : null} key={stations[0].name} value={value} index={0}>
                 <Paper style={{ padding: '16px 16px' }}>
-                    <Typography variant="h3">{stations[0].displayname}</Typography>
                     <Grid container direction="column" className={classes.eventDetails}>
-                        <Grid item ><Typography variant="h4" className={classes.title}>{event.displayname.toUpperCase()}</Typography></Grid>
+                        <Grid item ><Typography variant="h4" className={classes.title}>{`WELCOME TO ${event.displayname.toUpperCase()}`}</Typography></Grid>
                         <Grid item container direction="column" alignItems="center" justify="center">
                             <Grid item container direction="column" style={{ width: '300px' }} justify="flex-start" alignItems="flex-start">
                                 <Grid item container xs={12} justify="center" alignItems="center">

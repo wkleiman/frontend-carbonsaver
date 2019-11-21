@@ -20,7 +20,7 @@ class App extends React.Component {
               <Grid item xs={12} >
                 <Switch>
                   <Route path="/event/:name" exact component={EventItem} />
-                  <Route path="/login" exact component={LogInPage} />
+                  <Route path="/signin" exact component={LogInPage} />
                   <Route path="/signup" exact component={SignUpPage} />
                 </Switch>
               </Grid>
