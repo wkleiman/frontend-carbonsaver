@@ -35,9 +35,8 @@ class ActionItems extends React.Component {
 
     handleClick = (e) => {
         const { action } = this.props;
-        console.log(this.props.auth)
-        // this.props.getScore(this.props.auth.uid);
-        this.props.getScore(null, action.name, this.props.answered);
+        this.props.getScore(this.props.auth.uid, action.name, this.props.answered);
+        // this.props.getScore(null, action.name, this.props.answered);
     }
 
     renderActionScore() {
@@ -48,6 +47,14 @@ class ActionItems extends React.Component {
             let description = score.pop();
             return (!score) ? "Are You Going To Do This?" : `${description} You Earned ${score.reduce((a, b) => a + b, 0)} points!`
         }
+    }
+
+    isAnswered(questionName) {
+        const { allAnswered } = this.props;
+        const isAnswered = false;
+        Object.values(allAnswered).forEach(answered => {
+
+        })
     }
 
     isSkip(questionName) {
@@ -94,6 +101,7 @@ const mapStateToProps = (state, ownProps) => {
         answered: state.answered[ownProps.action.name],
         skip: state.answered.skip,
         auth: state.auth,
+        allAnswered: state.answered,
     }
 }
 

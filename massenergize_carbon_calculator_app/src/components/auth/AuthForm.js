@@ -36,7 +36,6 @@ class AuthForm extends React.Component {
         return (
             <form onSubmit={this.props.handleSubmit(this.props.onFormSubmit)}>
                 <Grid container direction="column" spacing={2}>
-                    <Grid item><Typography variant="h3">{this.props.title}</Typography></Grid>
                     <Grid item><Fields names={this.props.fieldNames} component={this.props.renderFields} /></Grid>
                     <Grid item><Button type="submit" >{this.props.btnText}</Button></Grid>
                     {this.state.error && <Typography variant="h4">{this.state.error}</Typography>}
