@@ -3,7 +3,7 @@ import history from '../../history';
 import { Fields, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { withFirebase } from 'react-redux-firebase';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { signIn } from '../../actions';
 import { facebookProvider, googleProvider } from './firebaseConfig';
@@ -17,10 +17,6 @@ class AuthForm extends React.Component {
     }
 
     render() {
-        // if (!this.props.auth || !this.props.user || !this.props.policies) return <CircularProgress />
-        // if (this.props.user.info && this.props.user.todo && this.props.user.done && this.props.auth.emailVerified) {
-        //     return <Redirect to={'/event/CC_Event_1'} />;
-        // }
         return (
             <>
                 <div>
@@ -38,7 +34,7 @@ class AuthForm extends React.Component {
                 <Grid container direction="column" spacing={2}>
                     <Grid item><Fields names={this.props.fieldNames} component={this.props.renderFields} /></Grid>
                     <Grid item><Button type="submit" >{this.props.btnText}</Button></Grid>
-                    {this.state.error && <Typography variant="h4">{this.state.error}</Typography>}
+                    {this.state.error && <Typography style={{ color: 'red' }}>{this.state.error}</Typography>}
                     {googleSignIn}
                     {facebookSignIn}
                     {otherOpt}
@@ -46,41 +42,6 @@ class AuthForm extends React.Component {
             </form>
         );
     }
-    // onFinalSubmit(event) {
-    //     event.preventDefault();
-    //     if (!this.state.termsAndServices) {
-    //         this.setState({ error: 'You need to agree to the terms and services' });
-    //     }else if(!this.state.captchaConfirmed){ 
-    //         this.setState({ error: 'Invalid reCAPTCHA, please try again' });
-    //     }else {
-    //         /** Collects the form data and sends it to the backend */
-    //         const { firstName, lastName, preferredName, serviceProvider, termsAndServices } = this.state;
-    //         if (!termsAndServices) {
-    //             this.setState({ showTOSError: true });
-    //             return;
-    //         }
-    //         const { auth } = this.props;
-    //         const body = {
-    //             "full_name": firstName + ' ' + lastName,
-    //             "preferred_name": preferredName === "" ? firstName : preferredName,
-    //             "email": auth.email,
-    //             // "id": auth.uid,
-    //             "is_vendor": serviceProvider,
-    //             "accepts_terms_and_conditions": termsAndServices
-    //         }
-    //         postJson(URLS.USERS, body).then(json => {
-    //             console.log(json);
-    //             if (json.success && json.data) {
-    //                 this.fetchAndLogin(json.data.email).then(success => {
-    //                     if(!success){
-    //                         this.setState({error: 'Failed to Register'})
-    //                     }
-    //                 });
-    //             }
-    //         })
-    //         this.setState({ ...INITIAL_STATE });
-    //     }
-    // }
 
     //KNOWN BUG : LOGGING IN WITH GOOGLE WILL DELETE ANY ACCOUNT WITH THE SAME PASSWORD: 
     //WOULD NOT DELETE DATA I THINK?
@@ -90,7 +51,9 @@ class AuthForm extends React.Component {
                 .signInWithPopup(googleProvider)
                 .then(auth => {
                     this.props.signIn(auth.user.email);
-                    history.push(`/event/CC_Event_1`);
+                    if (this.props.signIn) {
+                        history.push('/event/CC_Event_1');
+                    }
                 })
                 .catch(err => {
                     this.setState({ error: err.message });
@@ -104,6 +67,9 @@ class AuthForm extends React.Component {
                 .signInWithPopup(facebookProvider)
                 .then(auth => {
                     this.props.signIn(auth.user.email);
+                    if (this.props.signIn) {
+                        history.push('/event/CC_Event_1');
+                    }
                 })
                 .catch(err => {
                     this.setState({ error: err.message });
@@ -128,19 +94,35 @@ const validate = (formValues) => {
     }
 
     if (!formValues.password) {
-        errors.password = 'You Must Enter an Email';
+        errors.password = 'You Must Enter a Password';
     }
 
     if (!formValues.passwordOne) {
-        errors.passwordOne = 'You Must Enter an Email';
+        errors.passwordOne = 'You Must Enter a Password';
     }
 
-    if (!formValues.passwordTwo) {
-        errors.passwordTwo = 'You Must Confirm Your Password'
+    if (!formValues.first_name) {
+        errors.first_name = 'Please Let Us Know Who You Are';
     }
 
-    if (formValues.passwordTwo !== formValues.passwordOne) {
-        errors.passwordTwo = 'The Password You Enter Is Not Match';
+    if (!formValues.last_name) {
+        errors.last_name = 'Please Let Us Know Who You Are';
+    }
+
+    if (!formValues.locality) {
+        errors.locality = "Please Let Us Know Where You From";
+    }
+
+    if (!formValues.locality) {
+        errors.groups = "Please Select Your Group";
+    }
+
+    if (!formValues.minimum_age) {
+        errors.minimum_age = 'You Must Be Above 13 To Continue';
+    }
+
+    if (!formValues.accept_terms_and_conditions) {
+        errors.accept_terms_and_conditions = 'You Must Accept Our Terms And Conditions'
     }
 
     return errors;

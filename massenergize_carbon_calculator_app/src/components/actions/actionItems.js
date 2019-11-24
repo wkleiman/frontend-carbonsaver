@@ -19,18 +19,25 @@ import Grid from '@material-ui/core/Grid';
 
 class ActionItems extends React.Component {
 
-
+    // && !(question.name in answered)
     renderQuestionList() {
-        const { action } = this.props;
+        const { action, answered } = this.props;
         return (
             _.tail(action.questionInfo).map(question => {
-                if (this.isSkip(question.name)) return <React.Fragment key={`${action.name}${question.name}`}></React.Fragment>;
+                if (answered) {
+                    const [isQAnswered, actionOfAnswered] = this.isAnswered(question.name)
+                    if (this.isSkip(question.name) || (isQAnswered && actionOfAnswered !== action.name)) return <React.Fragment key={`${action.name}${question.name}`}></React.Fragment>;
+                }
                 return (
                     <React.Fragment key={`${action.name}${question.name}`}>
-                        <QList action={action} question={question} />
+                        <QList action={action} question={question} recordAnswered={this.recordAnswered} />
                     </React.Fragment>
                 );
             }));
+    }
+
+    recordAnswered = (question) => {
+        this.props.onAnswered(question);
     }
 
     handleClick = (e) => {
@@ -51,17 +58,21 @@ class ActionItems extends React.Component {
 
     isAnswered(questionName) {
         const { allAnswered } = this.props;
-        const isAnswered = false;
-        Object.values(allAnswered).forEach(answered => {
-
-        })
+        for (let answeredAction in allAnswered) {
+            for (let answeredQ of Object.keys(allAnswered[answeredAction])) {
+                if (answeredQ === questionName) {
+                    return [true, answeredAction];
+                }
+            }
+        }
+        return [false, ''];
     }
 
     isSkip(questionName) {
         let skip = Object.values(this.props.skip);
         if (skip.length === 0) return false;
         skip = skip.flat(1);
-        return (skip.includes(questionName) && !this.props.skip[this.props.action.name])
+        return (skip.includes(questionName) && !this.props.skip[this.props.action.name]);
     }
 
     render() {
@@ -79,7 +90,7 @@ class ActionItems extends React.Component {
                         <Grid item><Typography>{action.helptext}</Typography></Grid>
                         <Grid item>
                             <List >
-                                <QList action={action} question={action.questionInfo[0]} />
+                                <QList action={action} question={action.questionInfo[0]} recordAnswered={this.recordAnswered} />
                                 {this.renderQuestionList()}
                             </List>
                             <Typography>{this.renderActionScore()}</Typography>
@@ -94,14 +105,12 @@ class ActionItems extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-    let allAnswered = Object.assign({}, state.answered);
-    delete allAnswered.skip;
+    let { skip, ...allAnswered } = state.answered;
     return {
-        allAnswered: Object.values(allAnswered),
-        answered: state.answered[ownProps.action.name],
-        skip: state.answered.skip,
+        allAnswered,
+        answered: allAnswered[ownProps.action.name],
+        skip,
         auth: state.auth,
-        allAnswered: state.answered,
     }
 }
 

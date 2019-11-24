@@ -72,7 +72,7 @@ class EventItem extends React.Component {
         if (this.props.firebase) {
             this.props.firebase.auth().onAuthStateChanged(user => {
                 if (!user) {
-                    history.push('/login')
+                    history.push('/signin')
                 }
             })
         }

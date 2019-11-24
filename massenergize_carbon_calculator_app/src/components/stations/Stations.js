@@ -77,6 +77,7 @@ function tabProps(index) {
 const Stations = props => {
 
     const [value, setValue] = useState(0);
+    const [answered, setAnswered] = useState(new Set());
     const { stations, event } = props;
     const theme = useTheme();
     const phone = useMediaQuery(theme.breakpoints.up('sm'));
@@ -88,6 +89,10 @@ const Stations = props => {
 
     const onChangeHandler = (e, newValue) => {
         setValue(newValue);
+    }
+
+    const onAnswered = (question) => {
+        setAnswered(new Set([...answered, question]))
     }
 
     const renderStationTabs = () => {
@@ -103,7 +108,7 @@ const Stations = props => {
     const renderActionList = (actions, station) => {
         const res = actions.map(action => {
             return (
-                <ActionItems key={`${action.name}${station}`} action={action} />
+                <ActionItems key={`${action.name}${station}`} action={action} answered={answered} onAnswered={onAnswered} />
             );
         })
         return res;

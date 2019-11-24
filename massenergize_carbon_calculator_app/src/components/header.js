@@ -153,7 +153,7 @@ class Header extends React.Component {
                             {this.sideList()}
                         </Drawer>
                         <Typography variant="h6" className={classes.logo}><Link to="/"><img src={Logo} alt="MassEnergize banner" /></Link></Typography>
-                        {!this.state.isSignedIn ? <Link className={classes.link} to="/login" ><MyButton >Sign In</MyButton></Link> : <MyButton onClick={this.onSignOutClick}>Sign Out</MyButton>}
+                        {!this.state.isSignedIn ? <Link className={classes.link} to="/signin" ><MyButton >Sign In</MyButton></Link> : <MyButton onClick={this.onSignOutClick}>Sign Out</MyButton>}
                     </Toolbar>
                 </AppBar>
             </div >

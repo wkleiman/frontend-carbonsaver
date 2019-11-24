@@ -171,10 +171,12 @@ class SignUpPage extends React.Component {
         if (!this.props.auth) return <CircularProgress />
         if (!this.props.auth.isEmpty && !auth.currentUser.emailVerified) {
             return (
-                <Grid container>
-                    <Grid item><Typography> We sent a link to your email address. Please verify your email and sign in to continue.</Typography></Grid>
-                    <Grid item><Button onClick={this.sendVerificationEmail}>Resend Verification Email</Button></Grid>
-                </Grid>
+                <Paper className={classes.container} style={{ padding: '2vh' }}>
+                    <Grid container >
+                        <Grid item><Typography> We sent a link to your email address. Please verify your email and sign in to continue.</Typography></Grid>
+                        <Grid item><Button onClick={this.sendVerificationEmail}>Resend Verification Email</Button></Grid>
+                    </Grid>
+                </Paper>
             );
         }
         if (auth.currentUser && auth.currentUser.emailVerified) {
@@ -185,9 +187,9 @@ class SignUpPage extends React.Component {
                     <AuthForm
                         onFormSubmit={this.onFinalSubmit}
                         fieldNames={['first_name', 'last_name', 'locality', 'groups', 'minimum_age', 'accepts_terms_and_conditions']}
-                        btnText="Finish Sign Up"
+                        btnText="Finish"
                         renderFields={this.renderInfoFields}
-                        otherOptRoute="/login" />
+                    />
                 </Paper>)
         }
         return (
@@ -198,11 +200,11 @@ class SignUpPage extends React.Component {
                     error={this.state.error}
                     onFormSubmit={this.onSubmit}
                     fieldNames={['email', 'passwordOne', 'passwordTwo']}
-                    btnText="Sign Up"
+                    btnText="Continue"
                     otherOptionBtnText="Sign In"
                     otherOptionQuestion="Already Have An Account? "
                     renderFields={this.renderFields}
-                    otherOptRoute="/login" />
+                    otherOptRoute="/signin" />
             </Paper>
         );
     }

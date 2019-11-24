@@ -15,12 +15,13 @@ import FormControl from '@material-ui/core/FormControl';
 class QList extends React.Component {
 
     onChangeHandler = (response) => (e) => {
-        const { questionAnswered, action, question } = this.props
+        const { recordAnswered, questionAnswered, action, question } = this.props
         if (!response) {
             questionAnswered(action.name, question.name, e.target.value);
-            return;
+        } else {
+            questionAnswered(action.name, question.name, e.target.value, response[e.target.value].skip);
         }
-        questionAnswered(action.name, question.name, e.target.value, response[e.target.value].skip);
+        recordAnswered(question.name);
     }
 
     renderAnswer() {

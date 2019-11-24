@@ -52,15 +52,15 @@ export const fetchGroups = () => async dispatch => {
     dispatch({ type: types.FETCH_GROUPS, payload: response.data.groupList });
 }
 
-export const createUser = (formValues, email) => async dispatch => {
+export const createUser = async (formValues, email) => {
     /*params :  
     first_name, 
     last_name, 
     email, 
     locality, 
     groups, 
-    minimum_age: isOverThirteen,
-    accepts_terms_and_conditions: tnc*/
+    minimum_age,
+    accepts_terms_and_conditions*/
 
     const params = {
         ...formValues,

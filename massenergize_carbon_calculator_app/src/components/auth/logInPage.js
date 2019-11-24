@@ -90,7 +90,9 @@ class LogInForm extends React.Component {
                     otherOptionQuestion="Don't Have An Account? "
                     renderFields={this.renderFields}
                     otherOptRoute="/signup"
-                    onFormSubmit={this.onSubmit} />
+                    onFormSubmit={this.onSubmit}
+                    signIn
+                />
             </Paper>
         );
     }
