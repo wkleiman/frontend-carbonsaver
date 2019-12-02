@@ -14,6 +14,7 @@ import ScheduleIcon from '@material-ui/icons/Schedule';
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Paper from '@material-ui/core/Paper';
+import { CircularProgress } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
     rootHorizontal: {
@@ -86,6 +87,8 @@ const Stations = props => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const eventDate = new Date(event.datetime);
     const classes = useStyles();
+
+    if (!stations) return <CircularProgress />
 
     const onChangeHandler = (e, newValue) => {
         setValue(newValue);

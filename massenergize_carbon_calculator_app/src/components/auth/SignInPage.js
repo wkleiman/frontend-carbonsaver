@@ -81,13 +81,13 @@ class LogInForm extends React.Component {
         const { classes } = this.props;
         return (
             <Paper className={classes.container}>
-                <Typography variant="h3">Sign In</Typography>
+                <Typography variant="h3">Please Enter Your Email and Password to Continue</Typography>
                 <AuthForm
                     onFormSubmit={this.onSubmit}
                     fieldNames={['email', 'password']}
-                    btnText="Sign In"
-                    otherOptionBtnText="Sign Up"
-                    otherOptionQuestion="Don't Have An Account? "
+                    btnText="Continue"
+                    otherOptionBtnText="New Profile"
+                    otherOptionQuestion="Don't Have A Profile? "
                     renderFields={this.renderFields}
                     otherOptRoute="/signup"
                     onFormSubmit={this.onSubmit}

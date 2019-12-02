@@ -8,8 +8,28 @@ import { Link } from 'react-router-dom';
 import { signIn } from '../../actions';
 import { facebookProvider, googleProvider } from './firebaseConfig';
 import { Grid, Typography, Button } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
 
-/* Modal config */
+const style = {
+    link: {
+        textDecoration: 'none',
+    },
+    googleBtn: {
+        color: 'white',
+        backgroundColor: 'red',
+    },
+    fbBtn: {
+        color: 'white',
+        backgroundColor: '#3b5998',
+    },
+    error: {
+        color: 'red',
+    },
+    submitBtn: {
+        backgroundColor: '#8dc63f',
+        color: 'white'
+    },
+}
 
 class AuthForm extends React.Component {
     state = {
@@ -26,18 +46,25 @@ class AuthForm extends React.Component {
         );
     }
     renderPage = () => {
-        const googleSignIn = (this.props.otherOptionBtnText && this.props.otherOptionQuestion) && <Grid item><Button style={{ color: 'white', backgroundColor: '#3b5998' }} onClick={this.signInWithFacebook} id="facebook" className="img-circle facebook"><span className="fa fa-facebook-f"> Continue with Facebook</span></Button></Grid>;
-        const facebookSignIn = (this.props.otherOptionBtnText && this.props.otherOptionQuestion) && <Grid item><Button style={{ color: 'white', backgroundColor: 'red' }} onClick={this.signInWithGoogle} id="google" className="img-circle google"><span className="fa fa-google"> Continue with Google</span></Button></Grid>;
-        const otherOpt = (this.props.otherOptionBtnText && this.props.otherOptionQuestion) && <Grid item><Typography>{this.props.otherOptionQuestion} <Link to={this.props.otherOptRoute}>{this.props.otherOptionBtnText}</Link></Typography></Grid>;
+        const { classes, signIn, otherOptionBtnText, otherOptionQuestion, otherOptRoute, handleSubmit, onFormSubmit, renderFields, btnText, fieldNames } = this.props;
+        const googleSignIn = <Grid item><Button onClick={this.signInWithFacebook} id="facebook" className={`img-circle facebook ${classes.fbBtn}`}><span className="fa fa-facebook-f"> Continue with Facebook</span></Button></Grid>;
+        const facebookSignIn = <Grid item><Button onClick={this.signInWithGoogle} id="google" className={`img-circle google ${classes.googleBtn}`}><span className="fa fa-google"> Continue with Google</span></Button></Grid>;
+        const otherOpt = <Grid item><Typography>{otherOptionQuestion} <Link className={classes.link} to={otherOptRoute}>{otherOptionBtnText}</Link></Typography></Grid>;
         return (
-            <form onSubmit={this.props.handleSubmit(this.props.onFormSubmit)}>
+            <form onSubmit={handleSubmit(onFormSubmit)}>
                 <Grid container direction="column" spacing={2}>
-                    <Grid item><Fields names={this.props.fieldNames} component={this.props.renderFields} /></Grid>
-                    <Grid item><Button type="submit" >{this.props.btnText}</Button></Grid>
+                    <Grid item><Fields names={fieldNames} component={renderFields} /></Grid>
+                    <Grid item><Button className={classes.submitBtn} type="submit" >{btnText}</Button></Grid>
                     {this.state.error && <Typography style={{ color: 'red' }}>{this.state.error}</Typography>}
-                    {googleSignIn}
-                    {facebookSignIn}
-                    {otherOpt}
+                    {signIn && (
+                        <Grid item container>
+                            <googleSignIn />
+                            <facebookSignIn />
+                            <otherOpt />
+                            <Grid item>
+                                <Typography><Link className={classes.link} to="/resetpass">Forgot Your Password?</Link></Typography>
+                            </Grid>
+                        </Grid>)}
                 </Grid>
             </form>
         );
@@ -130,4 +157,4 @@ const validate = (formValues) => {
 export default connect(mapStoreToProps, { signIn })(reduxForm({
     form: 'authForm',
     validate,
-})(withFirebase(AuthForm)));
+})(withFirebase(withStyles(style)(AuthForm))));

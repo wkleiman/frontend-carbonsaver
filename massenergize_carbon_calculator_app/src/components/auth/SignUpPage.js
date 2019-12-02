@@ -165,6 +165,7 @@ class SignUpPage extends React.Component {
             .sendEmailVerification()
             .then(() => console.log('email sent'));
     }
+
     render() {
         const { classes } = this.props;
         let auth = this.props.firebase.auth();
@@ -194,13 +195,13 @@ class SignUpPage extends React.Component {
         }
         return (
             <Paper className={classes.container}>
-                <Typography variant="h3">Sign Up</Typography>
+                <Typography variant="h3">Please Enter Your Continue</Typography>
                 <Typography style={{ color: 'red' }}>{this.state.error}</Typography>
                 <AuthForm
                     error={this.state.error}
                     onFormSubmit={this.onSubmit}
                     fieldNames={['email', 'passwordOne', 'passwordTwo']}
-                    btnText="Continue"
+                    btnText="Sign Up"
                     otherOptionBtnText="Sign In"
                     otherOptionQuestion="Already Have An Account? "
                     renderFields={this.renderFields}
