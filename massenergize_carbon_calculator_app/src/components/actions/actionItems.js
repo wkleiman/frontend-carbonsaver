@@ -16,7 +16,6 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 
-
 class ActionItems extends React.Component {
 
     // && !(question.name in answered)
@@ -42,17 +41,17 @@ class ActionItems extends React.Component {
 
     handleClick = (e) => {
         const { action } = this.props;
-        this.props.getScore(this.props.auth.uid, action.name, this.props.answered);
+        this.props.getScore(this.props.auth.userID, action.name, this.props.answered);
         // this.props.getScore(null, action.name, this.props.answered);
     }
 
     renderActionScore() {
         const { answered } = this.props;
-        if (!answered || !answered.score) { return "Are You Going To Do This?" }
+        if (!answered || !answered.score) { return <></> }
         else {
             const score = Object.values(answered.score);
             let description = score.pop();
-            return (!score) ? "Are You Going To Do This?" : `${description} You Earned ${score.reduce((a, b) => a + b, 0)} points!`
+            return (!score) ? <></> : <Typography>{`${description} You Earned ${score.reduce((a, b) => a + b, 0)} points!`}</Typography>;
         }
     }
 
@@ -93,7 +92,7 @@ class ActionItems extends React.Component {
                                 <QList action={action} question={action.questionInfo[0]} recordAnswered={this.recordAnswered} />
                                 {this.renderQuestionList()}
                             </List>
-                            <Typography>{this.renderActionScore()}</Typography>
+                            {this.renderActionScore()}
                             <Button onClick={this.handleClick}>I'll Do It!</Button>
                         </Grid>
                     </Grid>

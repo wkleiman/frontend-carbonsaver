@@ -74,6 +74,9 @@ class EventItem extends React.Component {
                 if (!user) {
                     history.push('/signin')
                 }
+                else {
+                    this.props.signIn(user)
+                }
             })
         }
         this.props.fetchEvent(this.props.match.params.name);

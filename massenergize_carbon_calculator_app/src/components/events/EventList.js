@@ -1,15 +1,14 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { fetchEvents } from '../../actions';
 import { Link } from 'react-router-dom';
 
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
-const style = theme => ({
+const useStyle = makeStyles(theme => ({
     root: {
         fontSize: '1vh',
         padding: '1vh 1vh',
@@ -41,15 +40,18 @@ const style = theme => ({
     eventContent: {
         margin: '0vh 4vh',
     }
-})
+}));
 
-class EventList extends React.Component {
-    componentDidMount() {
-        this.props.fetchEvents();
-    }
-    renderList() {
-        const { classes } = this.props;
-        return this.props.events.map(event => {
+const EventList = (props) => {
+    const events = useSelector(state => Object.values(state.event));
+    const dispatch = useDispatch();
+    React.useEffect(() => {
+        fetchEvents()(dispatch);
+    }, []);
+    const classes = useStyle();
+
+    const renderList = () => {
+        return events.map(event => {
             const date = new Date(event.datetime);
             const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             return (
@@ -74,25 +76,16 @@ class EventList extends React.Component {
             );
         })
     }
-    render() {
-        const { classes } = this.props;
-        return (
-            <div>
-                <Paper className={classes.root}>
-                    <Grid container>
-                        <Grid item ><Typography variant="h4" style={{ margin: '1vh 1vh', padding: '1vh 1vh', fontWeight: 'bold' }}>Up Coming Events</Typography></Grid>
-                        <Grid item xs={12} container>{this.renderList()}</Grid>
-                    </Grid>
-                </Paper>
-            </div >
-        );
-    }
+    return (
+        <div>
+            <Paper className={classes.root}>
+                <Grid container>
+                    <Grid item ><Typography variant="h4" style={{ margin: '1vh 1vh', padding: '1vh 1vh', fontWeight: 'bold' }}>Up Coming Events</Typography></Grid>
+                    <Grid item xs={12} container>{renderList()}</Grid>
+                </Grid>
+            </Paper>
+        </div >
+    );
 }
 
-const mapStateToProps = state => {
-    return {
-        events: Object.values(state.event),
-    }
-}
-
-export default connect(mapStateToProps, { fetchEvents })(withStyles(style)(EventList)); 
+export default EventList; 

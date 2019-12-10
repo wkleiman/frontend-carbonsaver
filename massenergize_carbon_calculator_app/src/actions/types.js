@@ -1,4 +1,4 @@
-export const FETCH_ACTION_INFO = "FETCH_ACTION_INFO";
+export const FETCH_ACTION_QUESTIONS = "FETCH_ACTION_QUESTIONS";
 export const FETCH_EVENTS = 'FETCH_EVENTS';
 export const FETCH_EVENT = 'FETCH_EVENT';
 export const FETCH_STATION = 'FETCH_STATION';
@@ -10,3 +10,4 @@ export const SKIP = "SKIP";
 export const GET_SCORE = 'GET_SCORE';
 export const SIGN_IN = 'SIGN_IN';
 export const SIGN_OUT = 'SIGN_OUT';
+export const CREATE_USER = 'CREATE_USER';

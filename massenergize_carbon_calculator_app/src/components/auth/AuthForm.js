@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { withFirebase } from 'react-redux-firebase';
 import { Link } from 'react-router-dom';
 
-import { signIn } from '../../actions';
+import { signIn, getUser } from '../../actions';
 import { facebookProvider, googleProvider } from './firebaseConfig';
 import { Grid, Typography, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
@@ -45,26 +45,30 @@ class AuthForm extends React.Component {
             </>
         );
     }
+
+    renderOtherOpt = () => {
+        const { classes, otherOptionBtnText, otherOptionQuestion, otherOptRoute } = this.props;
+        return (
+            <Grid item container direction="column" spacing={2}>
+                <Grid item><Button onClick={this.signInWithFacebook} id="facebook" className={`img-circle facebook ${classes.fbBtn}`}><span className="fa fa-facebook-f"> Continue with Facebook</span></Button></Grid>
+                <Grid item><Button onClick={this.signInWithGoogle} id="google" className={`img-circle google ${classes.googleBtn}`}><span className="fa fa-google"> Continue with Google</span></Button></Grid>
+                <Grid item><Typography>{otherOptionQuestion} <Link className={classes.link} to={otherOptRoute ? otherOptRoute : "#"}>{otherOptionBtnText}</Link></Typography></Grid>
+                <Grid item>
+                    <Typography><Link className={classes.link} to="/resetpass">Forgot Your Password?</Link></Typography>
+                </Grid>
+            </Grid>
+        );
+    }
+
     renderPage = () => {
-        const { classes, signIn, otherOptionBtnText, otherOptionQuestion, otherOptRoute, handleSubmit, onFormSubmit, renderFields, btnText, fieldNames } = this.props;
-        const googleSignIn = <Grid item><Button onClick={this.signInWithFacebook} id="facebook" className={`img-circle facebook ${classes.fbBtn}`}><span className="fa fa-facebook-f"> Continue with Facebook</span></Button></Grid>;
-        const facebookSignIn = <Grid item><Button onClick={this.signInWithGoogle} id="google" className={`img-circle google ${classes.googleBtn}`}><span className="fa fa-google"> Continue with Google</span></Button></Grid>;
-        const otherOpt = <Grid item><Typography>{otherOptionQuestion} <Link className={classes.link} to={otherOptRoute}>{otherOptionBtnText}</Link></Typography></Grid>;
+        const { classes, isSignIn, handleSubmit, onFormSubmit, renderFields, btnText, fieldNames } = this.props;
         return (
             <form onSubmit={handleSubmit(onFormSubmit)}>
                 <Grid container direction="column" spacing={2}>
                     <Grid item><Fields names={fieldNames} component={renderFields} /></Grid>
                     <Grid item><Button className={classes.submitBtn} type="submit" >{btnText}</Button></Grid>
                     {this.state.error && <Typography style={{ color: 'red' }}>{this.state.error}</Typography>}
-                    {signIn && (
-                        <Grid item container>
-                            <googleSignIn />
-                            <facebookSignIn />
-                            <otherOpt />
-                            <Grid item>
-                                <Typography><Link className={classes.link} to="/resetpass">Forgot Your Password?</Link></Typography>
-                            </Grid>
-                        </Grid>)}
+                    {(!isSignIn) ? <></> : this.renderOtherOpt()}
                 </Grid>
             </form>
         );
@@ -78,9 +82,7 @@ class AuthForm extends React.Component {
                 .signInWithPopup(googleProvider)
                 .then(auth => {
                     this.props.signIn(auth.user.email);
-                    if (this.props.signIn) {
-                        history.push('/event/CC_Event_1');
-                    }
+                    this.props.getUser(auth.user.email);
                 })
                 .catch(err => {
                     this.setState({ error: err.message });
@@ -94,9 +96,7 @@ class AuthForm extends React.Component {
                 .signInWithPopup(facebookProvider)
                 .then(auth => {
                     this.props.signIn(auth.user.email);
-                    if (this.props.signIn) {
-                        history.push('/event/CC_Event_1');
-                    }
+                    this.props.getUser(auth.user);
                 })
                 .catch(err => {
                     this.setState({ error: err.message });
@@ -154,7 +154,7 @@ const validate = (formValues) => {
 
     return errors;
 }
-export default connect(mapStoreToProps, { signIn })(reduxForm({
+export default connect(mapStoreToProps, { signIn, getUser })(reduxForm({
     form: 'authForm',
     validate,
 })(withFirebase(withStyles(style)(AuthForm))));

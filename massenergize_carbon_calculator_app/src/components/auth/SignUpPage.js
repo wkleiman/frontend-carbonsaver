@@ -90,7 +90,7 @@ class SignUpPage extends React.Component {
                 >
                     {options.map(option => {
                         return (
-                            <MenuItem value={option.name}>{option.displayname}</MenuItem>
+                            <MenuItem key={option.name} value={option.name}>{option.displayname}</MenuItem>
                         );
                     })}
                 </TextField>
@@ -195,7 +195,7 @@ class SignUpPage extends React.Component {
         }
         return (
             <Paper className={classes.container}>
-                <Typography variant="h3">Please Enter Your Continue</Typography>
+                <Typography variant="h3">Create Profile</Typography>
                 <Typography style={{ color: 'red' }}>{this.state.error}</Typography>
                 <AuthForm
                     error={this.state.error}
@@ -205,7 +205,9 @@ class SignUpPage extends React.Component {
                     otherOptionBtnText="Sign In"
                     otherOptionQuestion="Already Have An Account? "
                     renderFields={this.renderFields}
-                    otherOptRoute="/signin" />
+                    otherOptRoute="/signin"
+                    isSignIn
+                />
             </Paper>
         );
     }

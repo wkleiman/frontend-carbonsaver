@@ -2,11 +2,17 @@ import * as types from './types';
 import api from '../api/massEnergize';
 import history from '../history';
 
-// export const signIn = () => async dispatch => {
-//     const response = await api.get(`auth/login`);
+export const fetchQuestions = (actionName) => async dispatch => {
+    const response = await api.get(`/cc/info/${actionName}`);
 
-//     dispatch({ type: SIGN_IN, payload: response.data });
-// }
+    dispatch({ type: types.FETCH_ACTION_QUESTIONS, payload: response.data.questionInfo })
+}
+
+export const getUser = (user) => async dispatch => {
+    console.log(user);
+    // const response = await api.get('/cc/info/user', {params: })
+}
+
 export const questionAnswered = (actionName, questionTag, answer, skip) => dispatch => {
     dispatch({
         type: types.QUESTION_ANSWERED,
@@ -25,9 +31,9 @@ export const signOut = () => {
     };
 };
 
-export const fetchEvents = () => async dispatch => {
+export const fetchEvents = () => async (dispatch) => {
     const response = await api.get("/cc/info/events");
-    dispatch({ type: types.FETCH_EVENTS, payload: response.data })
+    return dispatch({ type: types.FETCH_EVENTS, payload: response.data });
 }
 
 export const fetchEvent = id => async dispatch => {
@@ -52,7 +58,7 @@ export const fetchGroups = () => async dispatch => {
     dispatch({ type: types.FETCH_GROUPS, payload: response.data.groupList });
 }
 
-export const createUser = async (formValues, email) => {
+export const createUser = (formValues, email) => async dispatch => {
     /*params :  
     first_name, 
     last_name, 
@@ -61,21 +67,28 @@ export const createUser = async (formValues, email) => {
     groups, 
     minimum_age,
     accepts_terms_and_conditions*/
-
+    const { groups, ...otherValues } = formValues;
     const params = {
-        ...formValues,
+        ...otherValues,
+        groups: [groups],
         email,
     }
     const csrfResponse = await api.get(`/auth/csrf`);
     const { csrfToken } = csrfResponse.data.data;
     const response = await api.post(`/cc/users`, { ...params, headers: { "X-CSRFToken": csrfToken } })
-    history.push('/signin')
+    dispatch({ type: types.CREATE_USER, payload: response.data })
 }
 
 
-export const signIn = (user) => {
-    return {
+export const signIn = (user) => async dispatch => {
+
+    const response = await api.get('/cc/info/user', {
+        params: {
+            email: user.email,
+        }
+    });
+    dispatch({
         type: types.SIGN_IN,
-        payload: { userId: user.uid, }
-    }
+        payload: response.data.userInfo
+    })
 }

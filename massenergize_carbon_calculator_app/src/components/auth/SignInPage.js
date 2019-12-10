@@ -1,7 +1,7 @@
 import React from 'react';
 import history from '../../history';
 import { connect } from 'react-redux'
-import { signIn } from '../../actions'
+import { signIn, getUser } from '../../actions'
 import AuthForm from './AuthForm';
 
 
@@ -40,7 +40,7 @@ class LogInForm extends React.Component {
         auth.signInWithEmailAndPassword(email, password).then(res => {
             let { user } = res;
             this.props.signIn(user);
-            history.push('/event/CC_Event_1')
+            this.props.getUser(user.email);
         })
             .catch(err => {
                 console.log("Error:", err.message);
@@ -91,7 +91,7 @@ class LogInForm extends React.Component {
                     renderFields={this.renderFields}
                     otherOptRoute="/signup"
                     onFormSubmit={this.onSubmit}
-                    signIn
+                    isSignIn
                 />
             </Paper>
         );
@@ -102,4 +102,4 @@ const mapStateToProps = state => {
         auth: state.firebase.auth,
     }
 }
-export default connect(mapStateToProps, { signIn })(withFirebase(withStyles(styles)(LogInForm)));
+export default connect(mapStateToProps, { signIn, getUser })(withFirebase(withStyles(styles)(LogInForm)));
