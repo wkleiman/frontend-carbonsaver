@@ -1,25 +1,33 @@
-import React from 'react';
-import history from '../history';
-import { Router, Route, Switch } from 'react-router-dom';
-import '../style/App.css';
-import Header from './header';
-import EventItem from './events/EventItem';
-import EventList from './events/EventList';
-import ForgotPass from './auth/ForgotPass';
-import SignUpPage from './auth/SignUpPage';
-import SignInPage from './auth/SignInPage';
-import Grid from '@material-ui/core/Grid';
-
+// Functional imports
+import React from "react";
+import history from "../history";
+import { Router, Route, Switch } from "react-router-dom";
+import "../style/App.css";
+import Header from "./header";
+import EventItem from "./events/EventItem";
+import EventList from "./events/EventList";
+import ForgotPass from "./auth/ForgotPass";
+import SignUpPage from "./auth/SignUpPage";
+import SignInPage from "./auth/SignInPage";
+import Grid from "@material-ui/core/Grid";
+//TODO: May apply context for authentication redirecting for EventItem
 class App extends React.Component {
-
+  // Specifying routes
   render() {
     return (
       <div>
         <Router history={history}>
           <React.Fragment>
-            <Grid container direction="row" justify="flex-start" alignItems="center">
-              <Grid item xs={12}><Header /></Grid>
-              <Grid item xs={12} >
+            <Grid
+              container
+              direction="row"
+              justify="flex-start"
+              alignItems="center"
+            >
+              <Grid item xs={12}>
+                <Header />
+              </Grid>
+              <Grid item xs={12}>
                 <Switch>
                   <Route path="/" exact component={EventList} />
                   <Route path="/event/:name" exact component={EventItem} />
@@ -30,8 +38,8 @@ class App extends React.Component {
               </Grid>
             </Grid>
           </React.Fragment>
-        </Router >
-      </div >
+        </Router>
+      </div>
     );
   }
 }
