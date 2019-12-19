@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { withFirebase } from "react-redux-firebase";
 import { fetchEvent } from "../../actions";
 import { signIn } from "../../actions";
+import { Redirect } from "react-router-dom";
 import Score from "../score";
 import Station from "../stations/Stations";
 import history from "../../history";
@@ -55,16 +56,6 @@ const style = {
 
 class EventItem extends React.Component {
   componentDidMount() {
-    // Check if user have sign in
-    if (this.props.firebase) {
-      this.props.firebase.auth().onAuthStateChanged(user => {
-        if (!user) {
-          history.push("/signin");
-        } else {
-          this.props.signIn(user);
-        }
-      });
-    }
     // Fetch event data
     this.props.fetchEvent(this.props.match.params.name);
   }
@@ -128,7 +119,7 @@ class EventItem extends React.Component {
   }
 
   renderSponsor() {
-    const { event, classes } = this.props;
+    const { event, classes, auth } = this.props;
     // Render Sponsor Info
     return (
       <Grid item>
@@ -163,7 +154,7 @@ class EventItem extends React.Component {
   }
 
   render() {
-    const { event, classes } = this.props;
+    const { event, classes, auth } = this.props;
     // Check if the information from backend has been received
     if (!event) {
       return (
@@ -173,6 +164,9 @@ class EventItem extends React.Component {
           </Grid>
         </Grid>
       );
+    }
+    if (!auth.isSignedIn) {
+      return <Redirect to="/signin" />;
     }
     // Upon information received, render the stations with information of host and sponsor
     return (
@@ -208,6 +202,7 @@ class EventItem extends React.Component {
 // Map application state to props of this component
 const mapStateToProps = (state, ownProps) => {
   return {
+    auth: state.auth,
     event: state.event[ownProps.match.params.name]
   };
 };

@@ -1,7 +1,7 @@
 // Functional imports
 import React from "react";
 import history from "../history";
-import { Router, Route, Switch } from "react-router-dom";
+import { Router, Route, Switch, Redirect } from "react-router-dom";
 import "../style/App.css";
 import Header from "./header";
 import EventItem from "./events/EventItem";
@@ -29,7 +29,12 @@ class App extends React.Component {
               </Grid>
               <Grid item xs={12}>
                 <Switch>
-                  <Route path="/" exact component={EventList} />
+                  <Route
+                    path="/"
+                    exact
+                    render={() => <Redirect to="/events" />}
+                  />
+                  <Route path="/events" exact component={EventList} />
                   <Route path="/event/:name" exact component={EventItem} />
                   <Route path="/signin" exact component={SignInPage} />
                   <Route path="/signup" exact component={SignUpPage} />

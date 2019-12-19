@@ -22,15 +22,6 @@ const styles = {
 
 class LogInForm extends React.Component {
   state = { error: "" };
-  componentDidMount() {
-    // Check if User has signed in to navigate them to main page
-    if (this.props.firebase) {
-      var user = this.props.firebase.auth().currentUser;
-      if (user) {
-        history.push("/event/CC_Event_1");
-      }
-    }
-  }
   // Rendering error to help user filling out auth form
   renderError({ touched, error }) {
     if (touched && error) {
@@ -39,18 +30,17 @@ class LogInForm extends React.Component {
   }
   // Sign in with email and password function
   normalLogin({ email, password }) {
-    let auth = this.props.firebase.auth();
+    const { firebase, selected } = this.props;
+    let auth = firebase.auth();
     auth
       .signInWithEmailAndPassword(email, password)
       .then(res => {
         let { user } = res;
         // Save user to backend database
         this.props.signIn(user);
-        // Get user information and dispatch to application state from backend
-        this.props.getUser(user.email);
+        history.push(selected.name);
       })
       .catch(err => {
-        console.log("Error:", err.message);
         this.setState({ error: err.message });
       });
   }
@@ -115,7 +105,8 @@ class LogInForm extends React.Component {
 // Get auth from application state
 const mapStateToProps = state => {
   return {
-    auth: state.firebase.auth
+    auth: state.firebase.auth,
+    selected: state.event.selected
   };
 };
 // Connect with signIn and getUser action

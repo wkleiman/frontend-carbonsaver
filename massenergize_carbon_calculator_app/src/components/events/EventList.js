@@ -77,7 +77,16 @@ const EventList = props => {
       return (
         <React.Fragment key={event}>
           <Grid item xs={12}>
-            <Link className={classes.link} to={`/event/${event.name}`}>
+            <Link
+              className={classes.link}
+              to={`/event/${event.name}`}
+              onClick={e =>
+                dispatch({
+                  type: "SELECTED_EVENT",
+                  payload: event
+                })
+              }
+            >
               <Paper className={classes.paperContainer}>
                 <Grid container direction="row" spacing={2}>
                   <Grid

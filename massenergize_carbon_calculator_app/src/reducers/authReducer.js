@@ -2,8 +2,7 @@ import { SIGN_IN, SIGN_OUT, CREATE_USER } from "../actions/types";
 
 const INITIAL_STATE = {
   isSignedIn: false,
-  userID: null,
-  method: null
+  userID: null
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -19,7 +18,7 @@ export default (state = INITIAL_STATE, action) => {
       };
     }
     case SIGN_OUT:
-      return { ...state, isSignedIn: false, userID: null };
+      return { ...state, isSignedIn: false, userID: null, user: null };
     default:
       return state;
   }
