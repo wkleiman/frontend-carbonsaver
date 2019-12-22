@@ -1,5 +1,7 @@
 import * as types from "./types";
 import api from "../api/massEnergize";
+import history from "../history";
+
 // fetchQuestions action
 export const fetchQuestions = actionName => async dispatch => {
   const response = await api.get(`/cc/info/${actionName}`);
@@ -81,7 +83,7 @@ export const fetchGroups = () => async dispatch => {
   dispatch({ type: types.FETCH_GROUPS, payload: response.data.groupList });
 };
 // createUser action, send POST request to backend to save user registration info to database
-export const createUser = (formValues, email) => async dispatch => {
+export const createUser = (formValues, email, selected) => async dispatch => {
   /*params :  
     first_name, 
     last_name, 
@@ -105,10 +107,12 @@ export const createUser = (formValues, email) => async dispatch => {
     headers: { "X-CSRFToken": csrfToken }
   });
   dispatch({ type: types.CREATE_USER, payload: response.data });
+  history.push(`/event/${selected.name}`);
 };
 // Sign in action send GET request to backend with email to get the user
-export const signIn = user => async dispatch => {
+export const signIn = (user, selected) => async dispatch => {
   // Attach email to request and send off to backend to get user info
+  console.log(selected);
   const response = await api.get("/cc/info/user", {
     params: {
       email: user.email
@@ -118,4 +122,5 @@ export const signIn = user => async dispatch => {
     type: types.SIGN_IN,
     payload: response.data.userInfo
   });
+  history.push(`/event/${selected.name}`);
 };

@@ -8,7 +8,7 @@ const firebaseConfig = {
   authDomain: "massenergize-auth.firebaseapp.com",
   databaseURL: "https://massenergize-auth.firebaseio.com",
   projectId: "massenergize-auth",
-  storageBucket: "",
+  storageBucket: "massenergize-auth.appspot.com",
   messagingSenderId: "72842344535",
   appId: "1:72842344535:web:9b1517b1b3d2e818"
 };

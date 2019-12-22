@@ -1,7 +1,6 @@
 // Functional components import
 import React from "react";
-import { signIn, fetchGroups, createUser } from "../../actions";
-import history from "../../history";
+import { fetchGroups, createUser } from "../../actions";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import AuthForm from "./AuthForm";
@@ -36,14 +35,6 @@ class SignUpPage extends React.Component {
   state = { error: "", user: null };
 
   componentDidMount() {
-    // Track user sign in status
-    if (this.props.firebase) {
-      this.props.firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-          this.setState({ user });
-        }
-      });
-    }
     // Fetch Groups for user selection
     this.props.fetchGroups();
   }
@@ -61,21 +52,13 @@ class SignUpPage extends React.Component {
   onSubmit = formValues => {
     this.props.firebase
       .auth()
-      .setPersistence(this.props.firebase.auth.Auth.Persistence.SESSION)
-      .then(() => {
-        this.props.firebase
-          .auth()
-          .createUserWithEmailAndPassword(
-            formValues.email,
-            formValues.passwordOne
-          )
-          .then(authUser => {
-            // Send Verification Email
-            this.sendVerificationEmail();
-          })
-          .catch(err => {
-            this.setState({ error: err.message });
-          });
+      .createUserWithEmailAndPassword(formValues.email, formValues.passwordOne)
+      .then(authUser => {
+        // Send Verification Email
+        authUser.sendEmailVerification();
+      })
+      .catch(err => {
+        this.setState({ error: err.message });
       });
   };
   // Delete if they decided to stop with sign up process
@@ -196,15 +179,13 @@ class SignUpPage extends React.Component {
   // Save user info to backend database
   onFinalSubmit = formValues => {
     const email = this.props.firebase.auth().currentUser.email;
-    this.props.createUser(formValues, email);
+    this.props.createUser(formValues, email, this.props.selected);
   };
   // Send user verification email
   sendVerificationEmail = () => {
-    this.props.firebase
-      .auth()
-      .currentUser.sendEmailVerification()
-      .then(() => console.log("email sent"));
+    this.props.firebase.auth().currentUser.sendEmailVerification();
   };
+  
   render() {
     const { classes } = this.props;
     let auth = this.props.firebase.auth();
@@ -268,7 +249,7 @@ class SignUpPage extends React.Component {
           otherOptionQuestion="Already Have An Account? "
           renderFields={this.renderFields}
           otherOptRoute="/signin"
-          isSignIn
+          signUp
         />
       </Paper>
     );
@@ -278,10 +259,11 @@ class SignUpPage extends React.Component {
 const mapStateToProps = state => {
   return {
     auth: state.firebase.auth,
-    groups: Object.values(state.groups)
+    groups: Object.values(state.groups),
+    selected: state.event.selected
   };
 };
 // connect action and styling to current component
-export default connect(mapStateToProps, { signIn, fetchGroups, createUser })(
+export default connect(mapStateToProps, { fetchGroups, createUser })(
   withFirebase(withStyles(style)(SignUpPage))
 );

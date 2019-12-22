@@ -102,8 +102,6 @@ class Header extends React.Component {
       this.props.firebase.auth().onAuthStateChanged(user => {
         if (user) {
           this.setState({ isSignedIn: true });
-          // Call sign in action if is signed in
-          this.props.signIn(user);
         } else {
           this.setState({ isSignedIn: false });
         }

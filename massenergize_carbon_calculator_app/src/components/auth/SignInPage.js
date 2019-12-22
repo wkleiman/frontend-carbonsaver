@@ -22,6 +22,7 @@ const styles = {
 
 class LogInForm extends React.Component {
   state = { error: "" };
+
   // Rendering error to help user filling out auth form
   renderError({ touched, error }) {
     if (touched && error) {
@@ -37,8 +38,7 @@ class LogInForm extends React.Component {
       .then(res => {
         let { user } = res;
         // Save user to backend database
-        this.props.signIn(user);
-        history.push(selected.name);
+        this.props.signIn(user, selected);
       })
       .catch(err => {
         this.setState({ error: err.message });
@@ -106,7 +106,7 @@ class LogInForm extends React.Component {
 const mapStateToProps = state => {
   return {
     auth: state.firebase.auth,
-    selected: state.event.selected
+    selected: state.event.selected,
   };
 };
 // Connect with signIn and getUser action

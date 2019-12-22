@@ -5,7 +5,7 @@ import { Fields, reduxForm } from "redux-form";
 import { connect } from "react-redux";
 import { withFirebase } from "react-redux-firebase";
 import { Link } from "react-router-dom";
-import { signIn, getUser } from "../../actions";
+import { signIn, createUser } from "../../actions";
 import { facebookProvider, googleProvider } from "./firebaseConfig";
 //Styling Component import
 import { Grid, Typography, Button } from "@material-ui/core";
@@ -100,6 +100,7 @@ class AuthForm extends React.Component {
     const {
       classes,
       isSignIn,
+      signUp,
       handleSubmit,
       onFormSubmit,
       renderFields,
@@ -120,14 +121,14 @@ class AuthForm extends React.Component {
           {this.state.error && (
             <Typography style={{ color: "red" }}>{this.state.error}</Typography>
           )}
-          {!isSignIn ? <></> : this.renderOtherOpt()}
+          {!(isSignIn || signUp) ? <></> : this.renderOtherOpt()}
         </Grid>
       </form>
     );
   };
 
-  //KNOWN BUG : LOGGING IN WITH GOOGLE WILL DELETE ANY ACCOUNT WITH THE SAME PASSWORD:
-  //WOULD NOT DELETE DATA I THINK?
+  // KNOWN BUG : LOGGING IN WITH GOOGLE WILL DELETE ANY ACCOUNT WITH THE SAME PASSWORD:
+  // WOULD NOT DELETE DATA I THINK?
   // Sign in with Google function
   signInWithGoogle = () => {
     // Authentication reset upon closing tab/window
@@ -139,10 +140,14 @@ class AuthForm extends React.Component {
           .auth()
           .signInWithPopup(googleProvider)
           .then(auth => {
+            console.log(auth.user);
             // Save user information to backend database
-            this.props.signIn(auth.user.email);
-            // Get and dispatch the user from the backend
-            this.props.getUser(auth.user.email);
+            if (this.props.isSignIn) {
+              this.props.signIn(auth.user);
+            }
+            if (this.props.signUp) {
+              auth.user.sendEmailVerification();
+            }
           })
           .catch(err => {
             this.setState({ error: err.message });
@@ -161,9 +166,8 @@ class AuthForm extends React.Component {
           .signInWithPopup(facebookProvider)
           .then(auth => {
             // Save user information to backend database
-            this.props.signIn(auth.user.email);
-            // Get and dispatch user info from the backend database
-            this.props.getUser(auth.user);
+            if (this.props.isSignIn) this.props.signIn(auth.user.email);
+            if (this.props.signUp) console.log(auth);
           })
           .catch(err => {
             this.setState({ error: err.message });
@@ -230,7 +234,7 @@ const validate = formValues => {
   return errors;
 };
 // Connect action to redux form
-export default connect(mapStoreToProps, { signIn, getUser })(
+export default connect(mapStoreToProps, { signIn, createUser })(
   reduxForm({
     form: "authForm",
     validate

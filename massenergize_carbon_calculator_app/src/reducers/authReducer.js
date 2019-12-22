@@ -8,7 +8,7 @@ const INITIAL_STATE = {
 export default (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case CREATE_USER:
-      return { ...state };
+      return state;
     case SIGN_IN: {
       return {
         ...state,

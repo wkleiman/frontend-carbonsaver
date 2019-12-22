@@ -21,23 +21,25 @@ class ActionItems extends React.Component {
   // Rendering Question List
   // TODO: Make component rerender to hide information, and add answered to action object in application state
   renderQuestionList() {
-    const { action, answered } = this.props;
+    const { action, answered, questionAnswered } = this.props;
     return _.tail(action.questionInfo).map(question => {
       // Check if Question has been answered
       if (answered) {
         const [isQAnswered, actionOfAnswered] = this.isAnswered(question.name);
         // Check if question is in Skip object of application state
-        if (
-          this.isSkip(question.name) ||
-          (isQAnswered && actionOfAnswered !== action.name)
-        )
+        if (this.isSkip(question.name)) {
           // Hide question if any of above true
           return (
             <React.Fragment
               key={`${action.name}${question.name}`}
             ></React.Fragment>
           );
+        }
+        if(isQAnswered && actionOfAnswered !== action.name){
+          questionAnswered(actionOfAnswered, , e.target.value)
+        }
       }
+
       // Render the question otherwise
       return (
         <React.Fragment key={`${action.name}${question.name}`}>
