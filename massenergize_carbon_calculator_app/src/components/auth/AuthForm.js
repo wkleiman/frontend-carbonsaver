@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { signIn, createUser } from "../../actions";
 import { facebookProvider, googleProvider } from "./firebaseConfig";
 //Styling Component import
-import { Grid, Typography, Button } from "@material-ui/core";
+import { Grid, Typography, Button, CircularProgress } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 //Styling classes
 const style = {
@@ -34,7 +34,8 @@ const style = {
 
 class AuthForm extends React.Component {
   state = {
-    error: ""
+    error: "",
+    loading: false,
   };
 
   render() {
@@ -114,9 +115,10 @@ class AuthForm extends React.Component {
             <Fields names={fieldNames} component={renderFields} />
           </Grid>
           <Grid item>
-            <Button className={classes.submitBtn} type="submit">
+            <Button className={classes.submitBtn} onClick={e=> this.setState({loading:true})} type="submit">
               {btnText}
             </Button>
+            {this.state.loading? <span><CircularProgress/></span>:<></>}
           </Grid>
           {this.state.error && (
             <Typography style={{ color: "red" }}>{this.state.error}</Typography>

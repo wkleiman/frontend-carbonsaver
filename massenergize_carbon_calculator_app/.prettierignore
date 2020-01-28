@@ -1,0 +1,11 @@
+__babel_fixtures__/
+__snapshots__/
+node_modules/
+dist/
+build/
+/src/_metronic
+package.json
+babel.js
+patch.js
+CHANGELOG.md
+.eslintrc.js

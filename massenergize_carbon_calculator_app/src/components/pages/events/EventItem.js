@@ -2,12 +2,12 @@
 import React from "react";
 import { connect } from "react-redux";
 import { withFirebase } from "react-redux-firebase";
-import { fetchEvent } from "../../actions";
-import { signIn } from "../../actions";
+import { fetchEvent } from "../../../actions";
+import { signIn } from "../../../actions";
 import { Redirect } from "react-router-dom";
-import Score from "../score";
+import Score from "../../score";
 import Station from "../stations/Stations";
-import history from "../../history";
+import history from "../../../history";
 
 // Styling Components
 import Paper from "@material-ui/core/Paper";
