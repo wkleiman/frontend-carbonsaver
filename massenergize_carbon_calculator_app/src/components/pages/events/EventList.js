@@ -8,6 +8,7 @@ import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import { fetchEvents } from '../../../actions'
+import { useSelectedState } from '../../context/SelectedContext'
 // Style defination
 const useStyle = makeStyles(theme => ({
   root: {
@@ -54,6 +55,8 @@ const EventList = props => {
     fetchEvents()(dispatch)
   }, [])
 
+  const { setSelected } = useSelectedState()
+
   const classes = useStyle()
   // Rendering List of Events
   const renderList = () =>
@@ -80,12 +83,7 @@ const EventList = props => {
             <Link
               className={classes.link}
               to={`/event/${event.name}`}
-              onClick={e =>
-                dispatch({
-                  type: 'SELECTED_EVENT',
-                  payload: event,
-                })
-              }
+              onClick={e => setSelected(event)}
             >
               <Paper className={classes.paperContainer}>
                 <Grid container direction="row" spacing={2}>

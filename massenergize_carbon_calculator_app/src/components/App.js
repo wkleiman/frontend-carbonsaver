@@ -6,6 +6,7 @@ import history from '../history'
 import '../style/App.css'
 import Header from './header'
 import { Routes } from './routes'
+import { AuthProvider } from './context/AuthContext'
 // TODO: May apply context for authentication redirecting for EventItem
 const App = () => (
   <div>
@@ -21,7 +22,9 @@ const App = () => (
             <Header />
           </Grid>
           <Grid item xs={12}>
-            <Routes />
+            <AuthProvider>
+              <Routes />
+            </AuthProvider>
           </Grid>
         </Grid>
       </>

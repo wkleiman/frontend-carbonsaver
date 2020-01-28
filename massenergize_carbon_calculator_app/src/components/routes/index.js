@@ -1,18 +1,33 @@
 import React from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
-import EventItem from '../pages/events/EventItem'
+import _ from 'lodash'
+import { useSelector } from 'react-redux'
 import EventList from '../pages/events/EventList'
-import ForgotPass from '../auth/ForgotPass'
-import SignUpPage from '../auth/SignUpPage'
-import SignInPage from '../auth/SignInPage'
+import EventItem from '../pages/events/EventItem'
+import { AuthPage } from '../auth/AuthPage'
+import { SelectedProvider } from '../context/SelectedContext'
+import { useAuthState } from '../context/AuthContext'
 
-export const Routes = () => (
-  <Switch>
-    <Route path="/" exact render={() => <Redirect to="/events" />} />
-    <Route path="/events" exact component={EventList} />
-    <Route path="/event/:name" exact component={EventItem} />
-    <Route path="/signin" exact component={SignInPage} />
-    <Route path="/signup" exact component={SignUpPage} />
-    <Route path="/resetpass" exact component={ForgotPass} />
-  </Switch>
-)
+export const Routes = () => {
+  const { authState, setAuthState } = useAuthState()
+  const selected = useSelector(state => ({ ...state.event.selected }))
+  console.log(authState)
+  return (
+    <Switch>
+      <SelectedProvider>
+        <Route path="/" exact component={EventList} />
+      </SelectedProvider>
+
+      {!authState ? (
+        <Route path="/auth/signin" component={AuthPage} />
+      ) : (
+        <Redirect from="/auth" to={`/event/${selected.name}`} />
+      )}
+      {!authState ? (
+        <Redirect to="/auth" />
+      ) : (
+        <Route path="/event/:id" exact component={EventItem} />
+      )}
+    </Switch>
+  )
+}

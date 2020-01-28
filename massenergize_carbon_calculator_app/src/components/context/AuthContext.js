@@ -4,9 +4,9 @@ import PropTypes from 'prop-types'
 const AuthContext = createContext()
 
 const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState()
+  const [authState, setAuthState] = useState()
   return (
-    <AuthContext.Provider value={{ auth, setAuth }}>
+    <AuthContext.Provider value={{ authState, setAuthState }}>
       {children}
     </AuthContext.Provider>
   )
