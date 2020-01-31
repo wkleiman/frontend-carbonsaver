@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { questionAnswered, getScore } from '../../actions';
+import { questionAnswered } from '../../actions';
 import _ from 'lodash';
 
 import TextField from '@material-ui/core/TextField';

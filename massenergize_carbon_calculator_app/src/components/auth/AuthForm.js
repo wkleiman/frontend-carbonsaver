@@ -1,6 +1,5 @@
 //Functional component import
 import React from "react";
-import history from "../../history";
 import { Fields, reduxForm } from "redux-form";
 import { connect } from "react-redux";
 import { withFirebase } from "react-redux-firebase";
@@ -8,7 +7,7 @@ import { Link } from "react-router-dom";
 import { signIn, createUser } from "../../actions";
 import { facebookProvider, googleProvider } from "./firebaseConfig";
 //Styling Component import
-import { Grid, Typography, Button } from "@material-ui/core";
+import { Grid, Typography, Button, CircularProgress } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 //Styling classes
 const style = {
@@ -34,7 +33,8 @@ const style = {
 
 class AuthForm extends React.Component {
   state = {
-    error: ""
+    error: "",
+    loading: false,
   };
 
   render() {
@@ -108,14 +108,18 @@ class AuthForm extends React.Component {
       fieldNames
     } = this.props;
     return (
-      <form onSubmit={handleSubmit(onFormSubmit)}>
+      <form onSubmit={e => {
+        this.setState({loading: true})
+        handleSubmit(onFormSubmit)(e)
+      }
+        }>
         <Grid container direction="column" spacing={2}>
           <Grid item>
             <Fields names={fieldNames} component={renderFields} />
           </Grid>
           <Grid item>
             <Button className={classes.submitBtn} type="submit">
-              {btnText}
+              {btnText}{this.state.loading && <span><CircularProgress/></span>}
             </Button>
           </Grid>
           {this.state.error && (

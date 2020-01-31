@@ -3,7 +3,7 @@ import React from "react";
 import QList from "../questions/QList";
 import _ from "lodash";
 import { connect } from "react-redux";
-import { questionAnswered, getScore } from "../../actions";
+import { questionAnswered, getScore } from "../../actions/";
 
 //Styling Component
 import List from "@material-ui/core/List";
@@ -21,11 +21,14 @@ class ActionItems extends React.Component {
   // Rendering Question List
   // TODO: Make component rerender to hide information, and add answered to action object in application state
   renderQuestionList() {
-    const { action, answered, questionAnswered } = this.props;
+    //const { action, answered, questionAnswered } = this.props;
+    const { action, answered } = this.props;
     return _.tail(action.questionInfo).map(question => {
       // Check if Question has been answered
       if (answered) {
         const [isQAnswered, actionOfAnswered] = this.isAnswered(question.name);
+        console.log(isQAnswered);
+        console.log(actionOfAnswered);
         // Check if question is in Skip object of application state
         if (this.isSkip(question.name)) {
           // Hide question if any of above true
@@ -35,9 +38,14 @@ class ActionItems extends React.Component {
             ></React.Fragment>
           );
         }
-        if(isQAnswered && actionOfAnswered !== action.name){
-          questionAnswered(actionOfAnswered, , e.target.value)
-        }
+        // Case where question is answered but the action is different
+        // if(isQAnswered && actionOfAnswered !== action.name){
+        //   // Update the Redux state of current action with the answer
+        //   questionAnswered(action.name, question.name, _.get(answered, `${question.name}`))
+        //   return (<React.Fragment
+        //       key={`${action.name}${question.name}`}
+        //     ></React.Fragment>)
+        // }
       }
 
       // Render the question otherwise

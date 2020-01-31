@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+//import PropTypes from 'prop-types';
 import ActionItems from '../actions/actionItems';
 import _ from 'lodash';
 
@@ -102,7 +102,7 @@ const Stations = props => {
         let idx = 1;
         return _.tail(stations).map(station => {
             return (
-                <Tab key={`${station.name}tab`} icon={<img className={classes.stationIcon} src={station.icon} />} label={station.displayname} {...tabProps(idx++)} />
+                <Tab key={`${station.name}tab`} icon={<img className={classes.stationIcon} src={station.icon} alt="" />} label={station.displayname} {...tabProps(idx++)} />
             );
         });
     }

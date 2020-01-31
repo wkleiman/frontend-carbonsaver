@@ -146,7 +146,8 @@ class SignUpPage extends React.Component {
   // Defines user input fields upon sucessful email verification: name, groups, locality, confirm over 13, agree to TNC
   // TODO: Allow user to select multiple groups
   renderInfoFields = fields => {
-    const { classes, groups } = this.props;
+    //const { classes, groups } = this.props;
+    const { groups } = this.props;
     return (
       <Grid container style={{ marginTop: "2vh" }} spacing={2}>
         <Grid item xs={12}>

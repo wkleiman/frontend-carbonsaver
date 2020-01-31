@@ -1,11 +1,11 @@
 // Functional components import
 import React from "react";
-import history from "../../history";
+import {Redirect} from 'react-router-dom'
 import { connect } from "react-redux";
 import { signIn, getUser } from "../../actions";
 import AuthForm from "./AuthForm";
 // Styling Components import
-import { Grid, TextField, Paper, Typography } from "@material-ui/core";
+import { Grid, TextField, Paper, Typography} from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import { withFirebase } from "react-redux-firebase";
 // Styling classes
@@ -21,7 +21,7 @@ const styles = {
 };
 
 class LogInForm extends React.Component {
-  state = { error: "" };
+  state = { error: ""};
 
   // Rendering error to help user filling out auth form
   renderError({ touched, error }) {
@@ -41,7 +41,7 @@ class LogInForm extends React.Component {
         this.props.signIn(user, selected);
       })
       .catch(err => {
-        this.setState({ error: err.message });
+        this.setState({ error: err.message, loading: false });
       });
   }
   // Rendering TextFields for user input
@@ -80,8 +80,9 @@ class LogInForm extends React.Component {
     this.normalLogin(formValues);
   };
   render() {
-    const { classes } = this.props;
+    const { classes, selected } = this.props;
     // Render Auth Form for user sign in with other options print out
+    if (!selected) return <Redirect to="/"/>
     return (
       <Paper className={classes.container}>
         <Typography variant="h3">
@@ -95,7 +96,6 @@ class LogInForm extends React.Component {
           otherOptionQuestion="Don't Have A Profile? "
           renderFields={this.renderFields}
           otherOptRoute="/signup"
-          onFormSubmit={this.onSubmit}
           isSignIn
         />
       </Paper>
