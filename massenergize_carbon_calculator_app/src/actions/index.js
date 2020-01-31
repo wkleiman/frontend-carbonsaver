@@ -118,9 +118,15 @@ export const signIn = (user, selected) => async dispatch => {
       email: user.email
     }
   });
-  dispatch({
-    type: types.SIGN_IN,
-    payload: response.data.userInfo
-  });
+  console.log(response);
+  if (response.data.status<0) {
+    alert(response.data.statusText);
+  }
+  else {
+    dispatch({
+      type: types.SIGN_IN,
+      payload: response.data.userInfo
+    });
+  }
   history.push(`/event/${selected.name}`);
 };
