@@ -144,7 +144,7 @@ class AuthForm extends React.Component {
           .auth()
           .signInWithPopup(googleProvider)
           .then(auth => {
-            console.log(auth.user);
+            console.log("User is "+auth.user);
             // Save user information to backend database
             if (this.props.isSignIn) {
               this.props.signIn(auth.user);

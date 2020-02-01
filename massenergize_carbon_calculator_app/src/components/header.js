@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { signIn, signOut } from "../actions";
 import { withFirebase } from "react-redux-firebase";
-import Logo from "../style/images/Logo.jpg";
+import Logo from "../style/images/CoolerCommunities512.jpg";
 // Styling Component imports
 import { AppBar, Typography, Toolbar, Button } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
@@ -133,7 +133,7 @@ class Header extends React.Component {
             </a>
           </ListItem>
           <ListItem button className={classes.button}>
-            <a className={classes.link} href="/">
+            <a className={classes.link} href="/about">
               <ListItemText primary={"About Us"} />
             </a>
           </ListItem>
@@ -180,10 +180,12 @@ class Header extends React.Component {
               {this.sideList()}
             </Drawer>
             <Typography variant="h6" className={classes.logo}>
-              <Link to="/">
-                <img src={Logo} alt="MassEnergize banner" />
+              <Link to="/about">
+                <img src={Logo} alt="Cooler Communities banner" />
               </Link>
             </Typography>
+            <p>Carbon Saver - Leatn about the impact of actions you can take.</p>
+          
             {// If user is signed in display sign out and sign in otherwise
             // TODO: May don't need to display sign in since prompt user sign in upon accessing a specific event.
             !this.state.isSignedIn ? (

@@ -112,13 +112,11 @@ export const createUser = (formValues, email, selected) => async dispatch => {
 // Sign in action send GET request to backend with email to get the user
 export const signIn = (user, selected) => async dispatch => {
   // Attach email to request and send off to backend to get user info
-  console.log(selected);
   const response = await api.get("/cc/info/user", {
     params: {
       email: user.email
     }
   });
-  console.log(response);
   if (response.data.status<0) {
     alert(response.data.statusText);
   }
@@ -128,5 +126,7 @@ export const signIn = (user, selected) => async dispatch => {
       payload: response.data.userInfo
     });
   }
-  history.push(`/event/${selected.name}`);
+  if (selected) {
+    history.push(`/event/${selected.name}`);
+  }
 };

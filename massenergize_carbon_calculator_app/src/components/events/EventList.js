@@ -139,7 +139,7 @@ const EventList = props => {
                 fontWeight: "bold"
               }}
             >
-              Up Coming Events
+              Upcoming Events
             </Typography>
           </Grid>
           <Grid item xs={12} container>
