@@ -7,12 +7,12 @@ import { signIn } from "../../actions";
 import { Redirect } from "react-router-dom";
 import Score from "../score";
 import Station from "../stations/Stations";
-import history from "../../history";
+//import history from "../../history";
 
 // Styling Components
 import Paper from "@material-ui/core/Paper";
-import AppBar from "@material-ui/core/AppBar";
-import useScrollTrigger from "@material-ui/core/useScrollTrigger";
+//import AppBar from "@material-ui/core/AppBar";
+//import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import { withStyles } from "@material-ui/core/styles";
 import EmailIcon from "@material-ui/icons/Email";
 import PhoneIcon from "@material-ui/icons/Phone";
@@ -119,7 +119,8 @@ class EventItem extends React.Component {
   }
 
   renderSponsor() {
-    const { event, classes, auth } = this.props;
+    //const { event, classes, auth } = this.props;
+    const { event, classes} = this.props;
     // Render Sponsor Info
     return (
       <Grid item>

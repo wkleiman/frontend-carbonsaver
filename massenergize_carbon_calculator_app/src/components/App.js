@@ -4,6 +4,7 @@ import history from "../history";
 import { Router, Route, Switch, Redirect } from "react-router-dom";
 import "../style/App.css";
 import Header from "./header";
+import AboutPage from "./about/AboutPage";
 import EventItem from "./events/EventItem";
 import EventList from "./events/EventList";
 import ForgotPass from "./auth/ForgotPass";
@@ -34,6 +35,7 @@ class App extends React.Component {
                     exact
                     render={() => <Redirect to="/events" />}
                   />
+                  <Route path="/about" exact component={AboutPage} />
                   <Route path="/events" exact component={EventList} />
                   <Route path="/event/:name" exact component={EventItem} />
                   <Route path="/signin" exact component={SignInPage} />

@@ -104,7 +104,6 @@ const ForgotPass = props => {
           fieldNames={["email"]}
           btnText="Continue"
           renderFields={renderTextField}
-          onFormSubmit={onSubmit}
         />
       </Paper>
     );
