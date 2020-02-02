@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+//import PropTypes from 'prop-types';
 import ActionItems from '../actions/actionItems';
 import _ from 'lodash';
 
@@ -14,6 +14,7 @@ import ScheduleIcon from '@material-ui/icons/Schedule';
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Paper from '@material-ui/core/Paper';
+import { CircularProgress } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
     rootHorizontal: {
@@ -77,6 +78,7 @@ function tabProps(index) {
 const Stations = props => {
 
     const [value, setValue] = useState(0);
+    const [answered, setAnswered] = useState(new Set());
     const { stations, event } = props;
     const theme = useTheme();
     const phone = useMediaQuery(theme.breakpoints.up('sm'));
@@ -86,15 +88,21 @@ const Stations = props => {
     const eventDate = new Date(event.datetime);
     const classes = useStyles();
 
+    if (!stations) return <CircularProgress />
+
     const onChangeHandler = (e, newValue) => {
         setValue(newValue);
+    }
+
+    const onAnswered = (question) => {
+        setAnswered(new Set([...answered, question]))
     }
 
     const renderStationTabs = () => {
         let idx = 1;
         return _.tail(stations).map(station => {
             return (
-                <Tab key={`${station.name}tab`} icon={<img className={classes.stationIcon} src={station.icon} />} label={station.displayname} {...tabProps(idx++)} />
+                <Tab key={`${station.name}tab`} icon={<img className={classes.stationIcon} src={station.icon} alt="" />} label={station.displayname} {...tabProps(idx++)} />
             );
         });
     }
@@ -103,7 +111,7 @@ const Stations = props => {
     const renderActionList = (actions, station) => {
         const res = actions.map(action => {
             return (
-                <ActionItems key={`${action.name}${station}`} action={action} />
+                <ActionItems key={`${action.name}${station}`} action={action} answered={answered} onAnswered={onAnswered} />
             );
         })
         return res;

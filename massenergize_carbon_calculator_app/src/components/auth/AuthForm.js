@@ -1,151 +1,246 @@
-import React from 'react';
-import history from '../../history';
-import { Fields, reduxForm } from 'redux-form';
-import { connect } from 'react-redux';
-import { withFirebase } from 'react-redux-firebase';
-import { Link, Redirect } from 'react-router-dom';
-
-import { signIn } from '../../actions';
-import { facebookProvider, googleProvider } from './firebaseConfig';
-import { Grid, Typography, Button } from '@material-ui/core';
-
-/* Modal config */
+//Functional component import
+import React from "react";
+import { Fields, reduxForm } from "redux-form";
+import { connect } from "react-redux";
+import { withFirebase } from "react-redux-firebase";
+import { Link } from "react-router-dom";
+import { signIn, createUser } from "../../actions";
+import { facebookProvider, googleProvider } from "./firebaseConfig";
+//Styling Component import
+import { Grid, Typography, Button, CircularProgress } from "@material-ui/core";
+import { withStyles } from "@material-ui/core/styles";
+//Styling classes
+const style = {
+  link: {
+    textDecoration: "none"
+  },
+  googleBtn: {
+    color: "white",
+    backgroundColor: "red"
+  },
+  fbBtn: {
+    color: "white",
+    backgroundColor: "#3b5998"
+  },
+  error: {
+    color: "red"
+  },
+  submitBtn: {
+    backgroundColor: "#8dc63f",
+    color: "white"
+  }
+};
 
 class AuthForm extends React.Component {
-    state = {
-        error: '',
-    }
+  state = {
+    error: "",
+    loading: false,
+  };
 
-    render() {
-        // if (!this.props.auth || !this.props.user || !this.props.policies) return <CircularProgress />
-        // if (this.props.user.info && this.props.user.todo && this.props.user.done && this.props.auth.emailVerified) {
-        //     return <Redirect to={'/event/CC_Event_1'} />;
-        // }
-        return (
-            <>
-                <div>
-                    {this.renderPage()}
-                </div>
-            </>
-        );
-    }
-    renderPage = () => {
-        const googleSignIn = (this.props.otherOptionBtnText && this.props.otherOptionQuestion) && <Grid item><Button style={{ color: 'white', backgroundColor: '#3b5998' }} onClick={this.signInWithFacebook} id="facebook" className="img-circle facebook"><span className="fa fa-facebook-f"> Continue with Facebook</span></Button></Grid>;
-        const facebookSignIn = (this.props.otherOptionBtnText && this.props.otherOptionQuestion) && <Grid item><Button style={{ color: 'white', backgroundColor: 'red' }} onClick={this.signInWithGoogle} id="google" className="img-circle google"><span className="fa fa-google"> Continue with Google</span></Button></Grid>;
-        const otherOpt = (this.props.otherOptionBtnText && this.props.otherOptionQuestion) && <Grid item><Typography>{this.props.otherOptionQuestion} <Link to={this.props.otherOptRoute}>{this.props.otherOptionBtnText}</Link></Typography></Grid>;
-        return (
-            <form onSubmit={this.props.handleSubmit(this.props.onFormSubmit)}>
-                <Grid container direction="column" spacing={2}>
-                    <Grid item><Fields names={this.props.fieldNames} component={this.props.renderFields} /></Grid>
-                    <Grid item><Button type="submit" >{this.props.btnText}</Button></Grid>
-                    {this.state.error && <Typography variant="h4">{this.state.error}</Typography>}
-                    {googleSignIn}
-                    {facebookSignIn}
-                    {otherOpt}
-                </Grid>
-            </form>
-        );
-    }
-    // onFinalSubmit(event) {
-    //     event.preventDefault();
-    //     if (!this.state.termsAndServices) {
-    //         this.setState({ error: 'You need to agree to the terms and services' });
-    //     }else if(!this.state.captchaConfirmed){ 
-    //         this.setState({ error: 'Invalid reCAPTCHA, please try again' });
-    //     }else {
-    //         /** Collects the form data and sends it to the backend */
-    //         const { firstName, lastName, preferredName, serviceProvider, termsAndServices } = this.state;
-    //         if (!termsAndServices) {
-    //             this.setState({ showTOSError: true });
-    //             return;
-    //         }
-    //         const { auth } = this.props;
-    //         const body = {
-    //             "full_name": firstName + ' ' + lastName,
-    //             "preferred_name": preferredName === "" ? firstName : preferredName,
-    //             "email": auth.email,
-    //             // "id": auth.uid,
-    //             "is_vendor": serviceProvider,
-    //             "accepts_terms_and_conditions": termsAndServices
-    //         }
-    //         postJson(URLS.USERS, body).then(json => {
-    //             console.log(json);
-    //             if (json.success && json.data) {
-    //                 this.fetchAndLogin(json.data.email).then(success => {
-    //                     if(!success){
-    //                         this.setState({error: 'Failed to Register'})
-    //                     }
-    //                 });
-    //             }
-    //         })
-    //         this.setState({ ...INITIAL_STATE });
-    //     }
-    // }
+  render() {
+    return (
+      <>
+        <div>{this.renderPage()}</div>
+      </>
+    );
+  }
 
-    //KNOWN BUG : LOGGING IN WITH GOOGLE WILL DELETE ANY ACCOUNT WITH THE SAME PASSWORD: 
-    //WOULD NOT DELETE DATA I THINK?
-    signInWithGoogle = () => {
-        this.props.firebase.auth().setPersistence(this.props.firebase.auth.Auth.Persistence.SESSION).then(() => {
-            this.props.firebase.auth()
-                .signInWithPopup(googleProvider)
-                .then(auth => {
-                    this.props.signIn(auth.user.email);
-                    history.push(`/event/CC_Event_1`);
-                })
-                .catch(err => {
-                    this.setState({ error: err.message });
-                });
-        });
+  renderOtherOpt = () => {
+    // Rendering other auth option: with Google, Facebook, register if haven't done so or forgot the password
+    const {
+      classes,
+      otherOptionBtnText,
+      otherOptionQuestion,
+      otherOptRoute
+    } = this.props;
+    return (
+      <Grid item container direction="column" spacing={2}>
+        <Grid item>
+          <Button
+            onClick={this.signInWithFacebook}
+            id="facebook"
+            className={`img-circle facebook ${classes.fbBtn}`}
+          >
+            <span className="fa fa-facebook-f"> Continue with Facebook</span>
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button
+            onClick={this.signInWithGoogle}
+            id="google"
+            className={`img-circle google ${classes.googleBtn}`}
+          >
+            <span className="fa fa-google"> Continue with Google</span>
+          </Button>
+        </Grid>
+        <Grid item>
+          <Typography>
+            {otherOptionQuestion}{" "}
+            <Link
+              className={classes.link}
+              to={otherOptRoute ? otherOptRoute : "#"}
+            >
+              {otherOptionBtnText}
+            </Link>
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography>
+            <Link className={classes.link} to="/resetpass">
+              Forgot Your Password?
+            </Link>
+          </Typography>
+        </Grid>
+      </Grid>
+    );
+  };
 
-    }
-    signInWithFacebook = () => {
-        this.props.firebase.auth().setPersistence(this.props.firebase.auth.Auth.Persistence.SESSION).then(() => {
-            this.props.firebase.auth()
-                .signInWithPopup(facebookProvider)
-                .then(auth => {
-                    this.props.signIn(auth.user.email);
-                })
-                .catch(err => {
-                    this.setState({ error: err.message });
-                });
-        });
-    }
+  renderPage = () => {
+    // Rendering Fields provided and other auth option if specified
+    const {
+      classes,
+      isSignIn,
+      signUp,
+      handleSubmit,
+      onFormSubmit,
+      renderFields,
+      btnText,
+      fieldNames
+    } = this.props;
+    return (
+      <form onSubmit={e => {
+        this.setState({loading: true})
+        handleSubmit(onFormSubmit)(e)
+      }
+        }>
+        <Grid container direction="column" spacing={2}>
+          <Grid item>
+            <Fields names={fieldNames} component={renderFields} />
+          </Grid>
+          <Grid item>
+            <Button className={classes.submitBtn} type="submit">
+              {btnText}{this.state.loading && <span><CircularProgress/></span>}
+            </Button>
+          </Grid>
+          {this.state.error && (
+            <Typography style={{ color: "red" }}>{this.state.error}</Typography>
+          )}
+          {!(isSignIn || signUp) ? <></> : this.renderOtherOpt()}
+        </Grid>
+      </form>
+    );
+  };
 
+  // KNOWN BUG : LOGGING IN WITH GOOGLE WILL DELETE ANY ACCOUNT WITH THE SAME PASSWORD:
+  // WOULD NOT DELETE DATA I THINK?
+  // Sign in with Google function
+  signInWithGoogle = () => {
+    // Authentication reset upon closing tab/window
+    this.props.firebase
+      .auth()
+      .setPersistence(this.props.firebase.auth.Auth.Persistence.SESSION)
+      .then(() => {
+        this.props.firebase
+          .auth()
+          .signInWithPopup(googleProvider)
+          .then(auth => {
+            console.log("User is "+auth.user);
+            // Save user information to backend database
+            if (this.props.isSignIn) {
+              this.props.signIn(auth.user);
+            }
+            if (this.props.signUp) {
+              auth.user.sendEmailVerification();
+            }
+          })
+          .catch(err => {
+            this.setState({ error: err.message });
+          });
+      });
+  };
+  // Sign In with Facebook function
+  signInWithFacebook = () => {
+    // Authentication reset upon closing tab/window
+    this.props.firebase
+      .auth()
+      .setPersistence(this.props.firebase.auth.Auth.Persistence.SESSION)
+      .then(() => {
+        this.props.firebase
+          .auth()
+          .signInWithPopup(facebookProvider)
+          .then(auth => {
+            // Save user information to backend database
+            if (this.props.isSignIn) this.props.signIn(auth.user.email);
+            if (this.props.signUp) console.log(auth);
+          })
+          .catch(err => {
+            this.setState({ error: err.message });
+          });
+      });
+  };
 }
+// Get auth from application state
+// TODO: May switch to context for redirect
+const mapStoreToProps = state => {
+  return {
+    auth: state.firebase.auth
+  };
+};
+// Form validation
+const validate = formValues => {
+  const errors = {};
 
-const mapStoreToProps = (state) => {
-    return {
-        auth: state.firebase.auth,
-        event: state.event.CC_Event_1
-    }
-}
+  if (!formValues.email) {
+    errors.email = "You Must Enter an Email";
+  }
 
-const validate = (formValues) => {
-    const errors = {};
+  if (!formValues.password) {
+    errors.password = "You Must Enter a Password";
+  }
 
-    if (!formValues.email) {
-        errors.email = 'You Must Enter an Email';
-    }
+  if (!formValues.passwordOne) {
+    errors.passwordOne = "You Must Enter a Password";
+  }
 
-    if (!formValues.password) {
-        errors.password = 'You Must Enter an Email';
-    }
+  if (!formValues.passwordTwo) {
+    errors.passwordTwo = "You Must Enter a Password";
+  }
+  // Check if second password match first on sign up
+  if (formValues.passwordTwo !== formValues.passwordOne) {
+    errors.passwordTwo = "Passwords You Enter Are Not Matched";
+  }
 
-    if (!formValues.passwordOne) {
-        errors.passwordOne = 'You Must Enter an Email';
-    }
+  if (!formValues.first_name) {
+    errors.first_name = "Please Let Us Know Who You Are";
+  }
 
-    if (!formValues.passwordTwo) {
-        errors.passwordTwo = 'You Must Confirm Your Password'
-    }
+  if (!formValues.last_name) {
+    errors.last_name = "Please Let Us Know Who You Are";
+  }
 
-    if (formValues.passwordTwo !== formValues.passwordOne) {
-        errors.passwordTwo = 'The Password You Enter Is Not Match';
-    }
+  if (!formValues.locality) {
+    errors.locality = "Please Let Us Know Where You From";
+  }
 
-    return errors;
-}
-export default connect(mapStoreToProps, { signIn })(reduxForm({
-    form: 'authForm',
-    validate,
-})(withFirebase(AuthForm)));
+  if (!formValues.locality) {
+    errors.groups = "Please Select Your Group";
+  }
+
+  if (!formValues.minimum_age) {
+    errors.minimum_age = "You Must Be Above 13 To Continue";
+  }
+
+  if (!formValues.accept_terms_and_conditions) {
+    errors.accept_terms_and_conditions =
+      "You Must Accept Our Terms And Conditions";
+  }
+
+  return errors;
+};
+// Connect action to redux form
+export default connect(mapStoreToProps, { signIn, createUser })(
+  reduxForm({
+    form: "authForm",
+    validate
+  })(withFirebase(withStyles(style)(AuthForm)))
+);
