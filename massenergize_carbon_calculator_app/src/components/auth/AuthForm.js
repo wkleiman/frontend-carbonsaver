@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { withFirebase } from "react-redux-firebase";
 import { Link } from "react-router-dom";
 import { signIn, createUser } from "../../actions";
-import { facebookProvider, googleProvider } from "./firebaseConfig";
+import { facebookProvider, googleProvider } from "../../config/firebaseConfig";
 //Styling Component import
 import { Grid, Typography, Button, CircularProgress } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
