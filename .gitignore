@@ -3,3 +3,4 @@ node_modules
 build/
 **/build
 src/component/auth/firebaseConfig.js
+massenergize_carbon_calculator_app/src/config/firebaseConfig.js
