@@ -13,8 +13,14 @@ export const fetchQuestions = actionName => async dispatch => {
 }
 // getUser action to get the user
 // TODO: May remove this action and just use userCreation action
-export const getUser = user => async dispatch => {
-  // const response = await api.get('/cc/info/user', {params: })
+export const getUser = async user => {
+  // Attach email to request and send off to backend to get user info
+  const response = await api.get('/cc/info/user', {
+    params: {
+      email: user.email,
+    },
+  })
+  return response.data.userInfo
 }
 // Handle question answered to dispatch to application state
 export const questionAnswered = (
@@ -38,14 +44,14 @@ export const signOut = () => ({
   type: types.SIGN_OUT,
 })
 // fetchEvents action, fetch all events for user selection
-export const fetchEvents = () => async dispatch => {
+export const fetchEvents = async () => {
   const response = await api.get('/cc/info/events')
-  return dispatch({ type: types.FETCH_EVENTS, payload: response.data })
+  return response.data
 }
 // fetchEvent action, fetch a single event
 export const fetchEvent = id => async dispatch => {
   const response = await api.get(`/cc/info/event/${id}`)
-  dispatch({ type: types.FETCH_EVENT, payload: response.data })
+  return response.data
 }
 // Send query to backend to get points calculated
 export const getScore = (userId, actionName, params) => async dispatch => {
@@ -76,9 +82,9 @@ export const getScore = (userId, actionName, params) => async dispatch => {
   }
 }
 // fetchGroups action, fetch all groups for user selection
-export const fetchGroups = () => async dispatch => {
+export const fetchGroups = async () => {
   const response = await api.get(`/cc/info/groups`)
-  dispatch({ type: types.FETCH_GROUPS, payload: response.data.groupList })
+  return response.data.groupList
 }
 // createUser action, send POST request to backend to save user registration info to database
 export const createUser = (formValues, email, selected) => async dispatch => {

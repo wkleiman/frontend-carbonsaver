@@ -18,7 +18,7 @@ import { useFirebase } from 'react-redux-firebase'
 import { useAuthState } from '../context/AuthContext'
 import { useSelectedState } from '../context/SelectedContext'
 import { facebookProvider, googleProvider } from './firebaseConfig'
-import api from '../../api/massEnergize'
+import { getUser } from '../../actions'
 // Styling classes
 const useStyles = makeStyles({
   textInput: {
@@ -51,22 +51,10 @@ const useStyles = makeStyles({
 
 const LogInForm = props => {
   const classes = useStyles()
-  const [error, setError] = React.useState()
   const [loading, setLoading] = React.useState()
   const firebase = useFirebase()
-  const auth = firebase.auth()
   const { authState, setAuthState } = useAuthState()
-  const { selectedState, setSelectedState } = useSelectedState()
-
-  const getUser = async user => {
-    // Attach email to request and send off to backend to get user info
-    const response = await api.get('/cc/info/user', {
-      params: {
-        email: user.email,
-      },
-    })
-    return response.data.userInfo
-  }
+  const { selected } = useSelectedState()
 
   // Rendering TextFields for user input
   // For sign in includes email and password
@@ -77,6 +65,8 @@ const LogInForm = props => {
       password: '',
     },
     onSubmit: values => {
+      setLoading(true)
+      // eslint-disable-next-line no-undef
       normalLogin(values)
     },
     validate: formValues => {
@@ -84,6 +74,10 @@ const LogInForm = props => {
 
       if (!formValues.email) {
         errors.email = 'You Must Enter an Email'
+      } else if (
+        !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formValues.email)
+      ) {
+        errors.email = 'Invalid Email'
       }
 
       if (!formValues.password) {
@@ -94,26 +88,7 @@ const LogInForm = props => {
     },
   })
 
-   // Sign in with email and password function
-   const normalLogin = ({ email, password }) => {
-    auth
-      .signInWithEmailAndPassword(email, password)
-      .then(async res => {
-        const { usr } = res
-        // Save user to backend database
-        const user = await getUser(usr)
-        setAuthState(user)
-      })
-      .catch(err => {
-        signInFormik.setStatus(err.message)
-      })
-  }
-
-  const signInError = Boolean(
-    signInFormik.touched.email && signInFormik.errors.email
-  )
-
-  // KNOWN BUG : LOGGING IN WITH GOOGLE WILL DELETE ANY ACCOUNT WITH THE SAME PASSWORD:
+  // KNOWN UG : LOGGING IN WITH GOOGLE WILL DELETE ANY ACCOUNT WITH THE SAME PASSWORD:
   // WOULD NOT DELETE DATA I THINK?
   // Sign in with Google function
   const signInWithGoogle = () => {
@@ -131,6 +106,7 @@ const LogInForm = props => {
             setAuthState(user)
           })
           .catch(err => {
+            setLoading(false)
             signInFormik.setStatus(err.message)
           })
       })
@@ -147,16 +123,18 @@ const LogInForm = props => {
           .signInWithPopup(facebookProvider)
           .then(async facebookAuth => {
             // Save user information to backend database
-            const user = await getUser(facebookAuth.user.email)
+            const user = await getUser(facebookAuth.user)
             setAuthState(user)
           })
           .catch(err => {
+            setLoading(false)
             signInFormik.setStatus(err.message)
           })
       })
   }
 
-  if (auth.isSignedIn) return <Redirect to={`/event/${selectedState.name}`} />
+  if (authState) return <Redirect to={`/event/${selected.name}`} />
+
   // Render Auth Form for user sign in with other options print out
   return (
     <Paper className={classes.container}>
@@ -187,7 +165,9 @@ const LogInForm = props => {
                   helperText={
                     signInFormik.touched.email && signInFormik.errors.email
                   }
-                  error={signInError}
+                  error={
+                    signInFormik.touched.email && signInFormik.errors.email
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -200,7 +180,11 @@ const LogInForm = props => {
                     signInFormik.touched.password &&
                     signInFormik.errors.password
                   }
-                  error={signInError}
+                  error={
+                    signInFormik.touched.password &&
+                    signInFormik.errors.password
+                  }
+                  name="password"
                   label="Password"
                   placeholder="Password"
                   variant="outlined"
@@ -211,19 +195,13 @@ const LogInForm = props => {
             </Grid>
           </Grid>
           <Grid item>
-            <Button
-              className={classes.submitBtn}
-              onClick={() => setLoading(true)}
-              type="submit"
-            >
+            <Button className={classes.submitBtn} type="submit">
               Sign In
             </Button>
-            {loading ? (
+            {loading && (
               <span>
                 <CircularProgress />
               </span>
-            ) : (
-              <></>
             )}
           </Grid>
           <Grid item container direction="column" spacing={2}>
@@ -233,9 +211,7 @@ const LogInForm = props => {
                 id="facebook"
                 className={`img-circle facebook ${classes.fbBtn}`}
               >
-                <span className="fa fa-facebook-f">
-                  Continue with Facebook
-                </span>
+                <span className="fa fa-facebook-f">Continue with Facebook</span>
               </Button>
             </Grid>
             <Grid item>

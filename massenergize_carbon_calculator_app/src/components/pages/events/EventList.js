@@ -1,14 +1,17 @@
 // React and redux import
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
+import { CircularProgress } from '@material-ui/core'
 // Styling imports
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
+import _ from 'lodash'
 import { makeStyles } from '@material-ui/core/styles'
 import { fetchEvents } from '../../../actions'
 import { useSelectedState } from '../../context/SelectedContext'
+import { useAuthState } from '../../context/AuthContext'
 // Style defination
 const useStyle = makeStyles(theme => ({
   root: {
@@ -46,81 +49,61 @@ const useStyle = makeStyles(theme => ({
 }))
 // EventList component
 const EventList = props => {
-  // Get Event from application state
-  const events = useSelector(state => Object.values(state.event))
-  // Declare dispatch for action
-  const dispatch = useDispatch()
-  // Fetch event information upon Mount and Update
+  const [events, setEvents] = React.useState()
+  const getEvents = async () => {
+    const data = await fetchEvents()
+    const eventList = _.get(data, 'eventList')
+    setEvents(eventList)
+  }
   React.useEffect(() => {
-    fetchEvents()(dispatch)
+    getEvents()
   }, [])
-
-  const { setSelected } = useSelectedState()
-
+  const { selected, setSelected } = useSelectedState()
+  const { authState, setAuthState } = useAuthState()
   const classes = useStyle()
   // Rendering List of Events
   const renderList = () =>
     events.map(event => {
       // Define dates and months for reformatting
       const date = new Date(event.datetime)
-      const months = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ]
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
       return (
         <React.Fragment key={event}>
           <Grid item xs={12}>
-            <Link
-              className={classes.link}
-              to={`/event/${event.name}`}
-              onClick={e => setSelected(event)}
+            <Paper
+              className={classes.paperContainer}
+              onClick={() => {
+                setSelected(event)
+              }}
             >
-              <Paper className={classes.paperContainer}>
-                <Grid container direction="row" spacing={2}>
-                  <Grid
-                    item
-                    xs={2}
-                    container
-                    direction="column"
-                    alignItems="center"
-                  >
-                    <Grid item>
-                      <Typography>{months[date.getMonth()]}</Typography>
-                    </Grid>
-                    <Grid item>
-                      <Typography variant="h5">{date.getDate()}</Typography>
-                    </Grid>
+              <Grid container direction="row" spacing={2}>
+                <Grid item xs={2} container direction="column" alignItems="center">
+                  <Grid item>
+                    <Typography>{months[date.getMonth()]}</Typography>
                   </Grid>
-                  <Grid container item xs={9} direction="column" spacing={2}>
-                    <Grid item>
-                      <Typography variant="h5" className={classes.displayname}>
-                        {event.displayname}
-                      </Typography>
-                    </Grid>
-                    <Grid item>
-                      <Typography className={classes.location}>
-                        {event.location}
-                      </Typography>
-                    </Grid>
+                  <Grid item>
+                    <Typography variant="h5">{date.getDate()}</Typography>
                   </Grid>
                 </Grid>
-              </Paper>
-            </Link>
+                <Grid container item xs={9} direction="column" spacing={2}>
+                  <Grid item>
+                    <Typography variant="h5" className={classes.displayname}>
+                      {event.displayname}
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography className={classes.location}>{event.location}</Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Paper>
           </Grid>
         </React.Fragment>
       )
     })
   // Main rendering function calling render list function
+  if (!events) return <CircularProgress />
+  if (selected) return <Redirect to={`/event/${selected.name}`} />
   return (
     <div>
       <Paper className={classes.root}>
