@@ -3,8 +3,6 @@ import { Switch, Route, Redirect, withRouter } from 'react-router-dom'
 import Login from './SignInPage'
 import SignUp from './SignUpPage'
 import ForgotPass from './ForgotPass'
-import { AuthProvider } from '../context/AuthContext'
-import { SelectedProvider } from '../context/SelectedContext'
 
 export const AuthPage = withRouter(() => (
   <Switch>

@@ -200,7 +200,9 @@ const SignUpPage = props => {
                   helperText={
                     signUpFormik.touched.email && signUpFormik.errors.email
                   }
-                  error={signUpFormik.touched.email && signUpFormik.errors.email}
+                  error={
+                    signUpFormik.touched.email && signUpFormik.errors.email
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -213,8 +215,10 @@ const SignUpPage = props => {
                     signUpFormik.touched.passwordOne &&
                     signUpFormik.errors.passwordOne
                   }
-                  error={signUpFormik.touched.passwordOne &&
-                    signUpFormik.errors.passwordOne}
+                  error={
+                    signUpFormik.touched.passwordOne &&
+                    signUpFormik.errors.passwordOne
+                  }
                   name="password"
                   label="Password"
                   placeholder="Password"
@@ -233,8 +237,10 @@ const SignUpPage = props => {
                     signUpFormik.touched.passwordTwo &&
                     signUpFormik.errors.passwordTwo
                   }
-                  error={ signUpFormik.touched.passwordTwo &&
-                    signUpFormik.errors.passwordTwo}
+                  error={
+                    signUpFormik.touched.passwordTwo &&
+                    signUpFormik.errors.passwordTwo
+                  }
                   name="password"
                   label="Confirm Your Password"
                   placeholder="Confirm Your Password"
