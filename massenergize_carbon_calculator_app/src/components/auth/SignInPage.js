@@ -16,6 +16,7 @@ import { useFormik } from 'formik'
 import { useFirebase } from 'react-redux-firebase'
 
 import { useAuthState } from '../context/AuthContext'
+import { useSignInState } from '../context/SignInContext'
 import { useSelectedState } from '../context/SelectedContext'
 import { facebookProvider, googleProvider } from './firebaseConfig'
 import { getUser } from '../../actions'
@@ -49,11 +50,12 @@ const useStyles = makeStyles({
   },
 })
 
-const LogInForm = props => {
+const LogInForm = () => {
   const classes = useStyles()
   const [loading, setLoading] = React.useState()
   const firebase = useFirebase()
   const { authState, setAuthState } = useAuthState()
+  const { setSignIn } = useSignInState()
   const { selected } = useSelectedState()
 
   // Rendering TextFields for user input
@@ -226,14 +228,18 @@ const LogInForm = props => {
             <Grid item>
               <Typography>
                 Don't have an account?
-                <Link className={classes.link} to="/signup">
+                <Link
+                  className={classes.link}
+                  to="/auth/signup"
+                  onClick={() => setSignIn(false)}
+                >
                   Create a Profile
                 </Link>
               </Typography>
             </Grid>
             <Grid item>
               <Typography>
-                <Link className={classes.link} to="/resetpass">
+                <Link className={classes.link} to="/auth/resetpass">
                   Forgot Your Password?
                 </Link>
               </Typography>

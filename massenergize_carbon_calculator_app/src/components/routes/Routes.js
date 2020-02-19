@@ -5,23 +5,38 @@ import _ from 'lodash'
 import EventList from '../pages/events/EventList'
 import EventItem from '../pages/events/EventItem'
 import { AuthPage } from '../auth/AuthPage'
-import { SelectedProvider, useSelectedState } from '../context/SelectedContext'
-import { useAuthState, AuthProvider } from '../context/AuthContext'
+import { useSelectedState } from '../context/SelectedContext'
+import { useSignInState } from '../context/SignInContext'
+import { useAuthState } from '../context/AuthContext'
 import HomePage from '../pages/HomePage'
 
 export const Routes = withRouter(props => {
-  const { authState, setAuthState } = useAuthState()
-  const { selected, setSelected } = useSelectedState()
+  const { authState } = useAuthState()
+  const { selected } = useSelectedState()
+  const { SignIn } = useSignInState()
+
+  const AuthRoute = !SignIn ? (
+    <Route path="/auth/signup" />
+  ) : (
+    <Route path="/auth/signin" />
+  )
+  const AuthRedirect = !SignIn ? (
+    <Redirect to="/auth/signup" />
+  ) : (
+    <Redirect to="/auth/signin" />
+  )
+
   return (
     <Switch>
-      <Route path="/events" exact component={EventList} />
+      <Route path="/events" component={EventList} />
+      <Route path="/auth" component={AuthPage} />
       {!selected && <Redirect to="/events" />}
       {!authState ? (
-        <Route path="/auth/signin" exact component={AuthPage} />
+        AuthRoute
       ) : (
         <Redirect from="/auth" to={`/event/${selected.name}`} />
       )}
-      {!authState ? <Redirect to="/auth/signin" /> : <HomePage />}
+      {!authState ? AuthRedirect : <HomePage />}
     </Switch>
   )
 })

@@ -1,60 +1,86 @@
-// // Check if second password match first on sign up
-// if (formValues.passwordTwo !== formValues.passwordOne) {
-//   errors.passwordTwo = "Passwords You Enter Are Not Matched";
-// }
+import React from 'react'
+import {useFormik} from 'formik'
+import {useSelectedState} from '../context/SelectedContext'
+import {useAuthState} from '../context/AuthContext'
 
-// if (!formValues.first_name) {
-//   errors.first_name = "Please Let Us Know Who You Are";
-// }
+const BasicInfo = props => {
+  const {selected} = useSelectedState()
+  const {authState} = useAuthState()
 
-// if (!formValues.last_name) {
-//   errors.last_name = "Please Let Us Know Who You Are";
-// }
+  const onFinalSubmit = formValues => {
+    const { email } = auth.currentUser
+    // createUser(formValues, email, selected)
+  }
+const basicInfoFormik = useFormik({
+  initialValues:{
+    first_name:'',
+    last_name:'',
+    locality:'',
+  },
+  onSubmit: values => {
+    setLoading(false)
+  },
+  validate: formValues => {
 
-// if (!formValues.locality) {
-//   errors.locality = "Please Let Us Know Where You From";
-// }
+// Check if second password match first on sign up
+if (!formValues.first_name) {
+  errors.first_name = "Please Let Us Know Who You Are";
+}
 
-// if (!formValues.locality) {
-//   errors.groups = "Please Select Your Group";
-// }
+if (!formValues.last_name) {
+  errors.last_name = "Please Let Us Know Who You Are";
+}
 
-// if (!formValues.minimum_age) {
-//   errors.minimum_age = "You Must Be Above 13 To Continue";
-// }
+if (!formValues.locality) {
+  errors.locality = "Please Let Us Know Where You From";
+}
 
-// if (!formValues.accept_terms_and_conditions) {
-//   errors.accept_terms_and_conditions =
-//     "You Must Accept Our Terms And Conditions";
-// }
+if (!formValues.locality) {
+  errors.groups = "Please Select Your Group";
+}
+
+if (!minimum_age) {
+  errors.minimum_age = "You Must Be Above 13 To Continue";
+}
+
+if (!accept_terms_and_conditions) {
+  errors.accept_terms_and_conditions =
+    "You Must Accept Our Terms And Conditions";
+}
+  }
+})
+
 // Upon successful email verification, gather user basic information
 
- const [groups, setGroups] = React.useState()
- React.useEffect(() => {
-  const getGroups = async () => {
-    const groupList = await fetchGroups()
-    setGroups(groupList)
+const [groups, setGroups] = React.useState()
+React.useEffect(() => {
+ const getGroups = async () => {
+   const groupList = await fetchGroups()
+   setGroups(groupList)
 }})
- if (auth.currentUser && auth.currentUser.emailVerified) {
-  return (
-    <Paper className={classes.container} style={{ marginTop: '5vh' }}>
-      <Typography variant="h3">Personal Information</Typography>
-      <Typography style={{ color: 'red' }}>{this.state.error}</Typography>
-      <AuthForm
-        onFormSubmit={this.onFinalSubmit}
-        fieldNames={[
-          'first_name',
-          'last_name',
-          'locality',
-          'groups',         'minimum_age',
-          'accepts_terms_and_conditions',
-        ]}
-        btnText="Finish"
-        renderFids={this.renderInfoFields}
-      />
-    </Pape
-  )
+if (auth.currentUser && auth.currentUser.emailVerified) {
+ return (
+   <Paper className={classes.container} style={{ marginTop: '5vh' }}>
+     <Typography variant="h3">Personal Information</Typography>
+     <Typography style={{ color: 'red' }}>{this.state.error}</Typography>
+     <AuthForm
+       onFormSubmit={this.onFinalSubmit}
+       fieldNames={[
+         'first_name',
+         'last_name',
+         'locality',
+         'groups',         'minimum_age',
+         'accepts_terms_and_conditions',
+       ]}
+       btnText="Finish"
+       renderFids={this.renderInfoFields}
+     />
+   </Pape
+ )
 }
+
+}
+
 
   // Defines user input fie(
       <Grid container style={{ marginTop: '2vh' }} spacing={2}>
@@ -110,7 +136,7 @@
   }
 
   // Rdering CheckBox for user selection
-  con renderCheckBox = (fld,abel) => (   <FormControlLel
+  const renderCheckBox = (field) => (   <FormControlLel
   control={
         <Checkbox
         checked={!!field.input.value}
@@ -120,7 +146,6 @@
       }
       label=createUser(formValues, email, r final suission handler
   // Save user info to backend database
-  const onFinalSubmit = formValues => {
-    const { email } = auth.currentUser
-   createUser(formValues, email,selected)
-  }
+
+
+  export default

@@ -1,20 +1,30 @@
 // Firebase configuration
 // DO NOT PUSH THIS UP TO GITHUB
-import firebase from "firebase/app";
-import "firebase/auth";
+import firebase from 'firebase/app'
+import 'firebase/auth'
+
+const {
+  REACT_APP_FIREBASE_API_KEY,
+  REACT_APP_FIREBASE_AUTH_DOMAIN,
+  REACT_APP_FIREBASE_DATABASE_URL,
+  REACT_APP_FIREBASE_PROJECT_ID,
+  REACT_APP_FIREBASE_STORAGE_BUCKET,
+  REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  REACT_APP_FIREBASE_APP_ID,
+} = process.env
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBjcwjC_0H1bgGKqPyqKnbWaGmAtzc4BJQ",
-  authDomain: "massenergize-auth.firebaseapp.com",
-  databaseURL: "https://massenergize-auth.firebaseio.com",
-  projectId: "massenergize-auth",
-  storageBucket: "massenergize-auth.appspot.com",
-  messagingSenderId: "72842344535",
-  appId: "1:72842344535:web:9b1517b1b3d2e818"
-};
+  apiKey: REACT_APP_FIREBASE_API_KEY,
+  authDomain: REACT_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL: REACT_APP_FIREBASE_DATABASE_URL,
+  projectId: REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: REACT_APP_FIREBASE_APP_ID,
+}
 
-firebase.initializeApp(firebaseConfig);
-export default firebase;
+firebase.initializeApp(firebaseConfig)
+export default firebase
 
-export const googleProvider = new firebase.auth.GoogleAuthProvider();
-export const facebookProvider = new firebase.auth.FacebookAuthProvider();
+export const googleProvider = new firebase.auth.GoogleAuthProvider()
+export const facebookProvider = new firebase.auth.FacebookAuthProvider()

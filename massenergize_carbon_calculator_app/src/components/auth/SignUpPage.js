@@ -14,7 +14,7 @@ import {
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import AuthForm from './AuthForm'
-import { fetchGroups, getUser } from '../../actions'
+import { fetchGroups, getUser, createUser } from '../../actions'
 import { useAuthState } from '../context/AuthContext'
 import { facebookProvider, googleProvider } from './firebaseConfig'
 // import BasicInfo from './BasicInfo'
@@ -29,6 +29,24 @@ const useStyles = makeStyles({
     width: '50vh',
     padding: '2vh',
   },
+  link: {
+    textDecoration: 'none',
+  },
+  googleBtn: {
+    color: 'white',
+    backgroundColor: 'red',
+  },
+  fbBtn: {
+    color: 'white',
+    backgroundColor: '#3b5998',
+  },
+  error: {
+    color: 'red',
+  },
+  submitBtn: {
+    backgroundColor: '#8dc63f',
+    color: 'white',
+  },
 })
 
 const SignUpPage = props => {
@@ -36,7 +54,7 @@ const SignUpPage = props => {
   const firebase = useFirebase()
   const classes = useStyles()
   const auth = firebase.auth()
-  const { authState, setAuthState } = useAuthState()
+  const { setAuthState } = useAuthState()
 
   // Send user verification email
   const sendVerificationEmail = () => {
@@ -50,7 +68,8 @@ const SignUpPage = props => {
       .createUserWithEmailAndPassword(formValues.email, formValues.passwordOne)
       .then(authUser => {
         // Send Verification Email
-        authUser.sendEmailVerification()
+        setAuthState(authUser.user)
+        sendVerificationEmail()
       })
       .catch(err => {
         setLoading(false)
@@ -114,8 +133,7 @@ const SignUpPage = props => {
           .signInWithPopup(googleProvider)
           .then(async googleAuth => {
             // Save user information to backend database
-            const user = await getUser(googleAuth.user)
-            setAuthState(user)
+            setAuthState(googleAuth.user)
           })
           .catch(err => {
             setLoading(false)
@@ -135,8 +153,7 @@ const SignUpPage = props => {
           .signInWithPopup(facebookProvider)
           .then(async facebookAuth => {
             // Save user information to backend database
-            const user = await getUser(facebookAuth.user)
-            setAuthState(user)
+            setAuthState(facebookAuth.user)
           })
           .catch(err => {
             setLoading(false)
@@ -148,7 +165,11 @@ const SignUpPage = props => {
   if (!auth) return <CircularProgress />
   // Check if user has enter email and password to display message inform he/she of email coming to inbox
   // Allow resend email
-  if (!firebase.auth.isEmpty && !auth.currentUser.emailVerified) {
+  if (
+    !firebase.auth.isEmpty &&
+    auth.currentUser &&
+    !auth.currentUser.emailVerified
+  ) {
     return (
       <Paper className={classes.container} style={{ padding: '2vh' }}>
         <Grid container>
@@ -169,8 +190,7 @@ const SignUpPage = props => {
     )
   }
 
-  // if(auth.currentUser && auth.currentUser.emailVerified)
-  // return <BasicInfo/>
+  if (auth.currentUser && auth.currentUser.emailVerified) return <BasicInfo />
 
   // Prompt user enter authentication info
   return (
@@ -219,7 +239,7 @@ const SignUpPage = props => {
                     signUpFormik.touched.passwordOne &&
                     signUpFormik.errors.passwordOne
                   }
-                  name="password"
+                  name="passwordOne"
                   label="Password"
                   placeholder="Password"
                   variant="outlined"
@@ -241,7 +261,7 @@ const SignUpPage = props => {
                     signUpFormik.touched.passwordTwo &&
                     signUpFormik.errors.passwordTwo
                   }
-                  name="password"
+                  name="passwordTwo"
                   label="Confirm Your Password"
                   placeholder="Confirm Your Password"
                   variant="outlined"

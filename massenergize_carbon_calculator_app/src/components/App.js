@@ -8,6 +8,7 @@ import Header from './header'
 import { Routes } from './routes'
 import { AuthProvider } from './context/AuthContext'
 import { SelectedProvider } from './context/SelectedContext'
+import { SignInProvider } from './context/SignInContext'
 // TODO: May apply context for authentication redirecting for EventItem
 const App = () => (
   <div>
@@ -19,7 +20,9 @@ const App = () => (
         <Grid item xs={12}>
           <AuthProvider>
             <SelectedProvider>
-              <Routes />
+              <SignInProvider>
+                <Routes />
+              </SignInProvider>
             </SelectedProvider>
           </AuthProvider>
         </Grid>
