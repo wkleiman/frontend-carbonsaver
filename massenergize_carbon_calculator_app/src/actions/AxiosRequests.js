@@ -116,6 +116,7 @@ export const createUser = (formValues, email, selected) => async dispatch => {
 // Sign in action send GET request to backend with email to get the user
 export const signIn = (user, selected) => async dispatch => {
   // Attach email to request and send off to backend to get user info
+<<<<<<< HEAD:massenergize_carbon_calculator_app/src/actions/AxiosRequests.js
   const response = await api.get('/cc/info/user', {
     params: {
       email: user.email,
@@ -126,3 +127,23 @@ export const signIn = (user, selected) => async dispatch => {
     payload: response.data.userInfo,
   })
 }
+=======
+  const response = await api.get("/cc/info/user", {
+    params: {
+      email: user.email
+    }
+  });
+  if (response.data.status<0) {
+    alert(response.data.statusText);
+  }
+  else {
+    dispatch({
+      type: types.SIGN_IN,
+      payload: response.data.userInfo
+    });
+  }
+  if (selected) {
+    history.push(`/event/${selected.name}`);
+  }
+};
+>>>>>>> BHN-fixes:massenergize_carbon_calculator_app/src/actions/index.js
