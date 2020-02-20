@@ -1,11 +1,13 @@
 import React from 'react'
-import { Switch, Route, withRouter } from 'react-router-dom'
+import { Switch, Route } from 'react-router-dom'
 import EventItem from './events/EventItem'
+import AboutPage from './about/AboutPage'
 
-export default function HomePage(props) {
-  return (
-    <Switch>
-      <Route path="/event/:id" exact component={EventItem} />
-    </Switch>
-  )
-}
+const HomePage = props => (
+  <Switch>
+    <Route path="/event/:id" component={EventItem} />
+    <Route path="/about" component={AboutPage} />
+  </Switch>
+)
+
+export default HomePage

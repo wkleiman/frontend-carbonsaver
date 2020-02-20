@@ -1,18 +1,8 @@
-<<<<<<< HEAD:massenergize_carbon_calculator_app/src/components/pages/actions/actionItems.js
-/* eslint-disable guard-for-in */
 // React and Redux Component
 import React from 'react'
-import PropType from 'prop-types'
 import _ from 'lodash'
+import PropType from 'prop-types'
 import { connect } from 'react-redux'
-=======
-//React and Redux Component
-import React from "react";
-import QList from "../questions/QList";
-import _ from "lodash";
-import { connect } from "react-redux";
-import { questionAnswered, getScore } from "../../actions/";
->>>>>>> BHN-fixes:massenergize_carbon_calculator_app/src/components/actions/actionItems.js
 
 // Styling Component
 import List from '@material-ui/core/List'
@@ -24,44 +14,11 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
-import { questionAnswered, getScore } from '../../../actions'
+import { questionAnswered, getScore } from '../../../../actions'
 import QList from '../questions/QList'
 
 // TODO: Add What's it worth button next to I'll Do It to display how much user's answer worth before saving it to database
 class ActionItems extends React.Component {
-  // Rendering Question List
-  // TODO: Make component rerender to hide information, and add answered to action object in application state
-<<<<<<< HEAD:massenergize_carbon_calculator_app/src/components/pages/actions/actionItems.js
-=======
-  renderQuestionList() {
-    //const { action, answered, questionAnswered } = this.props;
-    const { action, answered } = this.props;
-    return _.tail(action.questionInfo).map(question => {
-      // Check if Question has been answered
-      if (answered) {
-        const [isQAnswered, actionOfAnswered] = this.isAnswered(question.name);
-        console.log(isQAnswered);
-        console.log(actionOfAnswered);
-        // Check if question is in Skip object of application state
-        if (this.isSkip(question.name)) {
-          // Hide question if any of above true
-          return (
-            <React.Fragment
-              key={`${action.name}${question.name}`}
-            ></React.Fragment>
-          );
-        }
-        // Case where question is answered but the action is different
-        // if(isQAnswered && actionOfAnswered !== action.name){
-        //   // Update the Redux state of current action with the answer
-        //   questionAnswered(action.name, question.name, _.get(answered, `${question.name}`))
-        //   return (<React.Fragment
-        //       key={`${action.name}${question.name}`}
-        //     ></React.Fragment>)
-        // }
-      }
->>>>>>> BHN-fixes:massenergize_carbon_calculator_app/src/components/actions/actionItems.js
-
   // Add answered question to application state
   recordAnswered = question => {
     const { onAnswered } = this.props
@@ -113,6 +70,38 @@ class ActionItems extends React.Component {
     return skip.includes(questionName) && !skip[action.name]
   }
 
+  // Rendering Question List
+  // TODO: Make component rerender to hide information, and add answered to action object in application state
+  renderQuestionList() {
+    // const { action, answered, questionAnswered } = this.props;
+    const { action, answered } = this.props
+    return _.tail(action.questionInfo).map(question => {
+      // Check if Question has been answered
+      if (answered) {
+        const [isQAnswered, actionOfAnswered] = this.isAnswered(question.name)
+        console.log(isQAnswered)
+        console.log(actionOfAnswered)
+        // Check if question is in Skip object of application state
+        if (this.isSkip(question.name)) {
+          // Hide question if any of above true
+          return (
+            <React.Fragment
+              key={`${action.name}${question.name}`}
+            ></React.Fragment>
+          )
+        }
+        // Case where question is answered but the action is different
+        // if(isQAnswered && actionOfAnswered !== action.name){
+        //   // Update the Redux state of current action with the answer
+        //   questionAnswered(action.name, question.name, _.get(answered, `${question.name}`))
+        //   return (<React.Fragment
+        //       key={`${action.name}${question.name}`}
+        //     ></React.Fragment>)
+        // }
+      }
+    })
+  }
+
   // Render points to screen
   renderActionScore() {
     const { answered } = this.props
@@ -129,40 +118,6 @@ class ActionItems extends React.Component {
         0
       )} points!`}</Typography>
     )
-  }
-
-  renderQuestionList() {
-    const { action, answered, questionAnswered } = this.props
-    return _.tail(action.questionInfo).map(question => {
-      // Check if Question has been answered
-      if (answered) {
-        const [isQAnswered, actionOfAnswered] = this.isAnswered(question.name)
-        // Check if question is in Skip object of application state
-        if (this.isSkip(question.name)) {
-          // Hide question if any of above true
-          return (
-            <React.Fragment
-              key={`${action.name}${question.name}`}
-            ></React.Fragment>
-          )
-        }
-        // Check if questions is answered and the current quesion's action is not the same
-        if (isQAnswered && actionOfAnswered !== action.name) {
-          // questionAnswered(actionOfAnswered, question.name, )
-        }
-      }
-
-      // Render the question otherwise
-      return (
-        <React.Fragment key={`${action.name}${question.name}`}>
-          <QList
-            action={action}
-            question={question}
-            recordAnswered={this.recordAnswered}
-          />
-        </React.Fragment>
-      )
-    })
   }
 
   render() {

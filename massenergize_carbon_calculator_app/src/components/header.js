@@ -1,19 +1,19 @@
 // Functional component imports
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { withFirebase } from "react-redux-firebase";
-import Logo from "../style/images/CoolerCommunities512.jpg";
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { withFirebase } from 'react-redux-firebase'
 // Styling Component imports
-import { AppBar, Typography, Toolbar, Button } from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
-import Drawer from "@material-ui/core/Drawer";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import { signIn, signOut } from "../actions";
+import { AppBar, Typography, Toolbar, Button } from '@material-ui/core'
+import { withStyles } from '@material-ui/core/styles'
+import IconButton from '@material-ui/core/IconButton'
+import MenuIcon from '@material-ui/icons/Menu'
+import Drawer from '@material-ui/core/Drawer'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import Logo from '../style/images/CoolerCommunities512.jpg'
+import { signIn, signOut } from '../actions'
 // Styling classes definition
 const useStyles = theme => ({
   root: {
@@ -120,6 +120,17 @@ class Header extends React.Component {
 
   // Left navigation tab
   // TODO: Add pages as instructed in Google feedback sheets
+
+  // Handling user sign out
+  onSignOutClick = () => {
+    this.props.firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        this.props.signOut()
+      })
+  }
+
   sideList() {
     const { classes } = this.props
     return (
@@ -131,58 +142,28 @@ class Header extends React.Component {
       >
         <List>
           <ListItem button className={classes.button}>
-<<<<<<< HEAD
-            <a className={classes.link} href="#">
+            <a className={classes.link} href="/">
               <ListItemText primary="Home" />
             </a>
           </ListItem>
           <ListItem button className={classes.button}>
-            <a className={classes.link} href="#">
+            <a className={classes.link} href="/about">
               <ListItemText primary="About Us" />
             </a>
           </ListItem>
           <ListItem button className={classes.button}>
-            <a className={classes.link} href="#">
+            <a className={classes.link} href="/">
               <ListItemText primary="Communities" />
             </a>
           </ListItem>
           <ListItem button className={classes.button}>
-            <a className={classes.link} href="#">
+            <a className={classes.link} href="/">
               <ListItemText primary="Contact Us" />
-=======
-            <a className={classes.link} href="/"> 
-              <ListItemText primary={"Home"} />
-            </a>
-          </ListItem>
-          <ListItem button className={classes.button}>
-            <a className={classes.link} href="/about">
-              <ListItemText primary={"About Us"} />
-            </a>
-          </ListItem>
-          <ListItem button className={classes.button}>
-            <a className={classes.link} href="/">
-              <ListItemText primary={"Communities"} />
-            </a>
-          </ListItem>
-          <ListItem button className={classes.button}>
-            <a className={classes.link} href="/">
-              <ListItemText primary={"Contact Us"} />
->>>>>>> BHN-fixes
             </a>
           </ListItem>
         </List>
       </div>
     )
-  }
-
-  // Handling user sign out
-  onSignOutClick = () => {
-    this.props.firebase
-      .auth()
-      .signOut()
-      .then(() => {
-        this.props.signOut()
-      })
   }
 
   render() {
@@ -208,8 +189,10 @@ class Header extends React.Component {
                 <img src={Logo} alt="Cooler Communities banner" />
               </Link>
             </Typography>
-            <p>Carbon Saver - Leatn about the impact of actions you can take.</p>
-          
+            <p>
+              Carbon Saver - Leatn about the impact of actions you can take.
+            </p>
+
             {// If user is signed in display sign out and sign in otherwise
             // TODO: May don't need to display sign in since prompt user sign in upon accessing a specific event.
             !this.state.isSignedIn ? (
@@ -222,10 +205,10 @@ class Header extends React.Component {
           </Toolbar>
         </AppBar>
       </div>
-   );
+    )
   }
 }
 // Connect actions to component and export it
 export default connect(null, { signIn, signOut })(
-  withFirebase(withStyles(useStyles)(Header)
-));
+  withFirebase(withStyles(useStyles)(Header))
+)

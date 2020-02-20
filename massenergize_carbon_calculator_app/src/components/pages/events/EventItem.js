@@ -1,12 +1,15 @@
 // React and Redux Component
 import React from 'react'
 import { connect } from 'react-redux'
-import { useFirebase } from 'react-redux-firebase'
+import { withFirebase } from 'react-redux-firebase'
 import { Redirect } from 'react-router-dom'
+// import history from "../../history";
 
 // Styling Components
 import Paper from '@material-ui/core/Paper'
-import { makeStyles } from '@material-ui/core/styles'
+// import AppBar from "@material-ui/core/AppBar";
+// import useScrollTrigger from "@material-ui/core/useScrollTrigger";
+import { withStyles } from '@material-ui/core/styles'
 import EmailIcon from '@material-ui/icons/Email'
 import PhoneIcon from '@material-ui/icons/Phone'
 import {
@@ -19,15 +22,12 @@ import {
 } from '@material-ui/core'
 import IconButton from '@material-ui/core/IconButton'
 import Grid from '@material-ui/core/Grid'
-import Station from '../stations/Stations'
+import Station from './stations'
 import Score from '../../score'
-import { fetchEvent } from '../../../actions'
-
-import { useEventState } from '../../context/EventContext'
-import { useAuthState } from '../../context/AuthContext'
+import { signIn, fetchEvent } from '../../../actions/AxiosRequests'
 
 // Styling information
-const useStyles = makeStyles({
+const style = {
   logoImg: {
     maxWidth: '100%',
   },
@@ -51,22 +51,16 @@ const useStyles = makeStyles({
     fontWeight: 'bold',
     color: '#fa4a21',
   },
-})
+}
 
-const EventItem = props => {
-  const { eventState, setEventState } = useEventState()
-  const { authState } = useAuthState()
-  const firebase = useFirebase()
-  const classes = useStyles()
-
-  React.useEffect(() => {
+class EventItem extends React.Component {
+  componentDidMount() {
     // Fetch event data
-    const getEventInfo = async () => {
-      const eventInfo = await fetchEvent(props.match.params.name)
-      setEventState(eventInfo)
-    }
-  }, [])
-  const renderHost = () => {
+    this.props.fetchEvent(this.props.match.params.name)
+  }
+
+  renderHost() {
+    const { event, classes } = this.props
     // Reformat phone number to +1(XXX) XXX XXXX for display
     const reformattedPhone = phone => {
       const cleaned = `${phone}`.replace(/\D/g, '')
@@ -92,27 +86,27 @@ const EventItem = props => {
           <Grid item container direction="row">
             <Card>
               <CardActionArea>
-                <CardMedia title={eventState.host_org}>
-                  <a href={eventState.host_url}>
+                <CardMedia title={event.host_org}>
+                  <a href={event.host_url}>
                     <img
                       className={classes.logoImg}
-                      src={eventState.host_logo}
-                      alt={eventState.host_org}
+                      src={event.host_logo}
+                      alt={event.host_org}
                     />
                   </a>
                 </CardMedia>
               </CardActionArea>
               <CardContent>
                 <Typography variant="h5" component="h2">
-                  {eventState.host_contact}
+                  {event.host_contact}
                 </Typography>
                 <IconButton className={classes.actionButton}>
-                  <a href={`mailto:${eventState.host_email}`}>
+                  <a href={`mailto:${event.host_email}`}>
                     <EmailIcon />
                   </a>
                 </IconButton>
                 <IconButton className={classes.actionButton}>
-                  <a href={`tel:${reformattedPhone(eventState.host_phone)}`}>
+                  <a href={`tel:${reformattedPhone(event.host_phone)}`}>
                     <PhoneIcon />
                   </a>
                 </IconButton>
@@ -124,80 +118,94 @@ const EventItem = props => {
     )
   }
 
-  const renderSponsor = () => (
+  renderSponsor() {
+    // const { event, classes, auth } = this.props;
+    const { event, classes } = this.props
     // Render Sponsor Info
-    <Grid item>
-      <Grid item container>
-        <Typography
-          className={classes.title}
-          style={{ color: '#8dc63f' }}
-          variant="h5"
-        >
-          Sponsors
-        </Typography>
-      </Grid>
-      <Grid item container direction="column">
-        <Grid item container direction="row">
-          <Card>
-            <CardActionArea>
-              <a href={eventState.sponsor_url}>
-                <CardMedia title={eventState.sponsor_org}>
-                  <img
-                    className={classes.logoImg}
-                    src={eventState.sponsor_logo}
-                    alt={eventState.sponsor_org}
-                  />
-                </CardMedia>
-              </a>
-            </CardActionArea>
-          </Card>
-        </Grid>
-      </Grid>
-    </Grid>
-  )
-
-  // Check if the information from backend has been received
-  if (!eventState) {
     return (
-      <Grid container alignItems="center" justify="center">
-        <Grid item xs={12}>
-          <CircularProgress />
+      <Grid item>
+        <Grid item container>
+          <Typography
+            className={classes.title}
+            style={{ color: '#8dc63f' }}
+            variant="h5"
+          >
+            Sponsors
+          </Typography>
+        </Grid>
+        <Grid item container direction="column">
+          <Grid item container direction="row">
+            <Card>
+              <CardActionArea>
+                <a href={event.sponsor_url}>
+                  <CardMedia title={event.sponsor_org}>
+                    <img
+                      className={classes.logoImg}
+                      src={event.sponsor_logo}
+                      alt={event.sponsor_org}
+                    />
+                  </CardMedia>
+                </a>
+              </CardActionArea>
+            </Card>
+          </Grid>
         </Grid>
       </Grid>
     )
   }
-  if (!authState) {
-    return <Redirect to="/signin" />
-  }
-  // Upon information received, render the stations with information of host and sponsor
-  return (
-    <Paper className={classes.root}>
-      <Grid container spacing={2}>
-        <Grid item container xs={12} spacing={2}>
-          <Grid item container xs={12} xl={8} direction="column">
-            <Grid container item>
-              <Station event={eventState} stations={eventState.stations} />
-            </Grid>
-          </Grid>
-          <Grid
-            item
-            container
-            xs={12}
-            xl={4}
-            direction="column"
-            spacing={2}
-            className={classes.host_sponsor}
-          >
-            {renderHost()}
-            {renderSponsor()}
-          </Grid>
+
+  render() {
+    const { event, classes, auth } = this.props
+    // Check if the information from backend has been received
+    if (!event) {
+      return (
+        <Grid container alignItems="center" justify="center">
           <Grid item xs={12}>
-            <Score />
+            <CircularProgress />
           </Grid>
         </Grid>
-      </Grid>
-    </Paper>
-  )
+      )
+    }
+    if (!auth.isSignedIn) {
+      return <Redirect to="/signin" />
+    }
+    // Upon information received, render the stations with information of host and sponsor
+    return (
+      <Paper className={classes.root}>
+        <Grid container spacing={2}>
+          <Grid item container xs={12} spacing={2}>
+            <Grid item container xs={12} xl={8} direction="column">
+              <Grid container item>
+                <Station event={event} stations={event.stations} />
+              </Grid>
+            </Grid>
+            <Grid
+              item
+              container
+              xs={12}
+              xl={4}
+              direction="column"
+              spacing={2}
+              className={classes.host_sponsor}
+            >
+              {this.renderHost()}
+              {this.renderSponsor()}
+            </Grid>
+            <Grid item xs={12}>
+              <Score />
+            </Grid>
+          </Grid>
+        </Grid>
+      </Paper>
+    )
+  }
 }
+// Map application state to props of this component
+const mapStateToProps = (state, ownProps) => ({
+  auth: state.auth,
+  event: state.event[ownProps.match.params.name],
+})
 
-export default EventItem
+export default connect(mapStateToProps, { fetchEvent, signIn })(
+  withStyles(style)(withFirebase(EventItem))
+)

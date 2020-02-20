@@ -17,7 +17,7 @@ import AuthForm from './AuthForm'
 import { fetchGroups, getUser, createUser } from '../../actions'
 import { useAuthState } from '../context/AuthContext'
 import { facebookProvider, googleProvider } from './firebaseConfig'
-// import BasicInfo from './BasicInfo'
+import BasicInfo from './BasicInfo'
 
 // Styling classes
 const useStyles = makeStyles({

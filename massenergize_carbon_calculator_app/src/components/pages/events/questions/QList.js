@@ -3,17 +3,18 @@ import { connect } from 'react-redux'
 import _ from 'lodash'
 
 import TextField from '@material-ui/core/TextField'
-import List from '@material-ui/core/List'
-import ListItemText from '@material-ui/core/ListItemText'
 import Radio from '@material-ui/core/Radio'
 import RadioGroup from '@material-ui/core/RadioGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormControl from '@material-ui/core/FormControl'
-import { questionAnswered, getScore } from '../../../actions'
+import List from '@material-ui/core/List'
+import ListItemText from '@material-ui/core/ListItemText'
+import { questionAnswered } from '../../../../actions'
 
-class QList extends React.Component {
-  onChangeHandler = response => e => {
-    const { recordAnswered, questionAnswered, action, question } = this.props
+const QList = props => {
+  const { recordAnswered, questionAnswered, action, question, answered } = props
+
+  const onChangeHandler = response => e => {
     if (!response) {
       questionAnswered(action.name, question.name, e.target.value)
     } else {
@@ -27,21 +28,18 @@ class QList extends React.Component {
     recordAnswered(question.name)
   }
 
-  renderAnswer() {
-    const { action, question } = this.props
+  const renderAnswer = () => {
     const response = _.mapKeys(question.responses, 'text')
     const value =
-      !this.props.answered || !this.props.answered[question.name]
-        ? ''
-        : this.props.answered[question.name]
+      !answered || !answered[question.name] ? '' : answered[question.name]
     if (question.questionType === 'Choice') {
       return (
         <RadioGroup
           aria-label="response"
           value={value}
-          onChange={this.onChangeHandler(response)}
+          onChange={onChangeHandler(response)}
         >
-          {this.props.question.responses.map(response => (
+          {question.responses.map(response => (
             <FormControlLabel
               key={`${action.name}${question.name}${response.text}`}
               value={response.text}
@@ -56,24 +54,21 @@ class QList extends React.Component {
       <TextField
         value={value}
         placeholder="Please answer the above question"
-        onChange={this.onChangeHandler()}
+        onChange={onChangeHandler()}
       />
     )
   }
 
-  render() {
-    const { question } = this.props
-    return (
-      <>
-        <ListItemText primary={question.questionText} />
-        <List>
-          <FormControl component="fieldset" style={{ width: '100%' }}>
-            {this.renderAnswer()}
-          </FormControl>
-        </List>
-      </>
-    )
-  }
+  return (
+    <>
+      <ListItemText primary={question.questionText} />
+      <List>
+        <FormControl component="fieldset" style={{ width: '100%' }}>
+          {renderAnswer()}
+        </FormControl>
+      </List>
+    </>
+  )
 }
 
 const mapStateToProps = (state, ownProps) => ({
