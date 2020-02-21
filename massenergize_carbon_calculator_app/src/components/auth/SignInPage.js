@@ -19,7 +19,8 @@ import { useAuthState } from '../context/AuthContext'
 import { useSignInState } from '../context/SignInContext'
 import { useSelectedState } from '../context/SelectedContext'
 import { facebookProvider, googleProvider } from './firebaseConfig'
-import { getUser } from '../../actions'
+import { fetchUser } from '../../actions'
+import BasicInfo from './BasicInfo'
 // Styling classes
 const useStyles = makeStyles({
   textInput: {
@@ -52,14 +53,35 @@ const useStyles = makeStyles({
 
 const LogInForm = () => {
   const classes = useStyles()
-  const [loading, setLoading] = React.useState()
+  const [loading, setLoading] = React.useState(false)
   const firebase = useFirebase()
+  const [isFinishSignUp, setIsFinishSignUp] = React.useState(true)
   const { authState, setAuthState } = useAuthState()
   const { setSignIn } = useSignInState()
   const { selected } = useSelectedState()
 
   // Rendering TextFields for user input
   // For sign in includes email and password
+
+  // Sign in with email and password function
+  const normalLogin = ({ email, password }) => {
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(async res => {
+        // Save user to backend database
+        const user = await fetchUser(res.user)
+        if (!user) {
+          setIsFinishSignUp(false)
+        }
+        setAuthState(user)
+      })
+      .catch(err => {
+        setLoading(false)
+        // eslint-disable-next-line no-use-before-define
+        signInFormik.setStatus(err.message)
+      })
+  }
 
   const signInFormik = useFormik({
     initialValues: {
@@ -104,7 +126,7 @@ const LogInForm = () => {
           .signInWithPopup(googleProvider)
           .then(async googleAuth => {
             // Save user information to backend database
-            const user = await getUser(googleAuth.user)
+            const user = await fetchUser(googleAuth.user)
             setAuthState(user)
           })
           .catch(err => {
@@ -125,7 +147,7 @@ const LogInForm = () => {
           .signInWithPopup(facebookProvider)
           .then(async facebookAuth => {
             // Save user information to backend database
-            const user = await getUser(facebookAuth.user)
+            const user = await fetchUser(facebookAuth.user)
             setAuthState(user)
           })
           .catch(err => {
@@ -135,7 +157,9 @@ const LogInForm = () => {
       })
   }
 
-  if (authState) return <Redirect to={`/event/${selected.name}`} />
+  if (authState) return <Redirect to="/events" />
+
+  if (!isFinishSignUp) return <BasicInfo />
 
   // Render Auth Form for user sign in with other options print out
   return (
@@ -250,5 +274,5 @@ const LogInForm = () => {
     </Paper>
   )
 }
-// Connect with signIn and getUser action
+// Connect with signIn and fetchUser action
 export default LogInForm

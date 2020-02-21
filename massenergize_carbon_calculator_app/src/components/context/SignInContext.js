@@ -15,7 +15,7 @@ const SignInProvider = ({ children }) => {
 function useSignInState() {
   const context = React.useContext(SignInContext)
   if (context === undefined) {
-    throw new Error('useCountState must be used within a CountProvider')
+    throw new Error('useSignInState must be used within a SignInProvider')
   }
   return context
 }

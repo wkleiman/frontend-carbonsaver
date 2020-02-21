@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import * as types from './types'
 import api from '../api/massEnergize'
 import history from '../history'
@@ -13,14 +14,14 @@ export const fetchQuestions = actionName => async dispatch => {
 }
 // getUser action to get the user
 // TODO: May remove this action and just use userCreation action
-export const getUser = async user => {
+export const fetchUser = async user => {
   // Attach email to request and send off to backend to get user info
   const response = await api.get('/cc/info/user', {
     params: {
       email: user.email,
     },
   })
-  return response.data.userInfo
+  return _.get(response, 'data.userInfo')
 }
 // Handle question answered to dispatch to application state
 export const questionAnswered = (
@@ -46,10 +47,10 @@ export const signOut = () => ({
 // fetchEvents action, fetch all events for user selection
 export const fetchEvents = async () => {
   const response = await api.get('/cc/info/events')
-  return response.data
+  return response.data.eventList
 }
 // fetchEvent action, fetch a single event
-export const fetchEvent = id => async dispatch => {
+export const fetchEvent = async id => {
   const response = await api.get(`/cc/info/event/${id}`)
   return response.data
 }

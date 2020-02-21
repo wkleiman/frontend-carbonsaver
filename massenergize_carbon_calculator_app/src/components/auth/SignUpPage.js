@@ -14,7 +14,7 @@ import {
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import AuthForm from './AuthForm'
-import { fetchGroups, getUser, createUser } from '../../actions'
+import { fetchGroups, createUser } from '../../actions'
 import { useAuthState } from '../context/AuthContext'
 import { facebookProvider, googleProvider } from './firebaseConfig'
 import BasicInfo from './BasicInfo'
@@ -30,6 +30,7 @@ const useStyles = makeStyles({
     padding: '2vh',
   },
   link: {
+    marginLeft: '1vh',
     textDecoration: 'none',
   },
   googleBtn: {
@@ -302,9 +303,9 @@ const SignUpPage = props => {
             </Grid>
             <Grid item>
               <Typography>
-                Don't have an account?
+                Already Have an Account?
                 <Link className={classes.link} to="/signup">
-                  Create a Profile
+                  Sign In
                 </Link>
               </Typography>
             </Grid>

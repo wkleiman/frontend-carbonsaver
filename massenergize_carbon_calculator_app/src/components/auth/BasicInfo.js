@@ -82,13 +82,6 @@ const BasicInfo = props => {
   // Upon successful email verification, gather user basic information
 
   const [groups, setGroups] = React.useState()
-  React.useEffect(() => {
-    const getGroups = async () => {
-      const groupList = await fetchGroups()
-      setGroups(groupList)
-    }
-    getGroups()
-  })
 
   return (
     <Paper className={classes.container}>

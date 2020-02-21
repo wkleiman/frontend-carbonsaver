@@ -15,7 +15,7 @@ const SelectedProvider = ({ children }) => {
 function useSelectedState() {
   const context = React.useContext(selectedContext)
   if (context === undefined) {
-    throw new Error('useCountState must be used within a CountProvider')
+    throw new Error('useSelectedState must be used within a SelectedProvider')
   }
   return context
 }

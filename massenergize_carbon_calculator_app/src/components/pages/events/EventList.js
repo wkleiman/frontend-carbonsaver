@@ -1,6 +1,5 @@
 // React and redux import
 import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 // Styling imports
 import Grid from '@material-ui/core/Grid'
@@ -9,6 +8,9 @@ import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { makeStyles } from '@material-ui/core/styles'
 import { fetchEvents } from '../../../actions'
+import { useSelectedState } from '../../context/SelectedContext'
+import { useEventState } from '../../context/EventContext'
+
 // Style defination
 const useStyle = makeStyles(theme => ({
   root: {
@@ -45,21 +47,25 @@ const useStyle = makeStyles(theme => ({
   },
 }))
 // EventList component
-const EventList = props => {
-  // Get Event from application state
-  const events = useSelector(state => Object.values(state.event))
-  // Declare dispatch for action
-  const dispatch = useDispatch()
+const EventList = () => {
+  const { eventState, setEventState } = useEventState()
+  const { setSelected } = useSelectedState()
+
+  const getEvents = async () => {
+    const response = await fetchEvents()
+    setEventState(response)
+  }
   // Fetch event information upon Mount and Update
   React.useEffect(() => {
-    fetchEvents()(dispatch)
-  }, [dispatch])
+    getEvents()
+  }, [])
 
   const classes = useStyle()
   // Rendering List of Events
   const renderList = () => {
-    if (!events) return <CircularProgress />
-    return events.map(event => {
+    if (!eventState) return <CircularProgress />
+    console.log(eventState)
+    return eventState.map(event => {
       // Define dates and months for reformatting
       const date = new Date(event.datetime)
       const months = [
@@ -82,12 +88,7 @@ const EventList = props => {
             <Link
               className={classes.link}
               to={`/event/${event.name}`}
-              onClick={e =>
-                dispatch({
-                  type: 'SELECTED_EVENT',
-                  payload: event,
-                })
-              }
+              onClick={e => setSelected(event)}
             >
               <Paper className={classes.paperContainer}>
                 <Grid container direction="row" spacing={2}>

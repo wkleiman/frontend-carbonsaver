@@ -15,7 +15,7 @@ const EventProvider = ({ children }) => {
 function useEventState() {
   const context = React.useContext(EventContext)
   if (context === undefined) {
-    throw new Error('useCountState must be used within a CountProvider')
+    throw new Error('useEventState must be used within a EventProvider')
   }
   return context
 }
