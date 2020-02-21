@@ -28,13 +28,14 @@ class ActionItems extends React.Component {
   // Post Click to calculate points and save user answers
   handlePostClick = () => {
     const { action, getScore, auth, answered } = this.props
-    getScore(auth.userID, action.name, answered)
+    getScore({ userId: auth.userID, actionName: action.name, answered })
   }
 
   // Get to calculate points to see how much user's current answers worth
   handleGetClick = () => {
+    console.log('im here')
     const { action, getScore, auth, answered } = this.props
-    getScore(action.name, answered)
+    getScore({ actionName: action.name, answered })
   }
 
   // Check if question answered function

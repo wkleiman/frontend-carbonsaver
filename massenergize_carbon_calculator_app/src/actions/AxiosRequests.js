@@ -55,8 +55,13 @@ export const fetchEvent = async id => {
   return response.data
 }
 // Send query to backend to get points calculated
-export const getScore = (userId, actionName, params) => async dispatch => {
+export const getScore = ({
+  userId,
+  actionName,
+  ...params
+}) => async dispatch => {
   // No userId considered a get request
+
   if (!userId) {
     const response = await api.get(`/cc/estimate/${actionName}`, {
       params: { ...params },
