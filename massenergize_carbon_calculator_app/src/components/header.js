@@ -133,18 +133,18 @@ class Header extends React.Component {
             </a>
           </ListItem>
           <ListItem button className={classes.button}>
+            <a className={classes.link} href="/summary">
+              <ListItemText primary={"Your Summary"} />
+            </a>
+          </ListItem>
+          <ListItem button className={classes.button}>
+            <a className={classes.link} href="/scoreboard">
+              <ListItemText primary={"Scoreboard - Carbon Saved"} />
+            </a>
+          </ListItem>
+          <ListItem button className={classes.button}>
             <a className={classes.link} href="/about">
-              <ListItemText primary={"About Us"} />
-            </a>
-          </ListItem>
-          <ListItem button className={classes.button}>
-            <a className={classes.link} href="/">
-              <ListItemText primary={"Communities"} />
-            </a>
-          </ListItem>
-          <ListItem button className={classes.button}>
-            <a className={classes.link} href="/">
-              <ListItemText primary={"Contact Us"} />
+              <ListItemText primary={"About/Contact"} />
             </a>
           </ListItem>
         </List>
@@ -184,7 +184,7 @@ class Header extends React.Component {
                 <img src={Logo} alt="Cooler Communities banner" />
               </Link>
             </Typography>
-            <p>Carbon Saver - Leatn about the impact of actions you can take.</p>
+            <p>Carbon Saver - Learn about the impact of actions you can take.</p>
           
             {// If user is signed in display sign out and sign in otherwise
             // TODO: May don't need to display sign in since prompt user sign in upon accessing a specific event.

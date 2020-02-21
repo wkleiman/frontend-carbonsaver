@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 /* import 'react-multi-carousel/lib/styles.css'; */
 /* import LoadingCircle from '../../Shared/LoadingCircle' */
 
-class AboutUsPage extends React.Component {
+class AboutPage extends React.Component {
 	render() {
         let paragraphContent = undefined;
 		return (
@@ -13,7 +13,7 @@ class AboutUsPage extends React.Component {
 					<div style={{ marginTop: 70 }}></div>
 					<div className={paragraphContent ? "col-sm-12 col-md-10 offset-md-1" : "d-none"}>
 						<center><h2 className="cool-font" style={{ padding: 20 }}>About the CarbonSaver</h2></center>
-						<div className="community-about-text cool-font" style={{color:'gray',fontSize:'large'}} dangerouslySetInnerHTML={{ __html: paragraphContent }}></div>
+						<div className="cool-font" style={{color:'gray',fontSize:'large'}} dangerouslySetInnerHTML={{ __html: paragraphContent }}></div>
 					</div>
 					<div className=" col-sm-12 col-md-10 offset-md-1 mass-energize-about">
 						<center><h2 className="cool-font" style={{ padding: 20 }}>About MassEnergize</h2></center>
@@ -29,14 +29,13 @@ class AboutUsPage extends React.Component {
 	}
 }
 
-/* const mapStoreToProps = (store) => {
+/*
+const mapStoreToProps = (store) => {
 
 	return {
-		community: store.page.community,
-		communityAdmins: store.page.communityAdmins,
-		pageData: store.page.aboutUsPage,
-		homePageData:store.page.homePageData
+		aboutPage: state.aboutPage,
 	}
 }
 */
-export default connect()(AboutUsPage);
+//export default connect(mapStoreToProps, { reduxLoadCommunityAdmins })(AboutUsPage);
+export default connect()(AboutPage);

@@ -51,8 +51,8 @@ export const fetchEvent = id => async dispatch => {
 };
 // Send query to backend to get points calculated
 export const getScore = (userId, actionName, params) => async dispatch => {
-  // No userId considered a get request
-  if (!userId) {
+  // No userId needed a get request
+  if (userId | !userId) {
     const response = await api.get(`/cc/estimate/${actionName}`, {
       params: { ...params }
     });
@@ -60,7 +60,29 @@ export const getScore = (userId, actionName, params) => async dispatch => {
       type: types.GET_SCORE,
       payload: { response: response.data, actionType: actionName }
     });
-  } else {
+  } 
+};
+export const postScore = (userId, actionName, params) => async dispatch => {
+  if (userId) {
+    // POST request to save user answers to database
+    // Get CSRF token before sending POST request
+    const csrfResponse = await api.get(`/auth/csrf`);
+    const { csrfToken } = csrfResponse.data.data;
+    // Attach CSRF token to the headers and send request up to backend
+    const response = await api.post(`/cc/estimate/${actionName}`, {
+      ...params,
+      user_id: userId,
+      headers: { "X-CSRFToken": csrfToken }
+    });
+    dispatch({
+      type: types.GET_SCORE,
+      payload: { response: response.data, actionType: actionName }
+    });
+  }
+};
+export const unpostScore = (userId, actionName, params) => async dispatch => {
+  if (false) {
+    //if (userId) {
     // POST request to save user answers to database
     // Get CSRF token before sending POST request
     const csrfResponse = await api.get(`/auth/csrf`);

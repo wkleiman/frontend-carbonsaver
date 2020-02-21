@@ -3,7 +3,7 @@ import React from "react";
 import QList from "../questions/QList";
 import _ from "lodash";
 import { connect } from "react-redux";
-import { questionAnswered, getScore } from "../../actions/";
+import { questionAnswered, getScore, postScore, unpostScore } from "../../actions/";
 
 //Styling Component
 import List from "@material-ui/core/List";
@@ -18,6 +18,13 @@ import Grid from "@material-ui/core/Grid";
 
 // TODO: Add What's it worth button next to I'll Do It to display how much user's answer worth before saving it to database
 class ActionItems extends React.Component {
+	constructor(props) {
+		super(props);
+    this.estimated = false;
+    this.committed = false;
+	}
+
+
   // Rendering Question List
   // TODO: Make component rerender to hide information, and add answered to action object in application state
   renderQuestionList() {
@@ -67,14 +74,34 @@ class ActionItems extends React.Component {
   // Post Click to calculate points and save user answers
   handlePostClick = e => {
     const { action } = this.props;
+    this.props.postScore(
+      this.props.auth.userID,
+      action.name,
+      this.props.answered
+    );
+    this.committed = true;
+  };
+   // UnPost Click to revert answer to post
+   handleUnPostClick = e => {
+    const { action } = this.props;
+    this.props.unpostScore(
+      this.props.auth.userID,
+      action.name,
+      this.props.answered
+    );
+    this.committed = false;
+  };
+// Get to calculate points to see how much user's current answers worth
+  handleGetClick = e => {
+    const { action } = this.props;
     this.props.getScore(
       this.props.auth.userID,
       action.name,
       this.props.answered
     );
+    this.estimated = true;
   };
-  // Get to calculate points to see how much user's current answers worth
-  handleGetClick = e => {};
+  
   // Render points to screen
   renderActionScore() {
     const { answered } = this.props;
@@ -86,13 +113,30 @@ class ActionItems extends React.Component {
       return !score ? (
         <></>
       ) : (
-        <Typography>{`${description} You Earned ${score.reduce(
-          (a, b) => a + b,
-          0
-        )} points!`}</Typography>
+        <Typography>{`Points earned:  Cost  Savings ${description}`}</Typography>
       );
     }
   }
+
+    // Render points to screen
+    renderActionCommit() {
+      const { answered } = this.props;
+      if (!answered || !answered.score) {
+        return <></>;
+      } else {
+        const score = Object.values(answered.score);
+        let description = score.pop();
+        return !score ? (
+          <></>
+        ) : (
+          <Typography>{`You Earned ${score.reduce(
+            (a, b) => a + b,
+            0
+          )} points!`}</Typography>
+        );
+      }
+    }
+  
   // Check if question answered function
   // Param: question name
   // Return: 1st param: boolean indicate is answered or not, 2nd param: action name
@@ -155,9 +199,25 @@ class ActionItems extends React.Component {
                 />
                 {this.renderQuestionList()}
               </List>
-              {this.renderActionScore()}
-              <Button onClick={this.handlePostClick}>I'll Do It!</Button>
-              <Button onClick={this.handleGetClick}>What's It Worth?</Button>
+              {this.estimated ? 
+                this.renderActionScore() 
+                :
+                <div classname="button">
+                  <Button onClick={this.handleGetClick}>What's It Worth?</Button>
+                </div>
+              }
+              {this.committed ? 
+                
+                <div classname="button">
+                  <Button onClick={this.handleUnPostClick}>Changed my mind!</Button>
+                  {this.renderActionCommit()}
+                </div>
+                
+                :
+                <div classname="button">
+                  <Button onClick={this.handlePostClick}>I'll Do It!</Button>
+                </div>
+               } 
             </Grid>
           </Grid>
         </ExpansionPanelDetails>
@@ -177,6 +237,6 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 // Export and connect component to actions
-export default connect(mapStateToProps, { questionAnswered, getScore })(
+export default connect(mapStateToProps, { questionAnswered, getScore, postScore, unpostScore})(
   ActionItems
 );
