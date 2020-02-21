@@ -14,62 +14,17 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
-import { questionAnswered, getScore } from '../../../../actions'
+import {
+  questionAnswered,
+  getScore,
+  postScore,
+  unpostScore,
+} from '../../../../actions'
 import QList from '../questions/QList'
 
 // TODO: Add What's it worth button next to I'll Do It to display how much user's answer worth before saving it to database
 class ActionItems extends React.Component {
-  // Add answered question to application state
-  recordAnswered = question => {
-    const { onAnswered } = this.props
-    onAnswered(question)
-  }
-
-  // Post Click to calculate points and save user answers
-  handlePostClick = () => {
-    const { action, getScore, auth, answered } = this.props
-    getScore({ userId: auth.userID, actionName: action.name, answered })
-  }
-
-  // Get to calculate points to see how much user's current answers worth
-  handleGetClick = () => {
-    console.log('im here')
-    const { action, getScore, auth, answered } = this.props
-    getScore({ actionName: action.name, answered })
-  }
-
-  // Check if question answered function
-  // Param: question name
-  // Return: 1st param: boolean indicate is answered or not, 2nd param: action name
-  isAnswered(questionName) {
-    const { allAnswered } = this.props
-    // Loop through answered object in application state with key as action
-    for (const answeredAction in allAnswered) {
-      // Loop through answered action to see which question was answered
-      for (const answeredQ of Object.keys(allAnswered[answeredAction])) {
-        // If questionName existed in the answered action object
-        if (answeredQ === questionName) {
-          return [true, answeredAction]
-        }
-      }
-    }
-    return [false, '']
-  }
-
-  // Check if question is in skip object of application
-  // Param: question name
-  // return: boolean
-  isSkip(questionName) {
-    const { skip: skipProps, action } = this.props
-    // Get array of skip object with question names as values
-    let skip = Object.values(skipProps)
-    // Check if skip object is empty
-    if (skip.length === 0) return false
-    // Flatten the object
-    skip = skip.flat(1)
-    // Check if skip object has question and the action has been answered
-    return skip.includes(questionName) && !skip[action.name]
-  }
+  state = { estimated: false, committed: false }
 
   // Rendering Question List
   // TODO: Make component rerender to hide information, and add answered to action object in application state
@@ -103,11 +58,91 @@ class ActionItems extends React.Component {
     })
   }
 
+  // Add answered question to application state
+  recordAnswered = question => {
+    this.props.onAnswered(question)
+  }
+
+  // Post Click to calculate points and save user answers
+  handlePostClick = e => {
+    const { action } = this.props
+    this.props.postScore(
+      this.props.auth.userID,
+      action.name,
+      this.props.answered
+    )
+    this.state.committed = true
+  }
+
+  // UnPost Click to revert answer to post
+  handleUnPostClick = e => {
+    const { action } = this.props
+    this.props.unpostScore(
+      this.props.auth.userID,
+      action.name,
+      this.props.answered
+    )
+    this.state.committed = false
+  }
+
+  // Get to calculate points to see how much user's current answers worth
+  handleGetClick = e => {
+    const { action } = this.props
+    this.props.getScore(
+      this.props.auth.userID,
+      action.name,
+      this.props.answered
+    )
+    this.state.estimated = true
+  }
+
   // Render points to screen
   renderActionScore() {
     const { answered } = this.props
     if (!answered || !answered.score) {
       return <></>
+    }
+    const score = Object.values(answered.score)
+    const description = score.pop()
+    return !score ? (
+      <></>
+    ) : (
+      <Typography>{`Points earned:  Cost  Savings ${description}`}</Typography>
+    )
+  }
+
+  // Render points to screen
+  renderActionCommit() {
+    const { answered } = this.props
+    if (!answered || !answered.score) {
+      return <></>
+    }
+    const score = Object.values(answered.score)
+    const description = score.pop()
+    return !score ? (
+      <></>
+    ) : (
+      <Typography>{`You Earned ${score.reduce(
+        (a, b) => a + b,
+        0
+      )} points!`}</Typography>
+    )
+  }
+
+  // Check if question answered function
+  // Param: question name
+  // Return: 1st param: boolean indicate is answered or not, 2nd param: action name
+  isAnswered(questionName) {
+    const { allAnswered } = this.props
+    // Loop through answered object in application state with key as action
+    for (const answeredAction in allAnswered) {
+      // Loop through answered action to see which question was answered
+      for (const answeredQ of Object.keys(allAnswered[answeredAction])) {
+        // If questionName existed in the answered action object
+        if (answeredQ === questionName) {
+          return [true, answeredAction]
+        }
+      }
     }
     const score = Object.values(answered.score)
     const description = score.pop()
@@ -150,9 +185,27 @@ class ActionItems extends React.Component {
                 />
                 {this.renderQuestionList()}
               </List>
-              {this.renderActionScore()}
-              <Button onClick={this.handlePostClick}>I'll Do It!</Button>
-              <Button onClick={this.handleGetClick}>What's It Worth?</Button>
+              {this.state.estimated ? (
+                this.renderActionScore()
+              ) : (
+                <div className="button">
+                  <Button onClick={this.handleGetClick}>
+                    What's It Worth?
+                  </Button>
+                </div>
+              )}
+              {this.state.committed ? (
+                <div className="button">
+                  <Button onClick={this.handleUnPostClick}>
+                    Changed my mind!
+                  </Button>
+                  {this.renderActionCommit()}
+                </div>
+              ) : (
+                <div className="button">
+                  <Button onClick={this.handlePostClick}>I'll Do It!</Button>
+                </div>
+              )}
             </Grid>
           </Grid>
         </ExpansionPanelDetails>
@@ -189,6 +242,9 @@ ActionItems.propTypes = {
   onAnswered: PropType.func,
 }
 // Export and connect component to actions
-export default connect(mapStateToProps, { questionAnswered, getScore })(
-  ActionItems
-)
+export default connect(mapStateToProps, {
+  questionAnswered,
+  getScore,
+  postScore,
+  unpostScore,
+})(ActionItems)

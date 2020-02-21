@@ -6,6 +6,8 @@ import Header from './header'
 import EventItem from './events/EventItem'
 import EventList from './events/EventList'
 import AboutPage from './about/AboutPage'
+import SummaryPage from './about/SummaryPage'
+import ScoreboardPage from './about/ScoreboardPage'
 
 const HomePage = withRouter(() => (
   <Grid container direction="row" justify="flex-start" alignItems="center">
@@ -30,7 +32,9 @@ const HomePage = withRouter(() => (
             </EventProvider>
           )}
         />
-        <Route path="/about" component={AboutPage} />
+        <Route path="/about" exact component={AboutPage} />
+        <Route path="/summary" exact component={SummaryPage} />
+        <Route path="/scoreboard" exact component={ScoreboardPage} />
       </Switch>
     </Grid>
   </Grid>

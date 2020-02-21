@@ -13,7 +13,9 @@ class AboutUsPage extends React.Component {
           <div style={{ marginTop: 70 }} />
           <div
             className={
-              paragraphContent ? 'col-sm-12 col-md-10 offset-md-1' : 'd-none'
+              paragraphContent.length === 0
+                ? 'col-sm-12 col-md-10 offset-md-1'
+                : 'd-none'
             }
           >
             <center>

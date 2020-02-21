@@ -1,7 +1,6 @@
 // Functional imports
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
-import Grid from '@material-ui/core/Grid'
 import '../style/App.css'
 import { Routes } from './routes'
 import { SelectedProvider } from './context/SelectedContext'
