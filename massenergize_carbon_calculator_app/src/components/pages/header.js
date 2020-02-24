@@ -99,22 +99,6 @@ function Header() {
   const { authState, setAuthState } = useAuthState()
   const firebase = useFirebase()
 
-  console.log(authState)
-  const getUser = async user => {
-    const apiUser = await fetchUser(user)
-    setAuthState(apiUser)
-  }
-
-  React.useEffect(() => {
-    // Check if user is signed in
-    // TODO: May switch to use React context for     if (firebase) {
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        getUser(user)
-      }
-    })
-  }, [])
-
   // Used to create animation on opening navigation tab
   const toggleDrawer = open => e => {
     if (e.type === 'keydown' && (e.key === 'Tab' || e.key === 'Shift')) {
@@ -191,17 +175,11 @@ function Header() {
               />
             </Link>
           </Typography>
-          <p>Carbon Saver - Leatn about the impact of actions you can take.</p>
+          <p>Carbon Saver - Learn about the impact of actions you can take.</p>
 
           {// If user is signed in display sign out and sign in otherwise
           // TODO: May don't need to display sign in since prompt user sign in upon accessing a specific event.
-          !authState ? (
-            <Link className={classes.link} to="/auth/signin">
-              <MyButton>Sign In</MyButton>
-            </Link>
-          ) : (
-            <MyButton onClick={onSignOutClick}>Sign Out</MyButton>
-          )}
+          authState && <MyButton onClick={onSignOutClick}>Sign Out</MyButton>}
         </Toolbar>
       </AppBar>
     </div>

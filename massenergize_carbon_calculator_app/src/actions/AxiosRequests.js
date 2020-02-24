@@ -23,23 +23,6 @@ export const fetchUser = async user => {
   })
   return _.get(response, 'data.userInfo')
 }
-// Handle question answered to dispatch to application state
-export const questionAnswered = (
-  actionName,
-  questionTag,
-  answer,
-  skip
-) => dispatch => {
-  dispatch({
-    type: types.QUESTION_ANSWERED,
-    payload: {
-      actionName,
-      questionTag,
-      answer,
-      skip,
-    },
-  })
-}
 // Handle Sign out action
 export const signOut = () => ({
   type: types.SIGN_OUT,
@@ -55,67 +38,51 @@ export const fetchEvent = async id => {
   return response.data
 }
 // Send query to backend to get points calculated
-export const getScore = ({
-  userId,
-  actionName,
-  ...params
-}) => async dispatch => {
+export const getScore = async ({ userId, actionName, ...params }) => {
   // No userId considered a get request
-
+  let response
   if (!userId) {
-    const response = await api.get(`/cc/estimate/${actionName}`, {
+    response = await api.get(`/cc/estimate/${actionName}`, {
       params: { ...params },
     })
-    dispatch({
-      type: types.GET_SCORE,
-      payload: { response: response.data, actionType: actionName },
-    })
+    return response.data
   }
+  const csrfResponse = await api.get(`/auth/csrf`)
+  const { csrfToken } = csrfResponse.data.data
+  // Attach CSRF token to the headers and send request up to backend
+  response = await api.post(`/cc/estimate/${actionName}`, {
+    ...params,
+    user_id: userId,
+    headers: { 'X-CSRFToken': csrfToken },
+  })
+  return response.data
 }
-export const postScore = (userId, actionName, params) => async dispatch => {
-  if (userId) {
-    // POST request to save user answers to database
-    // Get CSRF token before sending POST request
-    const csrfResponse = await api.get(`/auth/csrf`)
-    const { csrfToken } = csrfResponse.data.data
-    // Attach CSRF token to the headers and send request up to backend
-    const response = await api.post(`/cc/estimate/${actionName}`, {
-      ...params,
-      user_id: userId,
-      headers: { 'X-CSRFToken': csrfToken },
-    })
-    dispatch({
-      type: types.GET_SCORE,
-      payload: { response: response.data, actionType: actionName },
-    })
-  }
-}
-export const unpostScore = (userId, actionName, params) => async dispatch => {
-  if (false) {
-    // if (userId) {
-    // POST request to save user answers to database
-    // Get CSRF token before sending POST request
-    const csrfResponse = await api.get(`/auth/csrf`)
-    const { csrfToken } = csrfResponse.data.data
-    // Attach CSRF token to the headers and send request up to backend
-    const response = await api.post(`/cc/estimate/${actionName}`, {
-      ...params,
-      user_id: userId,
-      headers: { 'X-CSRFToken': csrfToken },
-    })
-    dispatch({
-      type: types.GET_SCORE,
-      payload: { response: response.data, actionType: actionName },
-    })
-  }
-}
+// export const unpostScore = (userId, actionName, params) => async dispatch => {
+//   if (false) {
+//     // if (userId) {
+//     // POST request to save user answers to database
+//     // Get CSRF token before sending POST request
+//     const csrfResponse = await api.get(`/auth/csrf`)
+//     const { csrfToken } = csrfResponse.data.data
+//     // Attach CSRF token to the headers and send request up to backend
+//     const response = await api.post(`/cc/estimate/${actionName}`, {
+//       ...params,
+//       user_id: userId,
+//       headers: { 'X-CSRFToken': csrfToken },
+//     })
+//     dispatch({
+//       type: types.GET_SCORE,
+//       payload: { response: response.data, actionType: actionName },
+//     })
+//   }
+// }
 // fetchGroups action, fetch all groups for user selection
 export const fetchGroups = async () => {
   const response = await api.get(`/cc/info/groups`)
   return response.data.groupList
 }
 // createUser action, send POST request to backend to save user registration info to database
-export const createUser = (formValues, email, selected) => async dispatch => {
+export const createUser = async (formValues, email, selected) => {
   /* params :
     first_name,
     last_name,
@@ -129,6 +96,7 @@ export const createUser = (formValues, email, selected) => async dispatch => {
     ...otherValues,
     groups: [groups],
     email,
+    eventName: selected.name,
   }
   // Get CSRF token
   const csrfResponse = await api.get(`/auth/csrf`)
@@ -138,26 +106,5 @@ export const createUser = (formValues, email, selected) => async dispatch => {
     ...params,
     headers: { 'X-CSRFToken': csrfToken },
   })
-  dispatch({ type: types.CREATE_USER, payload: response.data })
-  history.push(`/event/${selected.name}`)
-}
-// Sign in action send GET request to backend with email to get the user
-export const signIn = (user, selected) => async dispatch => {
-  // Attach email to request and send off to backend to get user info
-  const response = await api.get('/cc/info/user', {
-    params: {
-      email: user.email,
-    },
-  })
-  if (response.data.status < 0) {
-    alert(response.data.statusText)
-  } else {
-    dispatch({
-      type: types.SIGN_IN,
-      payload: response.data.userInfo,
-    })
-  }
-  if (selected) {
-    history.push(`/event/${selected.name}`)
-  }
+  return response.data
 }

@@ -69,84 +69,90 @@ const EventItem = props => {
     return null
   }
 
-  const renderHost = () => (
-    // Host rendering
-    <Grid item>
-      <Grid item container>
-        <Typography
-          className={classes.title}
-          style={{ color: '#8dc63f' }}
-          variant="h5"
-        >
-          About the Host
-        </Typography>
-      </Grid>
-      <Grid item container direction="column">
-        <Grid item container direction="row">
-          <Card>
-            <CardActionArea>
-              <CardMedia title={selected.host_org}>
-                <a href={selected.host_url}>
-                  <img
-                    className={classes.logoImg}
-                    src={selected.host_logo}
-                    alt={selected.host_org}
-                  />
-                </a>
-              </CardMedia>
-            </CardActionArea>
-            <CardContent>
-              <Typography variant="h5" component="h2">
-                {selected.host_contact}
-              </Typography>
-              <IconButton className={classes.actionButton}>
-                <a href={`mailto:${selected.host_email}`}>
-                  <EmailIcon />
-                </a>
-              </IconButton>
-              <IconButton className={classes.actionButton}>
-                <a href={`tel:${reformattedPhone(selected.host_phone)}`}>
-                  <PhoneIcon />
-                </a>
-              </IconButton>
-            </CardContent>
-          </Card>
+  const renderHost = () => {
+    if (!selected.host_url) return <CircularProgress />
+    return (
+      // Host rendering
+      <Grid item>
+        <Grid item container>
+          <Typography
+            className={classes.title}
+            style={{ color: '#8dc63f' }}
+            variant="h5"
+          >
+            About the Host
+          </Typography>
         </Grid>
-      </Grid>
-    </Grid>
-  )
-
-  const renderSponsor = () => (
-    // Render Sponsor Info
-    <Grid item>
-      <Grid item container>
-        <Typography
-          className={classes.title}
-          style={{ color: '#8dc63f' }}
-          variant="h5"
-        >
-          Sponsors
-        </Typography>
-      </Grid>
-      <Grid item container direction="column">
-        <Grid item container direction="row">
-          <Card>
-            <CardActionArea>
-              <a href={selected.sponsor_url}>
-                <CardMedia title={selected.sponsor_org}>
-                  <img
-                    className={classes.logoImg}
-                    src={selected.sponsor_logo}
-                    alt={selected.sponsor_org}
-                  />
+        <Grid item container direction="column">
+          <Grid item container direction="row">
+            <Card>
+              <CardActionArea>
+                <CardMedia title={selected.host_org}>
+                  <a href={selected.host_url}>
+                    <img
+                      className={classes.logoImg}
+                      src={selected.host_logo}
+                      alt={selected.host_org}
+                    />
+                  </a>
                 </CardMedia>
-              </a>
-            </CardActionArea>
-          </Card>
+              </CardActionArea>
+              <CardContent>
+                <Typography variant="h5" component="h2">
+                  {selected.host_contact}
+                </Typography>
+                <IconButton className={classes.actionButton}>
+                  <a href={`mailto:${selected.host_email}`}>
+                    <EmailIcon />
+                  </a>
+                </IconButton>
+                <IconButton className={classes.actionButton}>
+                  <a href={`tel:${reformattedPhone(selected.host_phone)}`}>
+                    <PhoneIcon />
+                  </a>
+                </IconButton>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
       </Grid>
-    </Grid>
-  )
+    )
+  }
+
+  const renderSponsor = () => {
+    if (!selected.sponsor_url) return <CircularProgress />
+    return (
+      // Render Sponsor Info
+      <Grid item>
+        <Grid item container>
+          <Typography
+            className={classes.title}
+            style={{ color: '#8dc63f' }}
+            variant="h5"
+          >
+            Sponsors
+          </Typography>
+        </Grid>
+        <Grid item container direction="column">
+          <Grid item container direction="row">
+            <Card>
+              <CardActionArea>
+                <a href={selected.sponsor_url}>
+                  <CardMedia title={selected.sponsor_org}>
+                    <img
+                      className={classes.logoImg}
+                      src={selected.sponsor_logo}
+                      alt={selected.sponsor_org}
+                    />
+                  </CardMedia>
+                </a>
+              </CardActionArea>
+            </Card>
+          </Grid>
+        </Grid>
+      </Grid>
+    )
+  }
 
   // Check if the information from backend has been received
   if (!selected) {

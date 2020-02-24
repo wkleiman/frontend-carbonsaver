@@ -13,7 +13,6 @@ import {
   CircularProgress,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
-import AuthForm from './AuthForm'
 import { fetchGroups, createUser } from '../../actions'
 import { useAuthState } from '../context/AuthContext'
 import { facebookProvider, googleProvider } from './firebaseConfig'
@@ -69,7 +68,6 @@ const SignUpPage = props => {
       .createUserWithEmailAndPassword(formValues.email, formValues.passwordOne)
       .then(authUser => {
         // Send Verification Email
-        setAuthState(authUser.user)
         sendVerificationEmail()
       })
       .catch(err => {
@@ -134,7 +132,7 @@ const SignUpPage = props => {
           .signInWithPopup(googleProvider)
           .then(async googleAuth => {
             // Save user information to backend database
-            setAuthState(googleAuth.user)
+            sendVerificationEmail()
           })
           .catch(err => {
             setLoading(false)
@@ -154,7 +152,7 @@ const SignUpPage = props => {
           .signInWithPopup(facebookProvider)
           .then(async facebookAuth => {
             // Save user information to backend database
-            setAuthState(facebookAuth.user)
+            sendVerificationEmail()
           })
           .catch(err => {
             setLoading(false)

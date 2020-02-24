@@ -1,9 +1,13 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { useFormik } from 'formik'
 import { useFirebase } from 'react-redux-firebase'
+import _ from 'lodash'
 import {
   TextField,
   FormControl,
+  FormControlLabel,
+  Checkbox,
   Grid,
   Button,
   Paper,
@@ -12,29 +16,43 @@ import {
   MenuItem,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
-import { fetchGroups } from '../../actions'
+import { fetchUser, fetchGroups, createUser } from '../../actions'
 import { useSelectedState } from '../context/SelectedContext'
+import { useGroupState } from '../context/GroupContext'
 import { useAuthState } from '../context/AuthContext'
 
 const useStyles = makeStyles({
-  textInput: {},
-  submitBtn: {},
-  container: {},
+  textInput: { width: '100%' },
+  submitBtn: { backgroundColor: '#8dc63f', color: 'white' },
+  container: { margin: '5vh auto', width: '50vh', padding: '2vh' },
 })
 
 const BasicInfo = props => {
   const { selected } = useSelectedState()
-  const { authState } = useAuthState()
+  const { authState, setAuthState } = useAuthState()
+  const { groupState, setGroupState } = useGroupState()
 
   const classes = useStyles()
 
   const firebase = useFirebase()
   const auth = firebase.auth()
   const [loading, setLoading] = React.useState(false)
+  const getGroups = async () => {
+    const groupList = await fetchGroups()
+    setGroupState(groupList)
+  }
+  React.useEffect(() => {
+    getGroups()
+  }, [])
 
-  const onFinalSubmit = formValues => {
-    const { email } = auth.currentUser
-    // createUser(formValues, email, selected)
+  const onFinalSubmit = async formValues => {
+    const email = _.get(auth, 'currentUser.email')
+    console.log(selected)
+    const status = await createUser(formValues, email, selected)
+    if (status.data.success) {
+      const newUser = await fetchUser(auth.currentUser)
+      setAuthState(newUser)
+    }
   }
   const basicInfoFormik = useFormik({
     initialValues: {
@@ -43,11 +61,12 @@ const BasicInfo = props => {
       locality: '',
       minimum_age: false,
       accept_terms_and_conditions: false,
-      group: '',
+      groups: '',
     },
     onSubmit: values => {
-      setLoading(false)
+      setLoading(true)
       console.log(values)
+      onFinalSubmit(values)
     },
     validate: formValues => {
       const errors = {}
@@ -76,13 +95,12 @@ const BasicInfo = props => {
         errors.accept_terms_and_conditions =
           'You Must Accept Our Terms And Conditions'
       }
+      if (!formValues.groups) {
+        errors.groups = 'You Must Choose a Group'
+      }
     },
   })
-
-  // Upon successful email verification, gather user basic information
-
-  const [groups, setGroups] = React.useState()
-
+  if (!groupState) return <CircularProgress />
   return (
     <Paper className={classes.container}>
       <Typography variant="h3">Create Profile</Typography>
@@ -159,39 +177,63 @@ const BasicInfo = props => {
                   label="Locality"
                   placeholder="Locality"
                   variant="outlined"
-                  type="password"
                   required
                 />
               </Grid>
               <Grid item xs={12}>
-                <FormControl
+                <TextField
+                  defaultValue=""
+                  name="groups"
+                  className={classes.textInput}
+                  onBlur={basicInfoFormik.handleBlur}
+                  onChange={basicInfoFormik.handleChange}
+                  error={
+                    basicInfoFormik.touched.group &&
+                    basicInfoFormik.errors.group
+                  }
+                  helperText={
+                    basicInfoFormik.touched.group &&
+                    basicInfoFormik.errors.group
+                  }
                   required
                   variant="outlined"
-                  className={classes.textInput}
+                  select
+                  label="Group"
                 >
-                  <TextField
-                    onBlur={basicInfoFormik.handleBlur}
-                    onChange={basicInfoFormik.handleChange}
-                    error={
-                      basicInfoFormik.touched.group &&
-                      basicInfoFormik.errors.group
-                    }
-                    helperText={
-                      basicInfoFormik.touched.group &&
-                      basicInfoFormik.errors.group
-                    }
-                    required
-                    variant="outlined"
-                    select
-                    label="Group"
-                  >
-                    {groups.map(group => (
-                      <MenuItem key={group.name} value={group.name}>
-                        {group.displayname}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </FormControl>
+                  {groupState.map(group => (
+                    <MenuItem key={group.name} value={group.name}>
+                      {group.displayname}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      name="minimum_age"
+                      checked={!!basicInfoFormik.values.minimum_age}
+                      onChange={basicInfoFormik.handleChange}
+                      value
+                    />
+                  }
+                  label="Are you over 13 years old? "
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      name="accept_terms_and_conditions"
+                      checked={
+                        !!basicInfoFormik.values.accept_terms_and_conditions
+                      }
+                      onChange={basicInfoFormik.handleChange}
+                      value
+                    />
+                  }
+                  label={<Link to="">Terms and Conditions</Link>}
+                />
               </Grid>
             </Grid>
           </Grid>

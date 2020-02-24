@@ -10,6 +10,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { fetchEvents } from '../../../actions'
 import { useSelectedState } from '../../context/SelectedContext'
 import { useEventState } from '../../context/EventContext'
+import Header from '../header'
 
 // Style defination
 const useStyle = makeStyles(theme => ({
@@ -64,7 +65,6 @@ const EventList = () => {
   // Rendering List of Events
   const renderList = () => {
     if (!eventState) return <CircularProgress />
-    console.log(eventState)
     return eventState.map(event => {
       // Define dates and months for reformatting
       const date = new Date(event.datetime)
@@ -128,27 +128,32 @@ const EventList = () => {
   }
   // Main rendering function calling render list function
   return (
-    <div>
-      <Paper className={classes.root}>
-        <Grid container>
-          <Grid item>
-            <Typography
-              variant="h4"
-              style={{
-                margin: '1vh 1vh',
-                padding: '1vh 1vh',
-                fontWeight: 'bold',
-              }}
-            >
-              Upcoming Events
-            </Typography>
+    <Grid container direction="row" justify="flex-start" alignItems="center">
+      <Grid item xs={12}>
+        <Header />
+      </Grid>
+      <div>
+        <Paper className={classes.root}>
+          <Grid container>
+            <Grid item>
+              <Typography
+                variant="h4"
+                style={{
+                  margin: '1vh 1vh',
+                  padding: '1vh 1vh',
+                  fontWeight: 'bold',
+                }}
+              >
+                Upcoming Events
+              </Typography>
+            </Grid>
+            <Grid item xs={12} container>
+              {renderList()}
+            </Grid>
           </Grid>
-          <Grid item xs={12} container>
-            {renderList()}
-          </Grid>
-        </Grid>
-      </Paper>
-    </div>
+        </Paper>
+      </div>
+    </Grid>
   )
 }
 

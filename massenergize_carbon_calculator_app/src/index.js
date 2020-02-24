@@ -16,17 +16,15 @@ const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)))
 
 // react redux firebase configuration
 const rrfConfig = { userProfile: 'users', firebaseStateName: 'firebase' }
-// react redux firebase props
-const rrfProps = {
-  firebase,
-  config: rrfConfig,
-  dispatch: store.dispatch,
-}
 
 // Render App to DOM
 ReactDOM.render(
   <Provider store={store}>
-    <ReactReduxFirebaseProvider {...rrfProps}>
+    <ReactReduxFirebaseProvider
+      firebase={firebase}
+      config={rrfConfig}
+      dispatch={store.dispatch}
+    >
       <AuthProvider>
         <App />
       </AuthProvider>

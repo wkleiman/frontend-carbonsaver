@@ -14,9 +14,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles'
 import { useFormik } from 'formik'
 import { useFirebase } from 'react-redux-firebase'
-
 import { useAuthState } from '../context/AuthContext'
-import { useSignInState } from '../context/SignInContext'
 import { useSelectedState } from '../context/SelectedContext'
 import { facebookProvider, googleProvider } from './firebaseConfig'
 import { fetchUser } from '../../actions'
@@ -55,9 +53,9 @@ const LogInForm = () => {
   const classes = useStyles()
   const [loading, setLoading] = React.useState(false)
   const firebase = useFirebase()
+  const auth = firebase.auth()
   const [isFinishSignUp, setIsFinishSignUp] = React.useState(true)
   const { authState, setAuthState } = useAuthState()
-  const { setSignIn } = useSignInState()
   const { selected } = useSelectedState()
 
   // Rendering TextFields for user input
@@ -65,8 +63,7 @@ const LogInForm = () => {
 
   // Sign in with email and password function
   const normalLogin = ({ email, password }) => {
-    firebase
-      .auth()
+    auth
       .signInWithEmailAndPassword(email, password)
       .then(async res => {
         // Save user to backend database
@@ -117,47 +114,64 @@ const LogInForm = () => {
   // Sign in with Google function
   const signInWithGoogle = () => {
     // Authentication reset upon closing tab/window
-    firebase
-      .auth()
-      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
-      .then(() => {
-        firebase
-          .auth()
-          .signInWithPopup(googleProvider)
-          .then(async googleAuth => {
-            // Save user information to backend database
-            const user = await fetchUser(googleAuth.user)
-            setAuthState(user)
-          })
-          .catch(err => {
-            setLoading(false)
-            signInFormik.setStatus(err.message)
-          })
-      })
+    auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(() => {
+      auth
+        .signInWithPopup(googleProvider)
+        .then(async googleAuth => {
+          // Save user information to backend database
+          const user = await fetchUser(googleAuth.user)
+          setAuthState(user)
+        })
+        .catch(err => {
+          setLoading(false)
+          signInFormik.setStatus(err.message)
+        })
+    })
   }
   // Sign In with Facebook function
   const signInWithFacebook = () => {
     // Authentication reset upon closing tab/window
-    firebase
-      .auth()
-      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
-      .then(() => {
-        firebase
-          .auth()
-          .signInWithPopup(facebookProvider)
-          .then(async facebookAuth => {
-            // Save user information to backend database
-            const user = await fetchUser(facebookAuth.user)
-            setAuthState(user)
-          })
-          .catch(err => {
-            setLoading(false)
-            signInFormik.setStatus(err.message)
-          })
-      })
+    auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(() => {
+      auth
+        .signInWithPopup(facebookProvider)
+        .then(async facebookAuth => {
+          // Save user information to backend database
+          const user = await fetchUser(facebookAuth.user)
+          setAuthState(user)
+        })
+        .catch(err => {
+          setLoading(false)
+          signInFormik.setStatus(err.message)
+        })
+    })
   }
 
   if (authState) return <Redirect to="/events" />
+
+  if (
+    !firebase.auth.isEmpty &&
+    auth.currentUser &&
+    !auth.currentUser.emailVerified
+  ) {
+    return (
+      <Paper className={classes.container} style={{ padding: '2vh' }}>
+        <Grid container>
+          <Grid item>
+            <Typography>
+              {' '}
+              We sent a link to your email address. Please verify your email and
+              sign in to continue.
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Button onClick={() => auth.currentUser.sendEmailVerification()}>
+              Resend Verification Email
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+    )
+  }
 
   if (!isFinishSignUp) return <BasicInfo />
 
@@ -252,11 +266,7 @@ const LogInForm = () => {
             <Grid item>
               <Typography>
                 Don't have an account?
-                <Link
-                  className={classes.link}
-                  to="/auth/signup"
-                  onClick={() => setSignIn(false)}
-                >
+                <Link className={classes.link} to="/auth/signup">
                   Create a Profile
                 </Link>
               </Typography>

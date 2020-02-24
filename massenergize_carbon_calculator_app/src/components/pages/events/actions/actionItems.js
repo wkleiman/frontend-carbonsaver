@@ -14,217 +14,180 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
-import {
-  questionAnswered,
-  getScore,
-  postScore,
-  unpostScore,
-} from '../../../../actions'
 import QList from '../questions/QList'
+import { getScore, unpostScore } from '../../../../actions'
+import { useScoreState } from '../../../context/ScoreContext'
+import { useAnsweredState } from '../../../context/AnsweredContext'
+import { useSkipState } from '../../../context/SkipContext'
+import { useAuthState } from '../../../context/AuthContext'
 
 // TODO: Add What's it worth button next to I'll Do It to display how much user's answer worth before saving it to database
-class ActionItems extends React.Component {
-  state = { estimated: false, committed: false }
+const ActionItems = props => {
+  const [estimated, setEstimated] = React.useState(false)
+  const [actionScore, setActionScore] = React.useState()
+  const [committed, setCommitted] = React.useState(false)
+  const { action } = props
+  const { authState } = useAuthState()
+  const { skipState } = useSkipState()
+  const { scoreState, setScoreState } = useScoreState()
+  const { answeredState } = useAnsweredState()
+
+  console.log(authState)
 
   // Rendering Question List
   // TODO: Make component rerender to hide information, and add answered to action object in application state
-  renderQuestionList() {
-    // const { action, answered, questionAnswered } = this.props;
-    const { action, answered } = this.props
-    return _.tail(action.questionInfo).map(question => {
-      // Check if Question has been answered
-      if (answered) {
-        const [isQAnswered, actionOfAnswered] = this.isAnswered(question.name)
-        console.log(isQAnswered)
-        console.log(actionOfAnswered)
-        // Check if question is in Skip object of application state
-        if (this.isSkip(question.name)) {
-          // Hide question if any of above true
-          return (
-            <React.Fragment
-              key={`${action.name}${question.name}`}
-            ></React.Fragment>
-          )
-        }
-        // Case where question is answered but the action is different
-        // if(isQAnswered && actionOfAnswered !== action.name){
-        //   // Update the Redux state of current action with the answer
-        //   questionAnswered(action.name, question.name, _.get(answered, `${question.name}`))
-        //   return (<React.Fragment
-        //       key={`${action.name}${question.name}`}
-        //     ></React.Fragment>)
-        // }
-      }
-    })
-  }
 
-  // Add answered question to application state
-  recordAnswered = question => {
-    this.props.onAnswered(question)
+  const getAnswer = () => {
+    if (!answeredState) return
+    const actionQAnswered = {}
+    action.questionInfo.forEach(question => {
+      actionQAnswered[question.name] = answeredState[question.name]
+    })
+    return actionQAnswered
   }
 
   // Post Click to calculate points and save user answers
-  handlePostClick = e => {
-    const { action } = this.props
-    this.props.postScore(
-      this.props.auth.userID,
-      action.name,
-      this.props.answered
-    )
-    this.state.committed = true
+  const handlePostClick = async e => {
+    const actionAnswers = getAnswer()
+    if (!actionAnswers) return
+    const score = await getScore({
+      userId: authState.id,
+      actionName: action.name,
+      ...actionAnswers,
+    })
+    const sumScoreWithCategory = {}
+    if (!scoreState) {
+      setScoreState(score)
+    } else {
+      Object.keys(score).forEach(category => {
+        sumScoreWithCategory[category] = scoreState[category] + score[category]
+      })
+      setScoreState(sumScoreWithCategory)
+    }
+    setCommitted(true)
   }
 
   // UnPost Click to revert answer to post
-  handleUnPostClick = e => {
-    const { action } = this.props
-    this.props.unpostScore(
-      this.props.auth.userID,
-      action.name,
-      this.props.answered
-    )
-    this.state.committed = false
-  }
+  // const handleUnPostClick = e => {
+  //   unpostScore({
+  //     userId: authState.userID,
+  //     actionName: action.name,
+  //     ...answered,
+  //   })
+  //   setCommitted(false)
+  // }
 
   // Get to calculate points to see how much user's current answers worth
-  handleGetClick = e => {
-    const { action } = this.props
-    this.props.getScore(
-      this.props.auth.userID,
-      action.name,
-      this.props.answered
-    )
-    this.state.estimated = true
+  const handleGetClick = async e => {
+    const actionAnswers = getAnswer()
+    if (!actionAnswers) return
+    const score = await getScore({
+      actionName: action.name,
+      ...actionAnswers,
+    })
+    delete score.status
+    setActionScore(score)
+    setEstimated(true)
   }
 
   // Render points to screen
-  renderActionScore() {
-    const { answered } = this.props
-    if (!answered || !answered.score) {
-      return <></>
-    }
-    const score = Object.values(answered.score)
-    const description = score.pop()
-    return !score ? (
-      <></>
-    ) : (
-      <Typography>{`Points earned:  Cost  Savings ${description}`}</Typography>
+  // const renderActionCommit = () => {
+  //   if (!answered || !answered.score) {
+  //     return <></>
+  //   }
+  //   const score = Object.values(answered.score)
+  //   const description = score.pop()
+  //   return !score ? (
+  //     <></>
+  //   ) : (
+  //     <Typography>{`You Earned ${score.reduce(
+  //       (a, b) => a + b,
+  //       0
+  //     )} points!`}</Typography>
+  //   )
+  // }
+
+  const renderQuestionList = () =>
+    _.tail(action.questionInfo).map(
+      question =>
+        !skipState.includes(question.name) && (
+          <React.Fragment key={`${action.name}${question.name}`}>
+            <QList actionName={action.name} question={question} />
+          </React.Fragment>
+        )
     )
-  }
 
   // Render points to screen
-  renderActionCommit() {
-    const { answered } = this.props
-    if (!answered || !answered.score) {
+  const renderActionScore = () => {
+    if (!answeredState || !actionScore) {
       return <></>
     }
-    const score = Object.values(answered.score)
-    const description = score.pop()
-    return !score ? (
-      <></>
-    ) : (
-      <Typography>{`You Earned ${score.reduce(
-        (a, b) => a + b,
-        0
-      )} points!`}</Typography>
-    )
-  }
-
-  // Check if question answered function
-  // Param: question name
-  // Return: 1st param: boolean indicate is answered or not, 2nd param: action name
-  isAnswered(questionName) {
-    const { allAnswered } = this.props
-    // Loop through answered object in application state with key as action
-    for (const answeredAction in allAnswered) {
-      // Loop through answered action to see which question was answered
-      for (const answeredQ of Object.keys(allAnswered[answeredAction])) {
-        // If questionName existed in the answered action object
-        if (answeredQ === questionName) {
-          return [true, answeredAction]
-        }
-      }
-    }
-    const score = Object.values(answered.score)
-    const description = score.pop()
-    return !score ? (
-      <></>
-    ) : (
-      <Typography>{`${description} You Earned ${score.reduce(
-        (a, b) => a + b,
-        0
-      )} points!`}</Typography>
-    )
-  }
-
-  render() {
-    const { action } = this.props
-    // Render object rendering layout of each action
     return (
-      <ExpansionPanel TransitionProps={{ unmountOnExit: true }}>
-        <ExpansionPanelSummary
-          expandIcon={<ExpandMore />}
-          aria-controls="panel1c-content"
-          id="panel1c-header"
-        >
-          <Typography variant="h5">{action.description}</Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-          <Grid container direction="column">
-            <Grid item>
-              <Typography variant="h4">Did You Know?</Typography>
-            </Grid>
-            <Grid item>
-              <Typography>{action.helptext}</Typography>
-            </Grid>
-            <Grid item>
-              <List>
-                <QList
-                  action={action}
-                  question={action.questionInfo[0]}
-                  recordAnswered={this.recordAnswered}
-                />
-                {this.renderQuestionList()}
-              </List>
-              {this.state.estimated ? (
-                this.renderActionScore()
-              ) : (
-                <div className="button">
-                  <Button onClick={this.handleGetClick}>
-                    What's It Worth?
-                  </Button>
-                </div>
-              )}
-              {this.state.committed ? (
-                <div className="button">
-                  <Button onClick={this.handleUnPostClick}>
-                    Changed my mind!
-                  </Button>
-                  {this.renderActionCommit()}
-                </div>
-              ) : (
-                <div className="button">
-                  <Button onClick={this.handlePostClick}>I'll Do It!</Button>
-                </div>
-              )}
-            </Grid>
-          </Grid>
-        </ExpansionPanelDetails>
-        <Divider />
-      </ExpansionPanel>
+      <Typography>{`Points earned: ${actionScore.carbon_points}  Cost: ${actionScore.cost}  Savings: ${actionScore.savings} ${actionScore.explanation}`}</Typography>
     )
   }
-}
-// Map answered object, get answered of this action, skip object, and authentication from application state
-const mapStateToProps = (state, ownProps) => {
-  const { skip, ...allAnswered } = state.answered
-  return {
-    allAnswered,
-    answered: allAnswered[ownProps.action.name],
-    skip,
-    auth: state.auth,
-  }
-}
 
+  // Render object rendering layout of each action
+  return (
+    <ExpansionPanel TransitionProps={{ unmountOnExit: true }}>
+      <ExpansionPanelSummary
+        expandIcon={<ExpandMore />}
+        aria-controls="panel1c-content"
+        id="panel1c-header"
+      >
+        <Typography variant="h5">{action.description}</Typography>
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails>
+        <Grid container direction="column">
+          <Grid item>
+            <Typography variant="h4">Did You Know?</Typography>
+          </Grid>
+          <Grid item>
+            <Typography>{action.helptext}</Typography>
+          </Grid>
+          <Grid item>
+            <List>
+              <QList
+                actionName={action.name}
+                question={action.questionInfo[0]}
+              />
+              {renderQuestionList()}
+            </List>
+            {estimated ? (
+              actionScore && renderActionScore()
+            ) : (
+              <div className="button">
+                <Button
+                  onClick={e => {
+                    handleGetClick(e)
+                  }}
+                >
+                  What's It Worth?
+                </Button>
+              </div>
+            )}
+            {committed ? (
+              <div className="button">
+                <Button onClick={() => {}}>Changed my mind!</Button>
+              </div>
+            ) : (
+              <div className="button">
+                <Button
+                  onClick={e => {
+                    handlePostClick(e)
+                  }}
+                >
+                  I'll Do It!
+                </Button>
+              </div>
+            )}
+          </Grid>
+        </Grid>
+      </ExpansionPanelDetails>
+      <Divider />
+    </ExpansionPanel>
+  )
+}
 ActionItems.propTypes = {
   action: PropType.shape({
     questionInfo: PropType.array,
@@ -232,19 +195,6 @@ ActionItems.propTypes = {
     description: PropType.string,
     name: PropType.string,
   }),
-  skip: PropType.object,
-  questionAnswered: PropType.func,
-  answered: PropType.object,
-  getScore: PropType.func,
-  auth: PropType.shape({
-    userID: PropType.string,
-  }),
-  onAnswered: PropType.func,
 }
 // Export and connect component to actions
-export default connect(mapStateToProps, {
-  questionAnswered,
-  getScore,
-  postScore,
-  unpostScore,
-})(ActionItems)
+export default ActionItems

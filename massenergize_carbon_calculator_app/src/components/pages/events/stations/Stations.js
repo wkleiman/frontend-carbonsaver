@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-// import PropTypes from 'prop-types';
+import PropType from 'prop-types'
 import _ from 'lodash'
 
 import { makeStyles, useTheme } from '@material-ui/core/styles'
@@ -52,6 +52,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const TabPanel = props => {
+  // eslint-disable-next-line react/prop-types
   const { children, value, index, ...other } = props
 
   return (
@@ -62,6 +63,7 @@ const TabPanel = props => {
         hidden={value !== index}
         id={`scrollable-auto-tabpanel-${index}`}
         aria-labelledby={`scrollable-auto-tab-${index}`}
+        // eslint-disable-next-line react/jsx-props-no-spreading
         {...other}
       >
         <Box>{children}</Box>
@@ -69,6 +71,7 @@ const TabPanel = props => {
     )
   )
 }
+
 function tabProps(index) {
   return {
     id: `scrollable-auto-tab-${index}`,
@@ -108,15 +111,21 @@ const Stations = props => {
   const onAnswered = question => setAnswered(new Set([...answered, question]))
 
   const renderStationTabs = () => {
-    let idx = 1
-    return _.tail(stations).map(station => (
-      <Tab
-        key={`${station.name}tab`}
-        icon={<img className={classes.stationIcon} src={station.icon} alt="" />}
-        label={station.displayname}
-        {...tabProps(idx++)}
-      />
-    ))
+    let idx = 0
+    return _.tail(stations).map(station => {
+      idx += 1
+      return (
+        <Tab
+          key={`${station.name}tab`}
+          icon={
+            <img className={classes.stationIcon} src={station.icon} alt="" />
+          }
+          label={station.displayname}
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          {...tabProps(idx)}
+        />
+      )
+    })
   }
 
   const renderActionList = (actions, station) =>
@@ -130,21 +139,24 @@ const Stations = props => {
     ))
 
   const renderStationItemList = () => {
-    let idx = 1
-    return _.tail(stations).map(station => (
-      <TabPanel
-        className={tablet ? classes.station : null}
-        key={station.name}
-        value={value}
-        index={idx++}
-      >
-        <Paper style={{ padding: '16px 16px' }}>
-          <Typography variant="h4">{station.displayname}</Typography>
-          <Typography>{station.description}</Typography>
-          {renderActionList(station.actions, station.name)}
-        </Paper>
-      </TabPanel>
-    ))
+    let idx = 0
+    return _.tail(stations).map(station => {
+      idx += 1
+      return (
+        <TabPanel
+          className={tablet ? classes.station : null}
+          key={station.name}
+          value={value}
+          index={idx}
+        >
+          <Paper style={{ padding: '16px 16px' }}>
+            <Typography variant="h4">{station.displayname}</Typography>
+            <Typography>{station.description}</Typography>
+            {renderActionList(station.actions, station.name)}
+          </Paper>
+        </TabPanel>
+      )
+    })
   }
   return (
     <div className={phone ? classes.rootVertical : classes.rootHorizontal}>
@@ -159,6 +171,7 @@ const Stations = props => {
         onChange={onChangeHandler}
         aria-label="vertical tab"
       >
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
         <Tab key="Welcome_1tab" label="Welcome" {...tabProps(0)} />
         {renderStationTabs()}
       </Tabs>
@@ -233,6 +246,21 @@ const Stations = props => {
       {renderStationItemList()}
     </div>
   )
+}
+
+Stations.propTypes = {
+  stations: PropType.arrayOf(
+    PropType.shape({
+      actions: PropType.array,
+      name: PropType.string,
+      description: PropType.string,
+    })
+  ),
+  event: PropType.shape({
+    location: PropType.string,
+    displayname: PropType.string,
+    datetime: PropType.string,
+  }),
 }
 
 export default Stations
