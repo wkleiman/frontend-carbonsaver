@@ -140,7 +140,7 @@ const ActionItems = props => {
       <ExpansionPanelDetails>
         <Grid container direction="column">
           <Grid item>
-            <Typography variant="h4">Did You Know?</Typography>
+            <Typography variant="h6">Did You Know?</Typography>
           </Grid>
           <Grid item>
             <Typography>{action.helptext}</Typography>

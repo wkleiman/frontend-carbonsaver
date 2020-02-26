@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
     height: 'auto',
   },
   stationIcon: {
-    width: '3vh',
+    width: '10vh',
   },
   tabs: {
     backgroundColor: '#8dc63f',
@@ -151,7 +151,7 @@ const Stations = props => {
         >
           <Paper style={{ padding: '16px 16px' }}>
             <Typography variant="h4">{station.displayname}</Typography>
-            <Typography>{station.description}</Typography>
+            <Typography variant="h6">{station.description}</Typography>
             {renderActionList(station.actions, station.name)}
           </Paper>
         </TabPanel>
