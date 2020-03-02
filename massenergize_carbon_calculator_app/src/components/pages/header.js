@@ -44,6 +44,7 @@ const useStyles = makeStyles(theme => ({
     '& img::hover': {
       opacity: 0.1,
     },
+    margin: '1vh',
   },
   list: {
     width: 250,
@@ -170,7 +171,7 @@ function Header() {
           <Typography variant="h6" className={classes.logo}>
             <Link to="/about">
               <img
-                src={`${process.env.PUBLIC_URL}/images/CoolerCommunities512.jpg`}
+                src={`${process.env.PUBLIC_URL}/favicon.ico`}
                 alt="Cooler Communities banner"
               />
             </Link>

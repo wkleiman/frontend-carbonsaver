@@ -132,7 +132,7 @@ const EventList = () => {
       <Grid item xs={12}>
         <Header />
       </Grid>
-      <div>
+      <Grid item xs={12}>
         <Paper className={classes.root}>
           <Grid container>
             <Grid item>
@@ -152,7 +152,7 @@ const EventList = () => {
             </Grid>
           </Grid>
         </Paper>
-      </div>
+      </Grid>
     </Grid>
   )
 }
