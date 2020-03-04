@@ -15,7 +15,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import QList from '../questions/QList'
-import { getScore, unpostScore } from '../../../../actions'
+import { getScore, postScore, unpostScore } from '../../../../actions'
 import { useScoreState } from '../../../context/ScoreContext'
 import { useAnsweredState } from '../../../context/AnsweredContext'
 import { useSkipState } from '../../../context/SkipContext'
@@ -32,8 +32,8 @@ const ActionItems = props => {
   const { scoreState, setScoreState } = useScoreState()
   const { answeredState } = useAnsweredState()
 
-  console.log(authState)
-
+  //console.log(authState)
+   
   // Rendering Question List
   // TODO: Make component rerender to hide information, and add answered to action object in application state
 
@@ -46,36 +46,45 @@ const ActionItems = props => {
     return actionQAnswered
   }
 
-  // Post Click to calculate points and save user answers
-  const handlePostClick = async e => {
-    const actionAnswers = getAnswer()
-    if (!actionAnswers) return
-    const score = await getScore({
-      userId: authState.id,
-      actionName: action.name,
-      ...actionAnswers,
-    })
+  const updateScore = (score) => {
     const sumScoreWithCategory = {}
     if (!scoreState) {
       setScoreState(score)
     } else {
       Object.keys(score).forEach(category => {
-        sumScoreWithCategory[category] = scoreState[category] + score[category]
+        if (typeof score[category] === 'number'){
+          sumScoreWithCategory[category] = scoreState[category] + score[category]
+        } else {
+          sumScoreWithCategory[category] = score[category]
+        }
       })
       setScoreState(sumScoreWithCategory)
     }
+  }
+
+  // Post Click to calculate points and save user answers
+  const handlePostClick = async e => {
+    const actionAnswers = getAnswer()
+    if (!actionAnswers) return
+    const score = await postScore({
+      userId: authState.id,
+      actionName: action.name,
+      ...actionAnswers,
+    })
+    updateScore(score)
     setCommitted(true)
   }
 
   // UnPost Click to revert answer to post
-  // const handleUnPostClick = e => {
-  //   unpostScore({
-  //     userId: authState.userID,
-  //     actionName: action.name,
-  //     ...answered,
-  //   })
-  //   setCommitted(false)
-  // }
+  const handleUnPostClick = async e => {
+    const score = await unpostScore({
+       userId: authState.id,
+       actionName: action.name,
+    })
+    updateScore(score)     
+    setCommitted(false)
+    setEstimated(false)
+  }
 
   // Get to calculate points to see how much user's current answers worth
   const handleGetClick = async e => {
@@ -123,7 +132,8 @@ const ActionItems = props => {
       return <></>
     }
     return (
-      <Typography>{`Points earned: ${actionScore.carbon_points}  Cost: ${actionScore.cost}  Savings: ${actionScore.savings} ${actionScore.explanation}`}</Typography>
+      //<Typography>{`Points earned: ${actionScore.carbon_points}  Cost: ${actionScore.cost}  Savings: ${actionScore.savings} ${actionScore.explanation}`}</Typography>
+      <Typography>{`Carbon Points: ${actionScore.carbon_points} Savings: $${actionScore.savings}`}</Typography>
     )
   }
 
@@ -167,10 +177,15 @@ const ActionItems = props => {
               </div>
             )}
             {committed ? (
-              <div className="button">
-                <Button onClick={() => {}}>Changed my mind!</Button>
+             <div className="button">
+                {actionScore.explanation}
+                 <Button 
+                  onClick={e => {
+                    handleUnPostClick(e)
+                  }}>Changed my mind!</Button>
               </div>
             ) : (
+              estimated ? (
               <div className="button">
                 <Button
                   onClick={e => {
@@ -180,6 +195,7 @@ const ActionItems = props => {
                   I'll Do It!
                 </Button>
               </div>
+              ) : ( "Find out worth before committing")
             )}
           </Grid>
         </Grid>
