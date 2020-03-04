@@ -26,13 +26,11 @@ const ActionItems = props => {
   const [estimated, setEstimated] = React.useState(false)
   const [actionScore, setActionScore] = React.useState()
   const [committed, setCommitted] = React.useState(false)
-  const { action } = props
+  const { action, expanded, setExpanded } = props
   const { authState } = useAuthState()
   const { skipState } = useSkipState()
   const { scoreState, setScoreState } = useScoreState()
   const { answeredState } = useAnsweredState()
-
-  console.log(authState)
 
   // Rendering Question List
   // TODO: Make component rerender to hide information, and add answered to action object in application state
@@ -118,18 +116,24 @@ const ActionItems = props => {
     )
 
   // Render points to screen
-  const renderActionScore = () => {
-    if (!answeredState || !actionScore) {
-      return <></>
-    }
-    return (
-      <Typography>{`Points earned: ${actionScore.carbon_points}  Cost: ${actionScore.cost}  Savings: ${actionScore.savings} ${actionScore.explanation}`}</Typography>
+  const renderActionScore = () =>
+    answeredState &&
+    actionScore && (
+      <Typography>
+        {`Points earned: ${actionScore.carbon_points}  Cost: ${actionScore.cost}  Savings: ${actionScore.savings} ${actionScore.explanation}`}
+      </Typography>
     )
-  }
 
+  const handleChange = panel => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false)
+  }
   // Render object rendering layout of each action
   return (
-    <ExpansionPanel TransitionProps={{ unmountOnExit: true }}>
+    <ExpansionPanel
+      TransitionProps={{ unmountOnExit: true }}
+      expanded={expanded === action.name}
+      onChange={handleChange(action.name)}
+    >
       <ExpansionPanelSummary
         expandIcon={<ExpandMore />}
         aria-controls="panel1c-content"

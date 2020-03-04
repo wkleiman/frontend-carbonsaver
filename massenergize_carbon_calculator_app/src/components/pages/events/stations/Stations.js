@@ -80,6 +80,7 @@ function tabProps(index) {
 }
 
 const Stations = props => {
+  const [expanded, setExpanded] = useState('')
   const [value, setValue] = useState(0)
   const [answered, setAnswered] = useState(new Set())
   const { stations, event } = props
@@ -135,6 +136,8 @@ const Stations = props => {
         action={action}
         answered={answered}
         onAnswered={onAnswered}
+        expanded={expanded}
+        setExpanded={setExpanded}
       />
     ))
 

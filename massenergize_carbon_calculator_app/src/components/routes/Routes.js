@@ -25,12 +25,13 @@ export const Routes = withRouter(props => {
 
   React.useEffect(() => {
     // Check if user is signed in
-    // TODO: May switch to use React context for
     const currentUser = _.get(auth, 'currentUser')
     if (!currentUser) {
       setAuthState(currentUser)
-    } else getUser(firebase.auth().currentUser)
-  }, [])
+    } else {
+      getUser(firebase.auth().currentUser)
+    }
+  }, [firebase.auth().currentUser])
 
   return (
     <Switch>
