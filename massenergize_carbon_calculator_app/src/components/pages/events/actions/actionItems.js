@@ -2,7 +2,6 @@
 import React from 'react'
 import _ from 'lodash'
 import PropType from 'prop-types'
-import { connect } from 'react-redux'
 
 // Styling Component
 import List from '@material-ui/core/List'
@@ -15,7 +14,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import QList from '../questions/QList'
-import { getScore } from '../../../../actions'
+import { getScore, unpostScore } from '../../../../actions'
 import { useScoreState } from '../../../context/ScoreContext'
 import { useAnsweredState } from '../../../context/AnsweredContext'
 import { useSkipState } from '../../../context/SkipContext'
@@ -44,8 +43,25 @@ const ActionItems = props => {
     return actionQAnswered
   }
 
+  const updateScore = score => {
+    const sumScoreWithCategory = {}
+    if (!scoreState) {
+      setScoreState(score)
+    } else {
+      Object.keys(score).forEach(category => {
+        if (typeof score[category] === 'number') {
+          sumScoreWithCategory[category] =
+            scoreState[category] + score[category]
+        } else {
+          sumScoreWithCategory[category] = score[category]
+        }
+      })
+      setScoreState(sumScoreWithCategory)
+    }
+  }
+
   // Post Click to calculate points and save user answers
-  const handlePostClick = async e => {
+  const handlePostClick = async () => {
     const actionAnswers = getAnswer()
     if (!actionAnswers) return
     const score = await getScore({
@@ -53,30 +69,23 @@ const ActionItems = props => {
       actionName: action.name,
       ...actionAnswers,
     })
-    const sumScoreWithCategory = {}
-    if (!scoreState) {
-      setScoreState(score)
-    } else {
-      Object.keys(score).forEach(category => {
-        sumScoreWithCategory[category] = scoreState[category] + score[category]
-      })
-      setScoreState(sumScoreWithCategory)
-    }
+    updateScore(score)
     setCommitted(true)
   }
 
   // UnPost Click to revert answer to post
-  // const handleUnPostClick = e => {
-  //   unpostScore({
-  //     userId: authState.userID,
-  //     actionName: action.name,
-  //     ...answered,
-  //   })
-  //   setCommitted(false)
-  // }
+  const handleUnPostClick = async () => {
+    const score = await unpostScore({
+      userId: authState.id,
+      actionName: action.name,
+    })
+    updateScore(score)
+    setCommitted(false)
+    setEstimated(false)
+  }
 
   // Get to calculate points to see how much user's current answers worth
-  const handleGetClick = async e => {
+  const handleGetClick = async () => {
     const actionAnswers = getAnswer()
     if (!actionAnswers) return
     const score = await getScore({
@@ -120,7 +129,7 @@ const ActionItems = props => {
     answeredState &&
     actionScore && (
       <Typography>
-        {`Points earned: ${actionScore.carbon_points}  Cost: ${actionScore.cost}  Savings: ${actionScore.savings} ${actionScore.explanation}`}
+        {`Points earned: ${actionScore.carbon_points} Savings: ${actionScore.savings}`}
       </Typography>
     )
 
@@ -144,7 +153,7 @@ const ActionItems = props => {
       <ExpansionPanelDetails>
         <Grid container direction="column">
           <Grid item>
-            <Typography variant="h4">Did You Know?</Typography>
+            <Typography variant="h6">Did You Know?</Typography>
           </Grid>
           <Grid item>
             <Typography>{action.helptext}</Typography>
@@ -170,11 +179,19 @@ const ActionItems = props => {
                 </Button>
               </div>
             )}
-            {committed ? (
+            {committed && (
               <div className="button">
-                <Button onClick={() => {}}>Changed my mind!</Button>
+                {actionScore.explanation}
+                <Button
+                  onClick={e => {
+                    handleUnPostClick(e)
+                  }}
+                >
+                  Changed my mind!
+                </Button>
               </div>
-            ) : (
+            )}
+            {!committed && estimated && (
               <div className="button">
                 <Button
                   onClick={e => {
@@ -185,6 +202,7 @@ const ActionItems = props => {
                 </Button>
               </div>
             )}
+            {!committed && !estimated && 'Find out worth before committing'}
           </Grid>
         </Grid>
       </ExpansionPanelDetails>
@@ -199,6 +217,8 @@ ActionItems.propTypes = {
     description: PropType.string,
     name: PropType.string,
   }),
+  expanded: PropType.string,
+  setExpanded: PropType.func,
 }
 // Export and connect component to actions
 export default ActionItems

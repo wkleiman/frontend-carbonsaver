@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import * as types from './types'
 import api from '../api/massEnergize'
-import history from '../history'
+//import history from '../history'
 
 // fetchQuestions action
 export const fetchQuestions = actionName => async dispatch => {
@@ -37,8 +37,21 @@ export const fetchEvent = async id => {
   const response = await api.get(`/cc/info/event/${id}`)
   return response.data
 }
+
 // Send query to backend to get points calculated
 export const getScore = async ({ userId, actionName, ...params }) => {
+  // No userId considered a get request
+  let response
+  if (true) {
+    response = await api.get(`/cc/estimate/${actionName}`, {
+      params: { ...params },
+    })
+    return response.data
+  }
+}
+
+// Send query to backend to calculate points and post score
+export const postScore = async ({ userId, actionName, ...params }) => {
   // No userId considered a get request
   let response
   if (!userId) {
@@ -57,25 +70,23 @@ export const getScore = async ({ userId, actionName, ...params }) => {
   })
   return response.data
 }
-// export const unpostScore = (userId, actionName, params) => async dispatch => {
-//   if (false) {
-//     // if (userId) {
-//     // POST request to save user answers to database
-//     // Get CSRF token before sending POST request
-//     const csrfResponse = await api.get(`/auth/csrf`)
-//     const { csrfToken } = csrfResponse.data.data
-//     // Attach CSRF token to the headers and send request up to backend
-//     const response = await api.post(`/cc/estimate/${actionName}`, {
-//       ...params,
-//       user_id: userId,
-//       headers: { 'X-CSRFToken': csrfToken },
-//     })
-//     dispatch({
-//       type: types.GET_SCORE,
-//       payload: { response: response.data, actionType: actionName },
-//     })
-//   }
-// }
+export const unpostScore = async ({userId, actionName, ...params})  => {
+  let response
+  if (userId) {
+
+   // POST request to save user answers to database
+   // Get CSRF token before sending POST request
+   const csrfResponse = await api.get(`/auth/csrf`)
+   const { csrfToken } = csrfResponse.data.data
+   // Attach CSRF token to the headers and send request up to backend
+   response = await api.post(`/cc/undo/${actionName}`, {
+     ...params,
+     user_id: userId,
+     headers: { 'X-CSRFToken': csrfToken },
+    })
+    return response.data
+  }
+}
 // fetchGroups action, fetch all groups for user selection
 export const fetchGroups = async () => {
   const response = await api.get(`/cc/info/groups`)

@@ -135,18 +135,18 @@ function Header() {
           </a>
         </ListItem>
         <ListItem button className={classes.button}>
+          <a className={classes.link} href="/summary">
+            <ListItemText primary="Summary" />
+          </a>
+        </ListItem>
+        <ListItem button className={classes.button}>
+          <a className={classes.link} href="/scoreboard">
+            <ListItemText primary="Scoreboard" />
+          </a>
+        </ListItem>
+        <ListItem button className={classes.button}>
           <a className={classes.link} href="/about">
-            <ListItemText primary="About Us" />
-          </a>
-        </ListItem>
-        <ListItem button className={classes.button}>
-          <a className={classes.link} href="/">
-            <ListItemText primary="Communities" />
-          </a>
-        </ListItem>
-        <ListItem button className={classes.button}>
-          <a className={classes.link} href="/">
-            <ListItemText primary="Contact Us" />
+            <ListItemText primary="About" />
           </a>
         </ListItem>
       </List>

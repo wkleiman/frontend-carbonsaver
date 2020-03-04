@@ -9,7 +9,7 @@ import EventItem from './events/EventItem'
 import EventList from './events/EventList'
 import AboutPage from './about/AboutPage'
 import SummaryPage from './about/SummaryPage'
-import ScoreboardPage from './about/ScoreboardPage'
+import ScoreBoardPage from './about/ScoreboardPage'
 import { ScoreProvider } from '../context/ScoreContext'
 
 const HomePage = withRouter(() => (
@@ -35,7 +35,7 @@ const HomePage = withRouter(() => (
         />
         <Route path="/about" exact component={AboutPage} />
         <Route path="/summary" exact component={SummaryPage} />
-        <Route path="/scoreboard" exact component={ScoreboardPage} />
+        <Route path="/scoreboard" exact component={ScoreBoardPage} />
       </Switch>
     </Grid>
   </Grid>

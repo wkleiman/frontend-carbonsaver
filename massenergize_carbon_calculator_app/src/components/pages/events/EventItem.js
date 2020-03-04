@@ -174,7 +174,7 @@ const EventItem = props => {
               <Station event={selected} stations={selected.stations} />
             </Grid>
           </Grid>
-          <Grid
+           <Grid
             item
             container
             xs={12}
@@ -183,9 +183,9 @@ const EventItem = props => {
             spacing={2}
             className={classes.host_sponsor}
           >
-            {renderHost()}
-            {renderSponsor()}
-          </Grid>
+            {false && renderHost()}
+            {false && renderSponsor()}
+          </Grid> 
           <Grid item xs={12}>
             <Score />
           </Grid>
