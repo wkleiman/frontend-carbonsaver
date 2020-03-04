@@ -1,6 +1,6 @@
 // Functional component imports
 import React from 'react'
-import { Link, withRouter, Redirect } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import { useFirebase } from 'react-redux-firebase'
 // Styling Component imports
 import { AppBar, Typography, Toolbar, Button } from '@material-ui/core'
@@ -11,7 +11,6 @@ import Drawer from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
-import { fetchUser } from '../../actions'
 import { useAuthState } from '../context/AuthContext'
 // Styling classes definition
 const useStyles = makeStyles(theme => ({
@@ -56,6 +55,7 @@ const useStyles = makeStyles(theme => ({
     textDecoration: 'none',
     color: '#8dc63f',
     fontWeight: 'bold',
+    width: '100%',
   },
 }))
 // Styled Button
@@ -130,24 +130,24 @@ function Header() {
     >
       <List>
         <ListItem button className={classes.button}>
-          <a className={classes.link} href="/">
+          <Link to="/" class={classes.link}>
             <ListItemText primary="Home" />
-          </a>
+          </Link>
         </ListItem>
         <ListItem button className={classes.button}>
-          <a className={classes.link} href="/summary">
+          <Link to="/summary" class={classes.link}>
             <ListItemText primary="Summary" />
-          </a>
+          </Link>
         </ListItem>
         <ListItem button className={classes.button}>
-          <a className={classes.link} href="/scoreboard">
+          <Link to="/scoreboard" class={classes.link}>
             <ListItemText primary="Scoreboard" />
-          </a>
+          </Link>
         </ListItem>
         <ListItem button className={classes.button}>
-          <a className={classes.link} href="/about">
+          <Link to="/about" class={classes.link}>
             <ListItemText primary="About" />
-          </a>
+          </Link>
         </ListItem>
       </List>
     </div>

@@ -48,7 +48,7 @@ const useStyles = makeStyles({
   },
 })
 
-const EventItem = props => {
+const EventItem = () => {
   const classes = useStyles()
   const { selected, setSelected } = useSelectedState()
 
@@ -174,7 +174,7 @@ const EventItem = props => {
               <Station event={selected} stations={selected.stations} />
             </Grid>
           </Grid>
-           <Grid
+          <Grid
             item
             container
             xs={12}
@@ -185,7 +185,7 @@ const EventItem = props => {
           >
             {false && renderHost()}
             {false && renderSponsor()}
-          </Grid> 
+          </Grid>
           <Grid item xs={12}>
             <Score />
           </Grid>

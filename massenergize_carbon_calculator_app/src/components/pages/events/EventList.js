@@ -13,7 +13,7 @@ import { useEventState } from '../../context/EventContext'
 import Header from '../header'
 
 // Style defination
-const useStyle = makeStyles(theme => ({
+const useStyle = makeStyles({
   root: {
     fontSize: '1vh',
     padding: '1vh 1vh',
@@ -46,7 +46,7 @@ const useStyle = makeStyles(theme => ({
   eventContent: {
     margin: '0vh 4vh',
   },
-}))
+})
 // EventList component
 const EventList = () => {
   const { eventState, setEventState } = useEventState()
@@ -88,7 +88,7 @@ const EventList = () => {
             <Link
               className={classes.link}
               to={`/event/${event.name}`}
-              onClick={e => setSelected(event)}
+              onClick={() => setSelected(event)}
             >
               <Paper className={classes.paperContainer}>
                 <Grid container direction="row" spacing={2}>

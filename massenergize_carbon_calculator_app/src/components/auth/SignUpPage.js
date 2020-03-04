@@ -13,8 +13,6 @@ import {
   CircularProgress,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
-import { fetchGroups, createUser } from '../../actions'
-import { useAuthState } from '../context/AuthContext'
 import { facebookProvider, googleProvider } from './firebaseConfig'
 import BasicInfo from './BasicInfo'
 
@@ -49,12 +47,11 @@ const useStyles = makeStyles({
   },
 })
 
-const SignUpPage = props => {
+const SignUpPage = () => {
   const [loading, setLoading] = React.useState(false)
   const firebase = useFirebase()
   const classes = useStyles()
   const auth = firebase.auth()
-  const { setAuthState } = useAuthState()
 
   // Send user verification email
   const sendVerificationEmail = () => {
@@ -66,20 +63,15 @@ const SignUpPage = props => {
     firebase
       .auth()
       .createUserWithEmailAndPassword(formValues.email, formValues.passwordOne)
-      .then(authUser => {
+      .then(() => {
         // Send Verification Email
         sendVerificationEmail()
       })
       .catch(err => {
         setLoading(false)
+        // eslint-disable-next-line no-use-before-define
         signUpFormik.setStatus(err.message)
       })
-  }
-
-  // Delete if they decided to stop with sign up process
-  const deleteFirebaseAccount = () => {
-    firebase.auth().currentUser.delete()
-    firebase.auth().signOut()
   }
 
   const signUpFormik = useFormik({
@@ -130,7 +122,7 @@ const SignUpPage = props => {
         firebase
           .auth()
           .signInWithPopup(googleProvider)
-          .then(async googleAuth => {
+          .then(() => {
             // Save user information to backend database
             sendVerificationEmail()
           })
@@ -150,7 +142,7 @@ const SignUpPage = props => {
         firebase
           .auth()
           .signInWithPopup(facebookProvider)
-          .then(async facebookAuth => {
+          .then(() => {
             // Save user information to backend database
             sendVerificationEmail()
           })

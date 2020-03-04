@@ -2,10 +2,10 @@
 import React from 'react'
 import Typography from '@material-ui/core/Typography'
 import { useScoreState } from './context/ScoreContext'
-// Styling imports
+
 // Total Score component
-const Score = props => {
-  const { scoreState, setScoreState } = useScoreState()
+const Score = () => {
+  const { scoreState } = useScoreState()
   return (
     <Typography
       variant="h4"
