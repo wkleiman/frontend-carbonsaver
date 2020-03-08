@@ -51,14 +51,15 @@ const useStyles = makeStyles({
 const EventItem = () => {
   const classes = useStyles()
   const { selected, setSelected } = useSelectedState()
-
+  const [loading, setLoading] = React.useState(true)
+  const getEvent = async () => {
+    const { eventInfo } = await fetchEvent(selected.name)
+    setSelected({ ...selected, ...eventInfo })
+    setLoading(false)
+  }
   React.useEffect(() => {
-    const getEvent = async () => {
-      const { eventInfo } = await fetchEvent(selected.name)
-      setSelected({ ...selected, ...eventInfo })
-    }
     getEvent()
-  }, [])
+  }, [loading])
   // Reformat phone number to +1(XXX) XXX XXXX for display
   const reformattedPhone = phone => {
     const cleaned = `${phone}`.replace(/\D/g, '')
@@ -119,43 +120,40 @@ const EventItem = () => {
     )
   }
 
-  const renderSponsor = () => {
-    if (!selected.sponsor_url) return <CircularProgress />
-    return (
-      // Render Sponsor Info
-      <Grid item>
-        <Grid item container>
-          <Typography
-            className={classes.title}
-            style={{ color: '#8dc63f' }}
-            variant="h5"
-          >
-            Sponsors
-          </Typography>
-        </Grid>
-        <Grid item container direction="column">
-          <Grid item container direction="row">
-            <Card>
-              <CardActionArea>
-                <a href={selected.sponsor_url}>
-                  <CardMedia title={selected.sponsor_org}>
-                    <img
-                      className={classes.logoImg}
-                      src={selected.sponsor_logo}
-                      alt={selected.sponsor_org}
-                    />
-                  </CardMedia>
-                </a>
-              </CardActionArea>
-            </Card>
-          </Grid>
+  const renderSponsor = () => (
+    // Render Sponsor Info
+    <Grid item>
+      <Grid item container>
+        <Typography
+          className={classes.title}
+          style={{ color: '#8dc63f' }}
+          variant="h5"
+        >
+          Sponsors
+        </Typography>
+      </Grid>
+      <Grid item container direction="column">
+        <Grid item container direction="row">
+          <Card>
+            <CardActionArea>
+              <a href={selected.sponsor_url}>
+                <CardMedia title={selected.sponsor_org}>
+                  <img
+                    className={classes.logoImg}
+                    src={selected.sponsor_logo}
+                    alt={selected.sponsor_org}
+                  />
+                </CardMedia>
+              </a>
+            </CardActionArea>
+          </Card>
         </Grid>
       </Grid>
-    )
-  }
+    </Grid>
+  )
 
   // Check if the information from backend has been received
-  if (!selected) {
+  if (loading) {
     return (
       <Grid container alignItems="center" justify="center">
         <Grid item xs={12}>
@@ -183,8 +181,8 @@ const EventItem = () => {
             spacing={2}
             className={classes.host_sponsor}
           >
-            {false && renderHost()}
-            {false && renderSponsor()}
+            {/* {renderHost()}
+            {renderSponsor()} */}
           </Grid>
           <Grid item xs={12}>
             <Score />

@@ -51,21 +51,23 @@ const useStyle = makeStyles({
 const EventList = () => {
   const { eventState, setEventState } = useEventState()
   const { setSelected } = useSelectedState()
+  const [loading, setLoading] = React.useState(false)
 
   const getEvents = async () => {
     const response = await fetchEvents()
     setEventState(response)
+    setLoading(true)
   }
+
   // Fetch event information upon Mount and Update
   React.useEffect(() => {
     getEvents()
-  }, [])
+  }, [loading])
 
   const classes = useStyle()
   // Rendering List of Events
-  const renderList = () => {
-    if (!eventState) return <CircularProgress />
-    return eventState.map(event => {
+  const renderList = () =>
+    eventState.map(event => {
       // Define dates and months for reformatting
       const date = new Date(event.datetime)
       const months = [
@@ -125,34 +127,29 @@ const EventList = () => {
         </React.Fragment>
       )
     })
-  }
+  if (!loading) return <CircularProgress />
   // Main rendering function calling render list function
   return (
-    <Grid container direction="row" justify="flex-start" alignItems="center">
-      <Grid item xs={12}>
-        <Header />
-      </Grid>
-      <Grid item xs={12}>
-        <Paper className={classes.root}>
-          <Grid container>
-            <Grid item>
-              <Typography
-                variant="h4"
-                style={{
-                  margin: '1vh 1vh',
-                  padding: '1vh 1vh',
-                  fontWeight: 'bold',
-                }}
-              >
-                Upcoming Events
-              </Typography>
-            </Grid>
-            <Grid item xs={12} container>
-              {renderList()}
-            </Grid>
+    <Grid item xs={12}>
+      <Paper className={classes.root}>
+        <Grid container>
+          <Grid item>
+            <Typography
+              variant="h4"
+              style={{
+                margin: '1vh 1vh',
+                padding: '1vh 1vh',
+                fontWeight: 'bold',
+              }}
+            >
+              Upcoming Events
+            </Typography>
           </Grid>
-        </Paper>
-      </Grid>
+          <Grid item xs={12} container>
+            {renderList()}
+          </Grid>
+        </Grid>
+      </Paper>
     </Grid>
   )
 }

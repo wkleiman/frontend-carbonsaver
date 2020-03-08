@@ -2,6 +2,8 @@
 import React from 'react'
 import { useFirebase } from 'react-redux-firebase'
 import { useFormik } from 'formik'
+import { Link } from 'react-router-dom'
+import _ from 'lodash'
 
 // Styling component import
 import {
@@ -24,25 +26,26 @@ const useStyle = makeStyles({
   error: {
     color: 'red',
   },
+  link: {
+    textDecoration: 'none',
+  },
 })
 
 // Forgot password component
-const ForgotPass = props => {
+const ForgotPass = () => {
   const [loading, setLoading] = React.useState(false)
-  const [email, setEmail] = React.useState(false)
+  const [email, setEmail] = React.useState()
   const [isEmailSent, setIsEmailSent] = React.useState(false)
   // Variables declaration
   const firebase = useFirebase()
   const classes = useStyle()
   // Send email for reset password
-  const sendResetPasswordEmail = () => {
+  const sendResetPasswordEmail = usrEmail => {
     firebase
       .auth()
-      .sendPasswordResetEmail(email)
+      .sendPasswordResetEmail(usrEmail)
       .then(function(user) {
         // Alert user that email has been sent to their mailbox
-        // TODO: Add a Modal to display this information instead of using alert for when user press resend email
-        alert('Email Sent')
         setIsEmailSent(true)
       })
       .catch(function(e) {
@@ -87,10 +90,32 @@ const ForgotPass = props => {
             {resetPassFormik.status}
           </Typography>
         )}
-        <Typography>
-          We Have Sent You An Email. Please Check Your Inbox
-        </Typography>
-        <Button onClick={sendResetPasswordEmail}>Resend Email</Button>
+        <form
+          noValidate
+          autoComplete="off"
+          onSubmit={resetPassFormik.handleSubmit}
+        >
+          <Typography>
+            We Have Sent You An Email. Please Check Your Inbox
+          </Typography>
+          <Grid container>
+            <Grid item xs={6}>
+              <Button className={classes.submitBtn} type="submit">
+                Continue
+              </Button>
+              {loading && (
+                <span>
+                  <CircularProgress />
+                </span>
+              )}
+            </Grid>
+            <Grid item xs={6}>
+              <Link to="/auth" className={classes.link}>
+                <Button>Go To Sign In</Button>
+              </Link>
+            </Grid>
+          </Grid>
+        </form>
       </Paper>
     )
   }
@@ -109,11 +134,6 @@ const ForgotPass = props => {
         autoComplete="off"
         onSubmit={resetPassFormik.handleSubmit}
       >
-        {resetPassFormik.status && (
-          <Typography style={{ color: 'red' }}>
-            {resetPassFormik.status}
-          </Typography>
-        )}
         <Grid container direction="column" spacing={2}>
           <Grid item>
             <Grid container style={{ marginTop: '2vh' }} spacing={2}>
@@ -135,7 +155,7 @@ const ForgotPass = props => {
                   }
                   error={
                     resetPassFormik.touched.email &&
-                    resetPassFormik.errors.email
+                    !!resetPassFormik.errors.email
                   }
                 />
               </Grid>

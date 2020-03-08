@@ -3,7 +3,13 @@ import React from 'react'
 import { Link, withRouter } from 'react-router-dom'
 import { useFirebase } from 'react-redux-firebase'
 // Styling Component imports
-import { AppBar, Typography, Toolbar, Button } from '@material-ui/core'
+import {
+  AppBar,
+  Typography,
+  Toolbar,
+  Button,
+  CircularProgress,
+} from '@material-ui/core'
 import { withStyles, makeStyles } from '@material-ui/core/styles'
 import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
@@ -11,6 +17,7 @@ import Drawer from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
+import { fetchUser } from '../../actions'
 import { useAuthState } from '../context/AuthContext'
 // Styling classes definition
 const useStyles = makeStyles(theme => ({
@@ -96,9 +103,11 @@ const MyButton = withStyles({
 function Header() {
   const classes = useStyles()
   const [left, setLeft] = React.useState(false)
+  const [loading, setLoading] = React.useState(true)
 
   const { authState, setAuthState } = useAuthState()
   const firebase = useFirebase()
+  const auth = firebase.auth()
 
   // Used to create animation on opening navigation tab
   const toggleDrawer = open => e => {
@@ -107,9 +116,22 @@ function Header() {
     }
     setLeft(open)
   }
+  const getUser = async user => {
+    const apiUser = await fetchUser(user)
+    setAuthState(apiUser)
+    setLoading(false)
+  }
 
-  // Left navigation tab
-  // TODO: Add pages as instructed in Google feedback sheets
+  React.useEffect(() => {
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        setAuthState(auth.currentUser)
+        setLoading(false)
+      } else {
+        getUser(auth.currentUser)
+      }
+    })
+  }, [loading])
 
   // Handling user sign out
   const onSignOutClick = () => {
@@ -130,28 +152,29 @@ function Header() {
     >
       <List>
         <ListItem button className={classes.button}>
-          <Link to="/" class={classes.link}>
+          <Link to="/" className={classes.link}>
             <ListItemText primary="Home" />
           </Link>
         </ListItem>
         <ListItem button className={classes.button}>
-          <Link to="/summary" class={classes.link}>
+          <Link to="/summary" className={classes.link}>
             <ListItemText primary="Summary" />
           </Link>
         </ListItem>
         <ListItem button className={classes.button}>
-          <Link to="/scoreboard" class={classes.link}>
+          <Link to="/scoreboard" className={classes.link}>
             <ListItemText primary="Scoreboard" />
           </Link>
         </ListItem>
         <ListItem button className={classes.button}>
-          <Link to="/about" class={classes.link}>
+          <Link to="/about" className={classes.link}>
             <ListItemText primary="About" />
           </Link>
         </ListItem>
       </List>
     </div>
   )
+  if (loading) return <CircularProgress />
   return (
     <div className={classes.root}>
       <AppBar position="static" className={classes.appBar}>

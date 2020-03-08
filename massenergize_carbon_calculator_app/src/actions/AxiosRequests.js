@@ -39,40 +39,39 @@ export const fetchEvent = async id => {
 }
 
 // Send query to backend to calculate points and post score
-export const getScore = async ({ userId, actionName, ...params }) => {
+export const getScore = async ({ actionName, ...params }) => {
   // No userId considered a get request
-  let response
-  if (!userId) {
-    response = await api.get(`/cc/estimate/${actionName}`, {
-      params: { ...params },
-    })
-    return response.data
-  }
+  const response = await api.get(`/cc/estimate/${actionName}`, {
+    params: { ...params },
+  })
+  return response.data
+}
+
+export const postScore = async ({ userId, actionName, ...params }) => {
+  // Get CSRF token
   const csrfResponse = await api.get(`/auth/csrf`)
   const { csrfToken } = csrfResponse.data.data
   // Attach CSRF token to the headers and send request up to backend
-  response = await api.post(`/cc/estimate/${actionName}`, {
+  const response = await api.post(`/cc/estimate/${actionName}`, {
     ...params,
     user_id: userId,
     headers: { 'X-CSRFToken': csrfToken },
   })
   return response.data
 }
+
 export const unpostScore = async ({ userId, actionName, ...params }) => {
-  let response
-  if (userId) {
-    // POST request to save user answers to database
-    // Get CSRF token before sending POST request
-    const csrfResponse = await api.get(`/auth/csrf`)
-    const { csrfToken } = csrfResponse.data.data
-    // Attach CSRF token to the headers and send request up to backend
-    response = await api.post(`/cc/undo/${actionName}`, {
-      ...params,
-      user_id: userId,
-      headers: { 'X-CSRFToken': csrfToken },
-    })
-    return response.data
-  }
+  // POST request to save user answers to database
+  // Get CSRF token before sending POST request
+  const csrfResponse = await api.get(`/auth/csrf`)
+  const { csrfToken } = csrfResponse.data.data
+  // Attach CSRF token to the headers and send request up to backend
+  const response = await api.post(`/cc/undo/${actionName}`, {
+    ...params,
+    user_id: userId,
+    headers: { 'X-CSRFToken': csrfToken },
+  })
+  return response.data
 }
 // fetchGroups action, fetch all groups for user selection
 export const fetchGroups = async () => {
@@ -89,10 +88,8 @@ export const createUser = async (formValues, email, selected) => {
     groups,
     minimum_age,
     accepts_terms_and_conditions */
-  const { groups, ...otherValues } = formValues
   const params = {
-    ...otherValues,
-    groups: [groups],
+    ...formValues,
     email,
     eventName: selected.name,
   }

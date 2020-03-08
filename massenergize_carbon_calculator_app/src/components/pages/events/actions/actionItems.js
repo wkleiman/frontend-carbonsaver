@@ -14,7 +14,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import QList from '../questions/QList'
-import { getScore, unpostScore } from '../../../../actions'
+import { getScore, unpostScore, postScore } from '../../../../actions'
 import { useScoreState } from '../../../context/ScoreContext'
 import { useAnsweredState } from '../../../context/AnsweredContext'
 import { useSkipState } from '../../../context/SkipContext'
@@ -64,7 +64,7 @@ const ActionItems = props => {
   const handlePostClick = async () => {
     const actionAnswers = getAnswer()
     if (!actionAnswers) return
-    const score = await getScore({
+    const score = await postScore({
       userId: authState.id,
       actionName: action.name,
       ...actionAnswers,
@@ -96,23 +96,6 @@ const ActionItems = props => {
     setActionScore(score)
     setEstimated(true)
   }
-
-  // Render points to screen
-  // const renderActionCommit = () => {
-  //   if (!answered || !answered.score) {
-  //     return <></>
-  //   }
-  //   const score = Object.values(answered.score)
-  //   const description = score.pop()
-  //   return !score ? (
-  //     <></>
-  //   ) : (
-  //     <Typography>{`You Earned ${score.reduce(
-  //       (a, b) => a + b,
-  //       0
-  //     )} points!`}</Typography>
-  //   )
-  // }
 
   const renderQuestionList = () =>
     _.tail(action.questionInfo).map(
@@ -169,40 +152,40 @@ const ActionItems = props => {
             {estimated ? (
               actionScore && renderActionScore()
             ) : (
-              <div className="button">
-                <Button
-                  onClick={e => {
-                    handleGetClick(e)
-                  }}
-                >
-                  What's It Worth?
-                </Button>
-              </div>
+              <Button
+                onClick={e => {
+                  handleGetClick(e)
+                }}
+              >
+                What's It Worth?
+              </Button>
             )}
             {committed && (
-              <div className="button">
-                {actionScore.explanation}
-                <Button
-                  onClick={e => {
-                    handleUnPostClick(e)
-                  }}
-                >
-                  Changed my mind!
-                </Button>
-              </div>
+              <Grid container>
+                <Grid item>{actionScore.explanation}</Grid>
+                <Grid item>
+                  <Button
+                    onClick={e => {
+                      handleUnPostClick(e)
+                    }}
+                  >
+                    Changed my mind!
+                  </Button>
+                </Grid>
+              </Grid>
             )}
             {!committed && estimated && (
-              <div className="button">
-                <Button
-                  onClick={e => {
-                    handlePostClick(e)
-                  }}
-                >
-                  I'll Do It!
-                </Button>
-              </div>
+              <Button
+                onClick={e => {
+                  handlePostClick(e)
+                }}
+              >
+                I'll Do It!
+              </Button>
             )}
-            {!committed && !estimated && 'Find out worth before committing'}
+            {!committed && !estimated && (
+              <Typography>Find out worth before committing</Typography>
+            )}
           </Grid>
         </Grid>
       </ExpansionPanelDetails>

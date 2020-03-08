@@ -13,7 +13,6 @@ import ScheduleIcon from '@material-ui/icons/Schedule'
 
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import Paper from '@material-ui/core/Paper'
-import { CircularProgress } from '@material-ui/core'
 import ActionItems from '../actions/actionItems'
 
 const useStyles = makeStyles(theme => ({
@@ -104,8 +103,6 @@ const Stations = props => {
   ]
   const eventDate = new Date(event.datetime)
   const classes = useStyles()
-
-  if (!stations) return <CircularProgress />
 
   const onChangeHandler = (e, newValue) => setValue(newValue)
 
