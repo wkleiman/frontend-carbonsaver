@@ -12,7 +12,6 @@ import {
   Paper,
   Typography,
   CircularProgress,
-  MenuItem,
   FormControl,
   FormGroup,
   FormLabel,

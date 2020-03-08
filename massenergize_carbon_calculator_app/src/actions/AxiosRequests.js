@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import * as types from './types'
 import api from '../api/massEnergize'
-// import history from '../history'
 
 // fetchQuestions action
 export const fetchQuestions = actionName => async dispatch => {

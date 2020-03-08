@@ -3,7 +3,6 @@ import React from 'react'
 import { useFirebase } from 'react-redux-firebase'
 import { useFormik } from 'formik'
 import { Link } from 'react-router-dom'
-import _ from 'lodash'
 
 // Styling component import
 import {
@@ -46,9 +45,11 @@ const ForgotPass = () => {
       .sendPasswordResetEmail(usrEmail)
       .then(function(user) {
         // Alert user that email has been sent to their mailbox
+        setLoading(false)
         setIsEmailSent(true)
       })
       .catch(function(e) {
+        setLoading(false)
         // eslint-disable-next-line no-use-before-define
         resetPassFormik.setStatus(e)
       })
@@ -56,7 +57,7 @@ const ForgotPass = () => {
   // Upon AuthForm submit, send email to reset password
   const onSubmit = formValues => {
     setEmail(formValues.email)
-    sendResetPasswordEmail(formValues.email)
+    sendResetPasswordEmail(formValues.email).then(() => setLoading(false))
   }
 
   const resetPassFormik = useFormik({
@@ -90,32 +91,32 @@ const ForgotPass = () => {
             {resetPassFormik.status}
           </Typography>
         )}
-        <form
-          noValidate
-          autoComplete="off"
-          onSubmit={resetPassFormik.handleSubmit}
-        >
-          <Typography>
-            We Have Sent You An Email. Please Check Your Inbox
-          </Typography>
-          <Grid container>
-            <Grid item xs={6}>
-              <Button className={classes.submitBtn} type="submit">
-                Continue
-              </Button>
-              {loading && (
-                <span>
-                  <CircularProgress />
-                </span>
-              )}
-            </Grid>
-            <Grid item xs={6}>
-              <Link to="/auth" className={classes.link}>
-                <Button>Go To Sign In</Button>
-              </Link>
-            </Grid>
+        <Typography>
+          We Have Sent You An Email. Please Check Your Inbox
+        </Typography>
+        <Grid container>
+          <Grid item xs={6}>
+            <Button
+              className={classes.submitBtn}
+              onClick={() => {
+                setLoading(true)
+                sendResetPasswordEmail(email)
+              }}
+            >
+              Resend Email
+            </Button>
+            {loading && (
+              <span>
+                <CircularProgress />
+              </span>
+            )}
           </Grid>
-        </form>
+          <Grid item xs={6}>
+            <Link to="/auth" className={classes.link}>
+              <Button>Go To Sign In</Button>
+            </Link>
+          </Grid>
+        </Grid>
       </Paper>
     )
   }
