@@ -38,6 +38,7 @@ const BasicInfo = () => {
   const firebase = useFirebase()
   const auth = firebase.auth()
   const [loading, setLoading] = React.useState(true)
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [groups, setGroups] = React.useState([])
 
   const handleGroupChange = e => {
@@ -74,7 +75,7 @@ const BasicInfo = () => {
       accept_terms_and_conditions: false,
     },
     onSubmit: values => {
-      setLoading(true)
+      setIsSubmitting(true)
       onFinalSubmit(values)
     },
     validate: formValues => {
@@ -264,7 +265,7 @@ const BasicInfo = () => {
             <Button className={classes.submitBtn} type="submit">
               Sign In
             </Button>
-            {loading && (
+            {isSubmitting && (
               <span>
                 <CircularProgress />
               </span>
