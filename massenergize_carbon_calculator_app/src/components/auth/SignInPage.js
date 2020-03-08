@@ -1,6 +1,5 @@
 // Functional components import
 import React from 'react'
-import { connect } from 'react-redux'
 import { Link, Redirect } from 'react-router-dom'
 // Styling Components import
 import {
@@ -15,7 +14,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import { useFormik } from 'formik'
 import { useFirebase } from 'react-redux-firebase'
 import { useAuthState } from '../context/AuthContext'
-import { useSelectedState } from '../context/SelectedContext'
 import { facebookProvider, googleProvider } from './firebaseConfig'
 import { fetchUser } from '../../actions'
 import BasicInfo from './BasicInfo'
@@ -56,10 +54,32 @@ const LogInForm = () => {
   const auth = firebase.auth()
   const [isFinishSignUp, setIsFinishSignUp] = React.useState(true)
   const { authState, setAuthState } = useAuthState()
-  const { selected } = useSelectedState()
 
-  // Rendering TextFields for user input
-  // For sign in includes email and password
+  // Send user verification email
+  const sendVerificationEmail = () => {
+    setLoading(true)
+    auth.currentUser.sendEmailVerification().then(() => setLoading(false))
+  }
+
+  const onSignIn = async authRes => {
+    if (
+      !firebase.auth.isEmpty &&
+      auth.currentUser &&
+      !auth.currentUser.emailVerified
+    ) {
+      // eslint-disable-next-line no-use-before-define
+      signInFormik.setStatus(
+        'You have not verified your email. Check your inbox for email with link to verify.'
+      )
+      setLoading(false)
+    } else {
+      const user = await fetchUser(authRes.user)
+      if (!user) {
+        setIsFinishSignUp(false)
+      }
+      setAuthState(user)
+    }
+  }
 
   // Sign in with email and password function
   const normalLogin = ({ email, password }) => {
@@ -67,11 +87,7 @@ const LogInForm = () => {
       .signInWithEmailAndPassword(email, password)
       .then(async res => {
         // Save user to backend database
-        const user = await fetchUser(res.user)
-        if (!user) {
-          setIsFinishSignUp(false)
-        }
-        setAuthState(user)
+        await onSignIn(res)
       })
       .catch(err => {
         setLoading(false)
@@ -119,8 +135,7 @@ const LogInForm = () => {
         .signInWithPopup(googleProvider)
         .then(async googleAuth => {
           // Save user information to backend database
-          const user = await fetchUser(googleAuth.user)
-          setAuthState(user)
+          await onSignIn(googleAuth)
         })
         .catch(err => {
           setLoading(false)
@@ -136,8 +151,7 @@ const LogInForm = () => {
         .signInWithPopup(facebookProvider)
         .then(async facebookAuth => {
           // Save user information to backend database
-          const user = await fetchUser(facebookAuth.user)
-          setAuthState(user)
+          await onSignIn(facebookAuth)
         })
         .catch(err => {
           setLoading(false)
@@ -147,31 +161,6 @@ const LogInForm = () => {
   }
 
   if (authState) return <Redirect to="/events" />
-
-  if (
-    !firebase.auth.isEmpty &&
-    auth.currentUser &&
-    !auth.currentUser.emailVerified
-  ) {
-    return (
-      <Paper className={classes.container} style={{ padding: '2vh' }}>
-        <Grid container>
-          <Grid item>
-            <Typography>
-              {' '}
-              We sent a link to your email address. Please verify your email and
-              sign in to continue.
-            </Typography>
-          </Grid>
-          <Grid item>
-            <Button onClick={() => auth.currentUser.sendEmailVerification()}>
-              Resend Verification Email
-            </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    )
-  }
 
   if (!isFinishSignUp) return <BasicInfo />
 
@@ -206,7 +195,7 @@ const LogInForm = () => {
                     signInFormik.touched.email && signInFormik.errors.email
                   }
                   error={
-                    signInFormik.touched.email && signInFormik.errors.email
+                    signInFormik.touched.email && !!signInFormik.errors.email
                   }
                 />
               </Grid>
@@ -222,7 +211,7 @@ const LogInForm = () => {
                   }
                   error={
                     signInFormik.touched.password &&
-                    signInFormik.errors.password
+                    !!signInFormik.errors.password
                   }
                   name="password"
                   label="Password"
@@ -266,7 +255,11 @@ const LogInForm = () => {
             <Grid item>
               <Typography>
                 Don't have an account?
-                <Link className={classes.link} to="/auth/signup">
+                <Link
+                  className={classes.link}
+                  to="/auth/signup"
+                  style={{ margin: '1vh' }}
+                >
                   Create a Profile
                 </Link>
               </Typography>

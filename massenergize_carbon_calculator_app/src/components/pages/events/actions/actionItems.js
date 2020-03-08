@@ -2,7 +2,6 @@
 import React from 'react'
 import _ from 'lodash'
 import PropType from 'prop-types'
-import { connect } from 'react-redux'
 
 // Styling Component
 import List from '@material-ui/core/List'
@@ -15,7 +14,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import QList from '../questions/QList'
-import { getScore, unpostScore } from '../../../../actions'
+import { getScore, unpostScore, postScore } from '../../../../actions'
 import { useScoreState } from '../../../context/ScoreContext'
 import { useAnsweredState } from '../../../context/AnsweredContext'
 import { useSkipState } from '../../../context/SkipContext'
@@ -26,13 +25,11 @@ const ActionItems = props => {
   const [estimated, setEstimated] = React.useState(false)
   const [actionScore, setActionScore] = React.useState()
   const [committed, setCommitted] = React.useState(false)
-  const { action } = props
+  const { action, expanded, setExpanded } = props
   const { authState } = useAuthState()
   const { skipState } = useSkipState()
   const { scoreState, setScoreState } = useScoreState()
   const { answeredState } = useAnsweredState()
-
-  console.log(authState)
 
   // Rendering Question List
   // TODO: Make component rerender to hide information, and add answered to action object in application state
@@ -46,39 +43,49 @@ const ActionItems = props => {
     return actionQAnswered
   }
 
-  // Post Click to calculate points and save user answers
-  const handlePostClick = async e => {
-    const actionAnswers = getAnswer()
-    if (!actionAnswers) return
-    const score = await getScore({
-      userId: authState.id,
-      actionName: action.name,
-      ...actionAnswers,
-    })
+  const updateScore = score => {
     const sumScoreWithCategory = {}
     if (!scoreState) {
       setScoreState(score)
     } else {
       Object.keys(score).forEach(category => {
-        sumScoreWithCategory[category] = scoreState[category] + score[category]
+        if (typeof score[category] === 'number') {
+          sumScoreWithCategory[category] =
+            scoreState[category] + score[category]
+        } else {
+          sumScoreWithCategory[category] = score[category]
+        }
       })
       setScoreState(sumScoreWithCategory)
     }
+  }
+
+  // Post Click to calculate points and save user answers
+  const handlePostClick = async () => {
+    const actionAnswers = getAnswer()
+    if (!actionAnswers) return
+    const score = await postScore({
+      userId: authState.id,
+      actionName: action.name,
+      ...actionAnswers,
+    })
+    updateScore(score)
     setCommitted(true)
   }
 
   // UnPost Click to revert answer to post
-  // const handleUnPostClick = e => {
-  //   unpostScore({
-  //     userId: authState.userID,
-  //     actionName: action.name,
-  //     ...answered,
-  //   })
-  //   setCommitted(false)
-  // }
+  const handleUnPostClick = async () => {
+    const score = await unpostScore({
+      userId: authState.id,
+      actionName: action.name,
+    })
+    updateScore(score)
+    setCommitted(false)
+    setEstimated(false)
+  }
 
   // Get to calculate points to see how much user's current answers worth
-  const handleGetClick = async e => {
+  const handleGetClick = async () => {
     const actionAnswers = getAnswer()
     if (!actionAnswers) return
     const score = await getScore({
@@ -89,23 +96,6 @@ const ActionItems = props => {
     setActionScore(score)
     setEstimated(true)
   }
-
-  // Render points to screen
-  // const renderActionCommit = () => {
-  //   if (!answered || !answered.score) {
-  //     return <></>
-  //   }
-  //   const score = Object.values(answered.score)
-  //   const description = score.pop()
-  //   return !score ? (
-  //     <></>
-  //   ) : (
-  //     <Typography>{`You Earned ${score.reduce(
-  //       (a, b) => a + b,
-  //       0
-  //     )} points!`}</Typography>
-  //   )
-  // }
 
   const renderQuestionList = () =>
     _.tail(action.questionInfo).map(
@@ -118,18 +108,24 @@ const ActionItems = props => {
     )
 
   // Render points to screen
-  const renderActionScore = () => {
-    if (!answeredState || !actionScore) {
-      return <></>
-    }
-    return (
-      <Typography>{`Points earned: ${actionScore.carbon_points}  Cost: ${actionScore.cost}  Savings: ${actionScore.savings} ${actionScore.explanation}`}</Typography>
+  const renderActionScore = () =>
+    answeredState &&
+    actionScore && (
+      <Typography>
+        {`Points earned: ${actionScore.carbon_points} Savings: ${actionScore.savings}`}
+      </Typography>
     )
-  }
 
+  const handleChange = panel => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false)
+  }
   // Render object rendering layout of each action
   return (
-    <ExpansionPanel TransitionProps={{ unmountOnExit: true }}>
+    <ExpansionPanel
+      TransitionProps={{ unmountOnExit: true }}
+      expanded={expanded === action.name}
+      onChange={handleChange(action.name)}
+    >
       <ExpansionPanelSummary
         expandIcon={<ExpandMore />}
         aria-controls="panel1c-content"
@@ -156,30 +152,39 @@ const ActionItems = props => {
             {estimated ? (
               actionScore && renderActionScore()
             ) : (
-              <div className="button">
-                <Button
-                  onClick={e => {
-                    handleGetClick(e)
-                  }}
-                >
-                  What's It Worth?
-                </Button>
-              </div>
+              <Button
+                onClick={e => {
+                  handleGetClick(e)
+                }}
+              >
+                What's It Worth?
+              </Button>
             )}
-            {committed ? (
-              <div className="button">
-                <Button onClick={() => {}}>Changed my mind!</Button>
-              </div>
-            ) : (
-              <div className="button">
-                <Button
-                  onClick={e => {
-                    handlePostClick(e)
-                  }}
-                >
-                  I'll Do It!
-                </Button>
-              </div>
+            {committed && (
+              <Grid container>
+                <Grid item>{actionScore.explanation}</Grid>
+                <Grid item>
+                  <Button
+                    onClick={e => {
+                      handleUnPostClick(e)
+                    }}
+                  >
+                    Changed my mind!
+                  </Button>
+                </Grid>
+              </Grid>
+            )}
+            {!committed && estimated && (
+              <Button
+                onClick={e => {
+                  handlePostClick(e)
+                }}
+              >
+                I'll Do It!
+              </Button>
+            )}
+            {!committed && !estimated && (
+              <Typography>Find out worth before committing</Typography>
             )}
           </Grid>
         </Grid>
@@ -195,6 +200,8 @@ ActionItems.propTypes = {
     description: PropType.string,
     name: PropType.string,
   }),
+  expanded: PropType.string,
+  setExpanded: PropType.func,
 }
 // Export and connect component to actions
 export default ActionItems
