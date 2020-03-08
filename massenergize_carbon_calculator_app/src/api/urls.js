@@ -1,5 +1,6 @@
-import { IS_LOCAL, IS_PROD } from '../config/config'
-// 
-export const URL_ROOT = IS_LOCAL?	"http://localhost:8000":
-    (IS_PROD? "http://api.massenergize.org" :
-            "http://api-dev.massenergize.org")
+const URL = {
+  development: 'http://localhost:8000',
+  production: 'http://api.massenergize.org',
+  'PRODUCTION-DEV': 'http://api-dev.massenergize.org',
+}
+export const URL_ROOT = URL[process.env.NODE_ENV]
