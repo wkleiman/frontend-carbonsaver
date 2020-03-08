@@ -22,11 +22,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-<<<<<<< HEAD
-.env
-=======
 #config
-/firebaseConfig.js
+**/firebaseConfig.js
 
 .env
->>>>>>> 858148b0747917c131d7e66cd1a80dcc656ed091
