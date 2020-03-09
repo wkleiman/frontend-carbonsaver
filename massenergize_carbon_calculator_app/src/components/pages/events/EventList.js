@@ -1,93 +1,96 @@
 // React and redux import
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { fetchEvents } from "../../actions";
-import { Link } from "react-router-dom";
+import React from 'react'
+import { Link } from 'react-router-dom'
 // Styling imports
-import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import { makeStyles } from "@material-ui/core/styles";
+import Grid from '@material-ui/core/Grid'
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import { makeStyles } from '@material-ui/core/styles'
+import { fetchEvents } from '../../../actions'
+import { useSelectedState } from '../../context/SelectedContext'
+import { useEventState } from '../../context/EventContext'
+import Header from '../header'
+
 // Style defination
-const useStyle = makeStyles(theme => ({
+const useStyle = makeStyles({
   root: {
-    fontSize: "1vh",
-    padding: "1vh 1vh",
-    marginTop: 8
+    fontSize: '1vh',
+    padding: '1vh 1vh',
+    marginTop: 8,
   },
   event: {
-    fontSize: "1em",
-    margin: "1vh 1vh",
-    "& :hover": {
-      backgroundColor: "#f2f2f2"
-    }
+    fontSize: '1em',
+    margin: '1vh 1vh',
+    '& :hover': {
+      backgroundColor: '#f2f2f2',
+    },
   },
   link: {
-    textDecoration: "none"
+    textDecoration: 'none',
   },
   paperContainer: {
-    padding: "1vh"
+    padding: '1vh',
   },
   month: {
-    fontSize: "1vh"
+    fontSize: '1vh',
   },
   displayname: {
-    fontWeight: "bold",
-    fontSize: "2em",
-    display: "flex"
+    fontWeight: 'bold',
+    fontSize: '2em',
+    display: 'flex',
   },
   location: {
-    fontSize: "1.5em"
+    fontSize: '1.5em',
   },
   eventContent: {
-    margin: "0vh 4vh"
-  }
-}));
+    margin: '0vh 4vh',
+  },
+})
 // EventList component
-const EventList = props => {
-  // Get Event from application state
-  const events = useSelector(state => Object.values(state.event));
-  // Declare dispatch for action
-  const dispatch = useDispatch();
+const EventList = () => {
+  const { eventState, setEventState } = useEventState()
+  const { setSelected } = useSelectedState()
+  const [loading, setLoading] = React.useState(false)
+
+  const getEvents = async () => {
+    const response = await fetchEvents()
+    setEventState(response)
+    setLoading(true)
+  }
+
   // Fetch event information upon Mount and Update
   React.useEffect(() => {
-    fetchEvents()(dispatch);
-  }, [dispatch]);
+    getEvents()
+  }, [loading])
 
-  const classes = useStyle();
+  const classes = useStyle()
   // Rendering List of Events
-  const renderList = () => {
-    if (!events) return <CircularProgress/>
-    return events.map(event => {
+  const renderList = () =>
+    eventState.map(event => {
       // Define dates and months for reformatting
-      const date = new Date(event.datetime);
+      const date = new Date(event.datetime)
       const months = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec"
-      ];
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ]
       return (
         <React.Fragment key={event}>
           <Grid item xs={12}>
             <Link
               className={classes.link}
               to={`/event/${event.name}`}
-              onClick={e =>
-                dispatch({
-                  type: "SELECTED_EVENT",
-                  payload: event
-                })
-              }
+              onClick={() => setSelected(event)}
             >
               <Paper className={classes.paperContainer}>
                 <Grid container direction="row" spacing={2}>
@@ -122,21 +125,21 @@ const EventList = props => {
             </Link>
           </Grid>
         </React.Fragment>
-      );
-    });
-  };
+      )
+    })
+  if (!loading) return <CircularProgress />
   // Main rendering function calling render list function
   return (
-    <div>
+    <Grid item xs={12}>
       <Paper className={classes.root}>
         <Grid container>
           <Grid item>
             <Typography
               variant="h4"
               style={{
-                margin: "1vh 1vh",
-                padding: "1vh 1vh",
-                fontWeight: "bold"
+                margin: '1vh 1vh',
+                padding: '1vh 1vh',
+                fontWeight: 'bold',
               }}
             >
               Upcoming Events
@@ -147,8 +150,8 @@ const EventList = props => {
           </Grid>
         </Grid>
       </Paper>
-    </div>
-  );
-};
+    </Grid>
+  )
+}
 
-export default EventList;
+export default EventList

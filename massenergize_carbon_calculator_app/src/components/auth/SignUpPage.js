@@ -1,10 +1,8 @@
 // Functional components import
-import React from "react";
-import { fetchGroups, createUser } from "../../actions";
-import { Link } from "react-router-dom";
-import { connect } from "react-redux";
-import AuthForm from "./AuthForm";
-import { withFirebase } from "react-redux-firebase";
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { useFirebase } from 'react-redux-firebase'
+import { useFormik } from 'formik'
 // Styling components import
 import {
   Paper,
@@ -13,258 +11,318 @@ import {
   Button,
   Typography,
   CircularProgress,
-  Checkbox,
-  FormControlLabel,
-  FormControl,
-  MenuItem
-} from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
+} from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
+import { facebookProvider, googleProvider } from './firebaseConfig'
+import BasicInfo from './BasicInfo'
+
 // Styling classes
-const style = {
+const useStyles = makeStyles({
   textInput: {
-    width: "100%"
+    width: '100%',
   },
   container: {
-    margin: "5vh auto",
-    width: "50vh",
-    padding: "2vh"
-  }
-};
+    margin: '5vh auto',
+    width: '50vh',
+    padding: '2vh',
+  },
+  link: {
+    marginLeft: '1vh',
+    textDecoration: 'none',
+  },
+  googleBtn: {
+    color: 'white',
+    backgroundColor: 'red',
+  },
+  fbBtn: {
+    color: 'white',
+    backgroundColor: '#3b5998',
+  },
+  error: {
+    color: 'red',
+  },
+  submitBtn: {
+    backgroundColor: '#8dc63f',
+    color: 'white',
+  },
+})
 
-class SignUpPage extends React.Component {
-  state = { error: "", user: null };
+const SignUpPage = () => {
+  const [loading, setLoading] = React.useState(false)
+  const firebase = useFirebase()
+  const classes = useStyles()
+  const auth = firebase.auth()
 
-  componentDidMount() {
-    // Fetch Groups for user selection
-    this.props.fetchGroups();
+  // Send user verification email
+  const sendVerificationEmail = () => {
+    setLoading(true)
+    auth.currentUser.sendEmailVerification().then(() => setLoading(false))
   }
-  // Check if there's error to display
-  renderError(meta) {
-    if (this.isInvalid(meta)) {
-      return meta.error;
-    }
-  }
-  // Check if there's error in filling out form to help user
-  isInvalid({ error, touched }) {
-    return touched && error ? true : false;
-  }
+
   // On Submit Handler
-  onSubmit = formValues => {
-    this.props.firebase
+  const signUp = formValues => {
+    firebase
       .auth()
       .createUserWithEmailAndPassword(formValues.email, formValues.passwordOne)
-      .then(authUser => {
+      .then(() => {
         // Send Verification Email
-        authUser.sendEmailVerification();
+        sendVerificationEmail()
       })
       .catch(err => {
-        this.setState({ error: err.message });
-      });
-  };
-  // Delete if they decided to stop with sign up process
-  deleteFirebaseAccount = () => {
-    this.props.firebase.auth().currentUser.delete();
-    this.props.firebase.auth().signOut();
-  };
-  // Rendering TextField for user input
-  renderTextField = (type, field, label) => {
-    const { classes } = this.props;
+        setLoading(false)
+        // eslint-disable-next-line no-use-before-define
+        signUpFormik.setStatus(err.message)
+      })
+  }
+
+  const signUpFormik = useFormik({
+    initialValues: {
+      email: '',
+      passwordOne: '',
+      passwordTwo: '',
+    },
+    onSubmit: values => {
+      setLoading(true)
+      // eslint-disable-next-line no-undef
+      signUp(values)
+    },
+
+    validate: formValues => {
+      const errors = {}
+
+      if (!formValues.email) {
+        errors.email = 'You Must Enter an Email'
+      } else if (
+        !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formValues.email)
+      ) {
+        errors.email = 'Invalid Email'
+      }
+
+      if (!formValues.passwordOne) {
+        errors.passwordOne = 'You Must Enter a Password'
+      }
+
+      if (!formValues.passwordTwo) {
+        errors.passwordTow = 'You Must Confirm Your Password'
+      }
+
+      if (formValues.passwordTwo !== formValues.passwordOne) {
+        errors.passwordTow = 'Your Passwords Are Not Matched'
+      }
+
+      return errors
+    },
+  })
+
+  const signInWithGoogle = () => {
+    // Authentication reset upon closing tab/window
+    firebase
+      .auth()
+      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .then(() => {
+        firebase
+          .auth()
+          .signInWithPopup(googleProvider)
+          .then(() => {
+            // Save user information to backend database
+            sendVerificationEmail()
+          })
+          .catch(err => {
+            setLoading(false)
+            signUpFormik.setStatus(err.message)
+          })
+      })
+  }
+  // Sign In with Facebook function
+  const signInWithFacebook = () => {
+    // Authentication reset upon closing tab/window
+    firebase
+      .auth()
+      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .then(() => {
+        firebase
+          .auth()
+          .signInWithPopup(facebookProvider)
+          .then(() => {
+            // Save user information to backend database
+            sendVerificationEmail()
+          })
+          .catch(err => {
+            setLoading(false)
+            signUpFormik.setStatus(err.message)
+          })
+      })
+  }
+  // Render loading circle when application is loading up data
+  if (!auth) return <CircularProgress />
+  // Check if user has enter email and password to display message inform he/she of email coming to inbox
+  // Allow resend email
+  if (
+    !firebase.auth.isEmpty &&
+    auth.currentUser &&
+    !auth.currentUser.emailVerified
+  ) {
     return (
-      <TextField
-        className={classes.textInput}
-        type={type}
-        {...field.input}
-        error={this.isInvalid(field.meta)}
-        helperText={this.renderError(field.meta)}
-        label={label}
-        required
-        variant="outlined"
-      />
-    );
-  };
-  // Rendering Selection Fields for user selection
-  renderSelect = (field, options, label) => {
-    const { classes } = this.props;
-    return (
-      <FormControl required variant="outlined" className={classes.textInput}>
-        <TextField
-          {...field.input}
-          error={this.isInvalid(field.meta)}
-          helperText={this.renderError(field.meta)}
-          required
-          variant="outlined"
-          select
-          label={label}
-        >
-          {options.map(option => {
-            return (
-              <MenuItem key={option.name} value={option.name}>
-                {option.displayname}
-              </MenuItem>
-            );
-          })}
-        </TextField>
-      </FormControl>
-    );
-  };
-  // Rendering CheckBox for user selection
-  renderCheckBox = (field, label) => {
-    return (
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={field.input.value ? true : false}
-            onChange={field.input.onChange}
-            value={true}
-          />
-        }
-        label={label}
-      />
-    );
-  };
-  // Defines user input fields: email, password and confirm password
-  renderFields = fields => {
-    return (
-      <Grid container style={{ marginTop: "2vh" }} spacing={2}>
-        <Typography style={{ color: "red" }}>{this.state.error}</Typography>
-        <Grid item xs={12}>
-          {this.renderTextField("text", fields.email, "Email")}
-        </Grid>
-        <Grid item xs={12}>
-          {this.renderTextField("password", fields.passwordOne, "Password")}
-        </Grid>
-        <Grid item xs={12}>
-          {this.renderTextField(
-            "password",
-            fields.passwordTwo,
-            "Confirm Your Password"
-          )}
-        </Grid>
-      </Grid>
-    );
-  };
-  // Defines user input fields upon sucessful email verification: name, groups, locality, confirm over 13, agree to TNC
-  // TODO: Allow user to select multiple groups
-  renderInfoFields = fields => {
-    //const { classes, groups } = this.props;
-    const { groups } = this.props;
-    return (
-      <Grid container style={{ marginTop: "2vh" }} spacing={2}>
-        <Grid item xs={12}>
-          {this.renderTextField("text", fields.first_name, "First Name")}
-        </Grid>
-        <Grid item xs={12}>
-          {this.renderTextField("text", fields.last_name, "Last Name")}
-        </Grid>
-        {groups && (
-          <Grid item xs={12}>
-            {this.renderSelect(fields.groups, groups, "Groups")}
+      <Paper className={classes.container} style={{ padding: '2vh' }}>
+        <Grid container>
+          <Grid item>
+            <Typography>
+              We sent a link to your email address. Please verify your email to
+              continue.
+            </Typography>
           </Grid>
+          <Grid item container>
+            <Grid item xs={6}>
+              <Button onClick={sendVerificationEmail}>
+                Resend Verification Email
+              </Button>
+              {loading && (
+                <span>
+                  <CircularProgress />
+                </span>
+              )}
+            </Grid>
+            <Grid item xs={6}>
+              <Link to="/auth" className={classes.link}>
+                <Button>Go To Sign In</Button>
+              </Link>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Paper>
+    )
+  }
+
+  if (auth.currentUser && auth.currentUser.emailVerified) return <BasicInfo />
+
+  // Prompt user enter authentication info
+  return (
+    <Paper className={classes.container}>
+      <Typography variant="h3">Create Profile</Typography>
+      <form noValidate autoComplete="off" onSubmit={signUpFormik.handleSubmit}>
+        {signUpFormik.status && (
+          <Typography style={{ color: 'red' }}>
+            {signUpFormik.status}
+          </Typography>
         )}
-        <Grid item xs={12}>
-          {this.renderTextField("text", fields.locality, "Locality")}
-        </Grid>
-        <Grid item xs={12}>
-          {this.renderCheckBox(fields.minimum_age, "Are You Over 13?")}
-        </Grid>
-        <Grid item xs={12}>
-          {this.renderCheckBox(
-            fields.accepts_terms_and_conditions,
-            <Link to="">Terms and Conditions</Link>
-          )}
-        </Grid>
-      </Grid>
-    );
-  };
-  // On user final submission handler
-  // Save user info to backend database
-  onFinalSubmit = formValues => {
-    const email = this.props.firebase.auth().currentUser.email;
-    this.props.createUser(formValues, email, this.props.selected);
-  };
-  // Send user verification email
-  sendVerificationEmail = () => {
-    this.props.firebase.auth().currentUser.sendEmailVerification();
-  };
-  
-  render() {
-    const { classes } = this.props;
-    let auth = this.props.firebase.auth();
-    // Render loading circle when application is loading up data
-    if (!this.props.auth) return <CircularProgress />;
-    // Check if user has enter email and password to display message inform he/she of email coming to inbox
-    // Allow resend email
-    if (!this.props.auth.isEmpty && !auth.currentUser.emailVerified) {
-      return (
-        <Paper className={classes.container} style={{ padding: "2vh" }}>
-          <Grid container>
+        <Grid container direction="column" spacing={2}>
+          <Grid item>
+            <Grid container style={{ marginTop: '2vh' }} spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  type="email"
+                  label="Email"
+                  placeholder="email@example.com"
+                  margin="normal"
+                  className={classes.textInput}
+                  name="email"
+                  onBlur={signUpFormik.handleBlur}
+                  onChange={signUpFormik.handleChange}
+                  value={signUpFormik.values.email}
+                  helperText={
+                    signUpFormik.touched.email && signUpFormik.errors.email
+                  }
+                  error={
+                    signUpFormik.touched.email && !!signUpFormik.errors.email
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  className={classes.textInput}
+                  onBlur={signUpFormik.handleBlur}
+                  onChange={signUpFormik.handleChange}
+                  value={signUpFormik.values.passwordOne}
+                  helperText={
+                    signUpFormik.touched.passwordOne &&
+                    signUpFormik.errors.passwordOne
+                  }
+                  error={
+                    signUpFormik.touched.passwordOne &&
+                    !!signUpFormik.errors.passwordOne
+                  }
+                  name="passwordOne"
+                  label="Password"
+                  placeholder="Password"
+                  variant="outlined"
+                  type="password"
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  className={classes.textInput}
+                  onBlur={signUpFormik.handleBlur}
+                  onChange={signUpFormik.handleChange}
+                  value={signUpFormik.values.passwordTwo}
+                  helperText={
+                    signUpFormik.touched.passwordTwo &&
+                    signUpFormik.errors.passwordTwo
+                  }
+                  error={
+                    signUpFormik.touched.passwordTwo &&
+                    !!signUpFormik.errors.passwordTwo
+                  }
+                  name="passwordTwo"
+                  label="Confirm Your Password"
+                  placeholder="Confirm Your Password"
+                  variant="outlined"
+                  type="password"
+                  required
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Button className={classes.submitBtn} type="submit">
+              Sign In
+            </Button>
+            {loading && (
+              <span>
+                <CircularProgress />
+              </span>
+            )}
+          </Grid>
+          <Grid item container direction="column" spacing={2}>
+            <Grid item>
+              <Button
+                onClick={signInWithFacebook}
+                id="facebook"
+                className={`img-circle facebook ${classes.fbBtn}`}
+              >
+                <span className="fa fa-facebook-f">Continue with Facebook</span>
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                onClick={signInWithGoogle}
+                id="google"
+                className={`img-circle google ${classes.googleBtn}`}
+              >
+                <span className="fa fa-google"> Continue with Google</span>
+              </Button>
+            </Grid>
             <Grid item>
               <Typography>
-                {" "}
-                We sent a link to your email address. Please verify your email
-                and sign in to continue.
+                Already Have an Account?
+                <Link className={classes.link} to="/signup">
+                  Sign In
+                </Link>
               </Typography>
             </Grid>
             <Grid item>
-              <Button onClick={this.sendVerificationEmail}>
-                Resend Verification Email
-              </Button>
+              <Typography>
+                <Link className={classes.link} to="/auth/resetpass">
+                  Forgot Your Password?
+                </Link>
+              </Typography>
             </Grid>
           </Grid>
-        </Paper>
-      );
-    }
-    // Upon successful email verification, gather user basic information
-    if (auth.currentUser && auth.currentUser.emailVerified) {
-      return (
-        <Paper className={classes.container} style={{ marginTop: "5vh" }}>
-          <Typography variant="h3">Personal Information</Typography>
-          <Typography style={{ color: "red" }}>{this.state.error}</Typography>
-          <AuthForm
-            onFormSubmit={this.onFinalSubmit}
-            fieldNames={[
-              "first_name",
-              "last_name",
-              "locality",
-              "groups",
-              "minimum_age",
-              "accepts_terms_and_conditions"
-            ]}
-            btnText="Finish"
-            renderFields={this.renderInfoFields}
-          />
-        </Paper>
-      );
-    }
-    // Prompt user enter authentication info
-    return (
-      <Paper className={classes.container}>
-        <Typography variant="h3">Create Profile</Typography>
-        <Typography style={{ color: "red" }}>{this.state.error}</Typography>
-        <AuthForm
-          error={this.state.error}
-          onFormSubmit={this.onSubmit}
-          fieldNames={["email", "passwordOne", "passwordTwo"]}
-          btnText="Sign Up"
-          otherOptionBtnText="Sign In"
-          otherOptionQuestion="Already Have An Account? "
-          renderFields={this.renderFields}
-          otherOptRoute="/signin"
-          signUp
-        />
-      </Paper>
-    );
-  }
+        </Grid>
+      </form>
+    </Paper>
+  )
 }
-// Get auth and groups from application state
-const mapStateToProps = state => {
-  return {
-    auth: state.firebase.auth,
-    groups: Object.values(state.groups),
-    selected: state.event.selected
-  };
-};
 // connect action and styling to current component
-export default connect(mapStateToProps, { fetchGroups, createUser })(
-  withFirebase(withStyles(style)(SignUpPage))
-);
+export default SignUpPage

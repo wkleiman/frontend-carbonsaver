@@ -1,113 +1,181 @@
 // Functional Component import
-import React from "react";
-import AuthForm from "./AuthForm";
-import { withFirebase } from "react-redux-firebase";
+import React from 'react'
+import { useFirebase } from 'react-redux-firebase'
+import { useFormik } from 'formik'
+import { Link } from 'react-router-dom'
+
 // Styling component import
-import { Grid, TextField, Paper, Typography, Button } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import {
+  Grid,
+  TextField,
+  Paper,
+  Typography,
+  Button,
+  CircularProgress,
+} from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
+
 // Styling classes
 const useStyle = makeStyles({
   container: {
-    margin: "5vh auto",
-    width: "50vh",
-    padding: "2vh"
+    margin: '5vh auto',
+    width: '50vh',
+    padding: '2vh',
   },
   error: {
-    color: "red"
-  }
-});
-// Check error and return error
-const renderError = meta => {
-  if (isInvalid(meta)) {
-    return meta.error;
-  }
-};
-// check is valid to print error and styling
-const isInvalid = ({ error, touched }) => {
-  return touched && error ? true : false;
-};
-// Rendering Text Field
-const renderTextField = field => {
-  return (
-    <Grid container>
-      <Grid item>
-        <TextField
-          type="text"
-          {...field.email.input}
-          error={isInvalid(field.email.meta)}
-          helperText={renderError(field.email.meta)}
-          label="Email"
-          required
-          variant="outlined"
-        />
-      </Grid>
-    </Grid>
-  );
-};
+    color: 'red',
+  },
+  link: {
+    textDecoration: 'none',
+  },
+})
+
 // Forgot password component
-const ForgotPass = props => {
+const ForgotPass = () => {
+  const [loading, setLoading] = React.useState(false)
+  const [email, setEmail] = React.useState()
+  const [isEmailSent, setIsEmailSent] = React.useState(false)
   // Variables declaration
-  const { firebase } = props;
-  const classes = useStyle();
-  const [message, setMessage] = React.useState(null);
-  const [isEmailSent, setIsEmailSent] = React.useState(false);
-  const [email, setEmail] = React.useState("");
-  // Upon AuthForm submit, send email to reset password
-  const onSubmit = formValues => {
-    setEmail(formValues.email);
-    sendResetPasswordEmail(formValues.email);
-  };
+  const firebase = useFirebase()
+  const classes = useStyle()
   // Send email for reset password
-  const sendResetPasswordEmail = email => {
+  const sendResetPasswordEmail = usrEmail => {
     firebase
       .auth()
-      .sendPasswordResetEmail(email)
+      .sendPasswordResetEmail(usrEmail)
       .then(function(user) {
         // Alert user that email has been sent to their mailbox
-        // TODO: Add a Modal to display this information instead of using alert for when user press resend email
-        alert("Email Sent");
-        setIsEmailSent(true);
+        setLoading(false)
+        setIsEmailSent(true)
       })
       .catch(function(e) {
-        setMessage(e.message);
-      });
-  };
+        setLoading(false)
+        // eslint-disable-next-line no-use-before-define
+        resetPassFormik.setStatus(e)
+      })
+  }
+  // Upon AuthForm submit, send email to reset password
+  const onSubmit = formValues => {
+    setEmail(formValues.email)
+    sendResetPasswordEmail(formValues.email).then(() => setLoading(false))
+  }
+
+  const resetPassFormik = useFormik({
+    initialValues: {
+      email: '',
+    },
+    onSubmit: values => {
+      setLoading(true)
+      onSubmit(values)
+    },
+    validate: formValues => {
+      const errors = {}
+      if (!formValues.email) {
+        errors.email = 'You Must Enter an Email'
+      } else if (
+        !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formValues.email)
+      ) {
+        errors.email = 'Invalid Email'
+      }
+      return errors
+    },
+  })
+
   // Check if user has entered their email to send email
   if (isEmailSent) {
     // Display text inform the user that email has been sent
     return (
       <Paper className={classes.container}>
-        {message && (
-          <Typography className={classes.error}>{message}</Typography>
+        {resetPassFormik.status && (
+          <Typography className={classes.error}>
+            {resetPassFormik.status}
+          </Typography>
         )}
         <Typography>
           We Have Sent You An Email. Please Check Your Inbox
         </Typography>
-        <Button onClick={() => sendResetPasswordEmail(email)}>
-          Resend Email
-        </Button>
+        <Grid container>
+          <Grid item xs={6}>
+            <Button
+              className={classes.submitBtn}
+              onClick={() => {
+                setLoading(true)
+                sendResetPasswordEmail(email)
+              }}
+            >
+              Resend Email
+            </Button>
+            {loading && (
+              <span>
+                <CircularProgress />
+              </span>
+            )}
+          </Grid>
+          <Grid item xs={6}>
+            <Link to="/auth" className={classes.link}>
+              <Button>Go To Sign In</Button>
+            </Link>
+          </Grid>
+        </Grid>
       </Paper>
-    );
+    )
   }
   // If use has not enter their email, render auth form for user to enter email or continue with other options
-  else {
-    return (
-      <Paper className={classes.container}>
-        <Typography variant="h3">
-          Please Enter Your Email To Continue
-        </Typography>
-        {message && (
-          <Typography className={classes.error}>{message}</Typography>
-        )}
-        <AuthForm
-          onFormSubmit={onSubmit}
-          fieldNames={["email"]}
-          btnText="Continue"
-          renderFields={renderTextField}
-        />
-      </Paper>
-    );
-  }
-};
 
-export default withFirebase(ForgotPass);
+  return (
+    <Paper className={classes.container}>
+      <Typography variant="h3">Please Enter Your Email To Continue</Typography>
+      {resetPassFormik.status && (
+        <Typography className={classes.error}>
+          {resetPassFormik.status}
+        </Typography>
+      )}
+      <form
+        noValidate
+        autoComplete="off"
+        onSubmit={resetPassFormik.handleSubmit}
+      >
+        <Grid container direction="column" spacing={2}>
+          <Grid item>
+            <Grid container style={{ marginTop: '2vh' }} spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  type="email"
+                  label="Email"
+                  placeholder="email@example.com"
+                  margin="normal"
+                  className={classes.textInput}
+                  name="email"
+                  onBlur={resetPassFormik.handleBlur}
+                  onChange={resetPassFormik.handleChange}
+                  value={resetPassFormik.values.email}
+                  helperText={
+                    resetPassFormik.touched.email &&
+                    resetPassFormik.errors.email
+                  }
+                  error={
+                    resetPassFormik.touched.email &&
+                    !!resetPassFormik.errors.email
+                  }
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Button className={classes.submitBtn} type="submit">
+              Continue
+            </Button>
+            {loading && (
+              <span>
+                <CircularProgress />
+              </span>
+            )}
+          </Grid>
+        </Grid>
+      </form>
+    </Paper>
+  )
+}
+
+export default ForgotPass
