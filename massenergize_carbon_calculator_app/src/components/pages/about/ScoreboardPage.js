@@ -1,42 +1,67 @@
 import React from 'react'
-import { connect } from 'react-redux'
-// Carousel from npm react-multi-carousel
-/* import 'react-multi-carousel/lib/styles.css'; */
-/* import LoadingCircle from '../../Shared/LoadingCircle' */
+import { SCORES as scores } from './testScore'
 
-class ScoreboardPage extends React.Component {
-	render() {
-        let paragraphContent = undefined;
-		return (
-			<div className="boxed_wrapper">
-				<div className="col-md-10 col-lg-10 offset-md-1 col-sm-10 col-xs-12">
-					<div style={{ marginTop: 70 }}></div>
-					<div className={paragraphContent ? "col-sm-12 col-md-10 offset-md-1" : "d-none"}>
-						<center><h2 className="cool-font" style={{ padding: 20 }}>CarbonSaver Scoreboard</h2></center>
-						<div className="cool-font" style={{color:'gray',fontSize:'large'}} dangerouslySetInnerHTML={{ __html: paragraphContent }}></div>
-					</div>
-					<div className=" col-sm-12 col-md-10 offset-md-1 mass-energize-about">
-						<center><h2 className="cool-font" style={{ padding: 20 }}>The community, teams list</h2></center>
-						<p className="cool-font" style={{color:'gray'}}>
-							A list of teams and their scores.
+const ScoreCategoryRow = props => {
+  const { category } = props
 
-						</p>
-					</div>
-				</div>
-			
-			</div>
-		);
-	}
+  return (
+    <tr>
+      <th colSpan="3">{category}</th>
+    </tr>
+  )
 }
 
-/* const mapStoreToProps = (store) => {
-
-	return {
-		community: store.page.community,
-		communityAdmins: store.page.communityAdmins,
-		pageData: store.page.aboutPage,
-		homePageData:store.page.homePageData
-	}
+const ScoreRow = props => {
+  const { score } = props
+  const { members } = score
+  const name =
+    members > 0 ? (
+      score.name
+    ) : (
+      <span style={{ color: 'red' }}>{score.name}</span>
+    )
+  const { points } = score
+  return (
+    <tr>
+      <td>{name}</td>
+      <td>{points}</td>
+      <td>{members}</td>
+    </tr>
+  )
 }
-*/
-export default connect()(ScoreboardPage);
+
+const ScoreBoardPage = () => {
+  let lastCategory
+  return (
+    <div className="scoreBoard">
+      <h1>Score Board</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Points</th>
+            <th>Members</th>
+          </tr>
+        </thead>
+        <tbody>
+          {scores.map(score => {
+            if (score.category !== lastCategory) lastCategory = score.category
+            return (
+              <>
+                {score.category !== lastCategory && (
+                  <ScoreCategoryRow
+                    category={score.category}
+                    key={score.category}
+                  />
+                )}
+                <ScoreRow score={score} key={score.name} />
+              </>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+export default ScoreBoardPage

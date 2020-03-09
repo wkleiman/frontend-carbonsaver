@@ -13,8 +13,6 @@ import {
   CircularProgress,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
-import { fetchGroups, createUser } from '../../actions'
-import { useAuthState } from '../context/AuthContext'
 import { facebookProvider, googleProvider } from './firebaseConfig'
 import BasicInfo from './BasicInfo'
 
@@ -49,16 +47,16 @@ const useStyles = makeStyles({
   },
 })
 
-const SignUpPage = props => {
+const SignUpPage = () => {
   const [loading, setLoading] = React.useState(false)
   const firebase = useFirebase()
   const classes = useStyles()
   const auth = firebase.auth()
-  const { setAuthState } = useAuthState()
 
   // Send user verification email
   const sendVerificationEmail = () => {
-    auth.currentUser.sendEmailVerification()
+    setLoading(true)
+    auth.currentUser.sendEmailVerification().then(() => setLoading(false))
   }
 
   // On Submit Handler
@@ -66,20 +64,15 @@ const SignUpPage = props => {
     firebase
       .auth()
       .createUserWithEmailAndPassword(formValues.email, formValues.passwordOne)
-      .then(authUser => {
+      .then(() => {
         // Send Verification Email
         sendVerificationEmail()
       })
       .catch(err => {
         setLoading(false)
+        // eslint-disable-next-line no-use-before-define
         signUpFormik.setStatus(err.message)
       })
-  }
-
-  // Delete if they decided to stop with sign up process
-  const deleteFirebaseAccount = () => {
-    firebase.auth().currentUser.delete()
-    firebase.auth().signOut()
   }
 
   const signUpFormik = useFormik({
@@ -130,7 +123,7 @@ const SignUpPage = props => {
         firebase
           .auth()
           .signInWithPopup(googleProvider)
-          .then(async googleAuth => {
+          .then(() => {
             // Save user information to backend database
             sendVerificationEmail()
           })
@@ -150,7 +143,7 @@ const SignUpPage = props => {
         firebase
           .auth()
           .signInWithPopup(facebookProvider)
-          .then(async facebookAuth => {
+          .then(() => {
             // Save user information to backend database
             sendVerificationEmail()
           })
@@ -174,15 +167,26 @@ const SignUpPage = props => {
         <Grid container>
           <Grid item>
             <Typography>
-              {' '}
-              We sent a link to your email address. Please verify your email and
-              sign in to continue.
+              We sent a link to your email address. Please verify your email to
+              continue.
             </Typography>
           </Grid>
-          <Grid item>
-            <Button onClick={sendVerificationEmail}>
-              Resend Verification Email
-            </Button>
+          <Grid item container>
+            <Grid item xs={6}>
+              <Button onClick={sendVerificationEmail}>
+                Resend Verification Email
+              </Button>
+              {loading && (
+                <span>
+                  <CircularProgress />
+                </span>
+              )}
+            </Grid>
+            <Grid item xs={6}>
+              <Link to="/auth" className={classes.link}>
+                <Button>Go To Sign In</Button>
+              </Link>
+            </Grid>
           </Grid>
         </Grid>
       </Paper>
@@ -220,7 +224,7 @@ const SignUpPage = props => {
                     signUpFormik.touched.email && signUpFormik.errors.email
                   }
                   error={
-                    signUpFormik.touched.email && signUpFormik.errors.email
+                    signUpFormik.touched.email && !!signUpFormik.errors.email
                   }
                 />
               </Grid>
@@ -236,7 +240,7 @@ const SignUpPage = props => {
                   }
                   error={
                     signUpFormik.touched.passwordOne &&
-                    signUpFormik.errors.passwordOne
+                    !!signUpFormik.errors.passwordOne
                   }
                   name="passwordOne"
                   label="Password"
@@ -258,7 +262,7 @@ const SignUpPage = props => {
                   }
                   error={
                     signUpFormik.touched.passwordTwo &&
-                    signUpFormik.errors.passwordTwo
+                    !!signUpFormik.errors.passwordTwo
                   }
                   name="passwordTwo"
                   label="Confirm Your Password"
@@ -309,7 +313,7 @@ const SignUpPage = props => {
             </Grid>
             <Grid item>
               <Typography>
-                <Link className={classes.link} to="/resetpass">
+                <Link className={classes.link} to="/auth/resetpass">
                   Forgot Your Password?
                 </Link>
               </Typography>

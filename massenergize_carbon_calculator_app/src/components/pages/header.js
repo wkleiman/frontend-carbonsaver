@@ -1,9 +1,15 @@
 // Functional component imports
 import React from 'react'
-import { Link, withRouter, Redirect } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import { useFirebase } from 'react-redux-firebase'
 // Styling Component imports
-import { AppBar, Typography, Toolbar, Button } from '@material-ui/core'
+import {
+  AppBar,
+  Typography,
+  Toolbar,
+  Button,
+  CircularProgress,
+} from '@material-ui/core'
 import { withStyles, makeStyles } from '@material-ui/core/styles'
 import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
@@ -44,6 +50,7 @@ const useStyles = makeStyles(theme => ({
     '& img::hover': {
       opacity: 0.1,
     },
+    margin: '1vh',
   },
   list: {
     width: 250,
@@ -55,6 +62,7 @@ const useStyles = makeStyles(theme => ({
     textDecoration: 'none',
     color: '#8dc63f',
     fontWeight: 'bold',
+    width: '100%',
   },
 }))
 // Styled Button
@@ -95,9 +103,11 @@ const MyButton = withStyles({
 function Header() {
   const classes = useStyles()
   const [left, setLeft] = React.useState(false)
+  const [loading, setLoading] = React.useState(true)
 
   const { authState, setAuthState } = useAuthState()
   const firebase = useFirebase()
+  const auth = firebase.auth()
 
   // Used to create animation on opening navigation tab
   const toggleDrawer = open => e => {
@@ -106,9 +116,22 @@ function Header() {
     }
     setLeft(open)
   }
+  const getUser = async user => {
+    const apiUser = await fetchUser(user)
+    setAuthState(apiUser)
+    setLoading(false)
+  }
 
-  // Left navigation tab
-  // TODO: Add pages as instructed in Google feedback sheets
+  React.useEffect(() => {
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        setAuthState(auth.currentUser)
+        setLoading(false)
+      } else {
+        getUser(auth.currentUser)
+      }
+    })
+  }, [loading])
 
   // Handling user sign out
   const onSignOutClick = () => {
@@ -129,28 +152,29 @@ function Header() {
     >
       <List>
         <ListItem button className={classes.button}>
-          <a className={classes.link} href="/">
+          <Link to="/" className={classes.link}>
             <ListItemText primary="Home" />
-          </a>
+          </Link>
         </ListItem>
         <ListItem button className={classes.button}>
-          <a className={classes.link} href="/about">
-            <ListItemText primary="About Us" />
-          </a>
+          <Link to="/summary" className={classes.link}>
+            <ListItemText primary="Summary" />
+          </Link>
         </ListItem>
         <ListItem button className={classes.button}>
-          <a className={classes.link} href="/">
-            <ListItemText primary="Communities" />
-          </a>
+          <Link to="/scoreboard" className={classes.link}>
+            <ListItemText primary="Scoreboard" />
+          </Link>
         </ListItem>
         <ListItem button className={classes.button}>
-          <a className={classes.link} href="/">
-            <ListItemText primary="Contact Us" />
-          </a>
+          <Link to="/about" className={classes.link}>
+            <ListItemText primary="About" />
+          </Link>
         </ListItem>
       </List>
     </div>
   )
+  if (loading) return <CircularProgress />
   return (
     <div className={classes.root}>
       <AppBar position="static" className={classes.appBar}>
@@ -170,7 +194,7 @@ function Header() {
           <Typography variant="h6" className={classes.logo}>
             <Link to="/about">
               <img
-                src={`${process.env.PUBLIC_URL}/images/CoolerCommunities512.jpg`}
+                src={`${process.env.PUBLIC_URL}/favicon.ico`}
                 alt="Cooler Communities banner"
               />
             </Link>

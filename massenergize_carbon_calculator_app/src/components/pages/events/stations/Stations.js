@@ -13,7 +13,6 @@ import ScheduleIcon from '@material-ui/icons/Schedule'
 
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import Paper from '@material-ui/core/Paper'
-import { CircularProgress } from '@material-ui/core'
 import ActionItems from '../actions/actionItems'
 
 const useStyles = makeStyles(theme => ({
@@ -80,6 +79,7 @@ function tabProps(index) {
 }
 
 const Stations = props => {
+  const [expanded, setExpanded] = useState('')
   const [value, setValue] = useState(0)
   const [answered, setAnswered] = useState(new Set())
   const { stations, event } = props
@@ -103,8 +103,6 @@ const Stations = props => {
   ]
   const eventDate = new Date(event.datetime)
   const classes = useStyles()
-
-  if (!stations) return <CircularProgress />
 
   const onChangeHandler = (e, newValue) => setValue(newValue)
 
@@ -135,6 +133,8 @@ const Stations = props => {
         action={action}
         answered={answered}
         onAnswered={onAnswered}
+        expanded={expanded}
+        setExpanded={setExpanded}
       />
     ))
 

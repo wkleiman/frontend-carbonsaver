@@ -2,6 +2,7 @@
 import React from 'react'
 import { useFirebase } from 'react-redux-firebase'
 import { useFormik } from 'formik'
+import { Link } from 'react-router-dom'
 
 // Styling component import
 import {
@@ -24,28 +25,31 @@ const useStyle = makeStyles({
   error: {
     color: 'red',
   },
+  link: {
+    textDecoration: 'none',
+  },
 })
 
 // Forgot password component
-const ForgotPass = props => {
+const ForgotPass = () => {
   const [loading, setLoading] = React.useState(false)
-  const [email, setEmail] = React.useState(false)
+  const [email, setEmail] = React.useState()
   const [isEmailSent, setIsEmailSent] = React.useState(false)
   // Variables declaration
   const firebase = useFirebase()
   const classes = useStyle()
   // Send email for reset password
-  const sendResetPasswordEmail = () => {
+  const sendResetPasswordEmail = usrEmail => {
     firebase
       .auth()
-      .sendPasswordResetEmail(email)
+      .sendPasswordResetEmail(usrEmail)
       .then(function(user) {
         // Alert user that email has been sent to their mailbox
-        // TODO: Add a Modal to display this information instead of using alert for when user press resend email
-        alert('Email Sent')
+        setLoading(false)
         setIsEmailSent(true)
       })
       .catch(function(e) {
+        setLoading(false)
         // eslint-disable-next-line no-use-before-define
         resetPassFormik.setStatus(e)
       })
@@ -53,7 +57,7 @@ const ForgotPass = props => {
   // Upon AuthForm submit, send email to reset password
   const onSubmit = formValues => {
     setEmail(formValues.email)
-    sendResetPasswordEmail(formValues.email)
+    sendResetPasswordEmail(formValues.email).then(() => setLoading(false))
   }
 
   const resetPassFormik = useFormik({
@@ -90,7 +94,29 @@ const ForgotPass = props => {
         <Typography>
           We Have Sent You An Email. Please Check Your Inbox
         </Typography>
-        <Button onClick={sendResetPasswordEmail}>Resend Email</Button>
+        <Grid container>
+          <Grid item xs={6}>
+            <Button
+              className={classes.submitBtn}
+              onClick={() => {
+                setLoading(true)
+                sendResetPasswordEmail(email)
+              }}
+            >
+              Resend Email
+            </Button>
+            {loading && (
+              <span>
+                <CircularProgress />
+              </span>
+            )}
+          </Grid>
+          <Grid item xs={6}>
+            <Link to="/auth" className={classes.link}>
+              <Button>Go To Sign In</Button>
+            </Link>
+          </Grid>
+        </Grid>
       </Paper>
     )
   }
@@ -109,11 +135,6 @@ const ForgotPass = props => {
         autoComplete="off"
         onSubmit={resetPassFormik.handleSubmit}
       >
-        {resetPassFormik.status && (
-          <Typography style={{ color: 'red' }}>
-            {resetPassFormik.status}
-          </Typography>
-        )}
         <Grid container direction="column" spacing={2}>
           <Grid item>
             <Grid container style={{ marginTop: '2vh' }} spacing={2}>
@@ -135,7 +156,7 @@ const ForgotPass = props => {
                   }
                   error={
                     resetPassFormik.touched.email &&
-                    resetPassFormik.errors.email
+                    !!resetPassFormik.errors.email
                   }
                 />
               </Grid>

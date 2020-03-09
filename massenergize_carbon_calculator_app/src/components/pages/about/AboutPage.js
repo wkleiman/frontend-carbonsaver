@@ -1,8 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-// Carousel from npm react-multi-carousel
-/* import 'react-multi-carousel/lib/styles.css'; */
-/* import LoadingCircle from '../../Shared/LoadingCircle' */
 
 class AboutUsPage extends React.Component {
   render() {
@@ -54,14 +51,4 @@ class AboutUsPage extends React.Component {
   }
 }
 
-/* const mapStoreToProps = (store) => {
-
-	return {
-		community: store.page.community,
-		communityAdmins: store.page.communityAdmins,
-		pageData: store.page.aboutUsPage,
-		homePageData:store.page.homePageData
-	}
-}
-*/
 export default connect()(AboutUsPage)

@@ -23,6 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 
 #config
-/firebaseConfig.js
+**/firebaseConfig.js
 
 .env
