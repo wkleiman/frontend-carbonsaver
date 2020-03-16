@@ -242,7 +242,13 @@ const BasicInfo = () => {
                   className={classes.formControl}
                 >
                   <FormLabel component="legend">
-                    <Link to="">Terms And Conditions</Link>
+                    Creating a profile allows the host organization to help you
+                    with information about saving energy. Information you share
+                    with the Carbon Saver will not be shared with others or used
+                    for any commercial purpose, as detailed in the
+                    <Link to="">Terms of Use</Link> and
+                    <Link to="">Privacy Policy</Link>. By continuing to create a
+                    profile, you agree to these terms.
                   </FormLabel>
                   <FormControlLabel
                     control={
