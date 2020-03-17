@@ -12,6 +12,7 @@ import { useSelectedState } from '../../context/SelectedContext'
 import { useEventState } from '../../context/EventContext'
 import Header from '../header'
 
+
 // Style defination
 const useStyle = makeStyles({
   root: {
@@ -37,11 +38,11 @@ const useStyle = makeStyles({
   },
   displayname: {
     fontWeight: 'bold',
-    fontSize: '2em',
+    fontSize: '2.5em',
     display: 'flex',
   },
   location: {
-    fontSize: '1.5em',
+    fontSize: '2.5em',
   },
   eventContent: {
     margin: '0vh 4vh',
@@ -135,7 +136,7 @@ const EventList = () => {
         <Grid container>
           <Grid item>
             <Typography
-              variant="h4"
+              variant="h6"
               style={{
                 margin: '1vh 1vh',
                 padding: '1vh 1vh',

@@ -112,7 +112,7 @@ const ActionItems = props => {
     answeredState &&
     actionScore && (
       <Typography>
-        {`Points earned: ${actionScore.carbon_points} Savings: ${actionScore.savings}`}
+        {`Carbon points: ${actionScore.carbon_points} Savings: $ ${actionScore.savings}`}
       </Typography>
     )
 
@@ -131,7 +131,7 @@ const ActionItems = props => {
         aria-controls="panel1c-content"
         id="panel1c-header"
       >
-        <Typography variant="h5">{action.description}</Typography>
+        <Typography variant="h6">{action.description}</Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
         <Grid container direction="column">

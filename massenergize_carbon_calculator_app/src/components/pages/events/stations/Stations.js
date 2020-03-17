@@ -185,9 +185,9 @@ const Stations = props => {
           <Grid container direction="column" className={classes.eventDetails}>
             <Grid item>
               <Typography
-                variant="h4"
+                variant="h5"
                 className={classes.title}
-              >{`WELCOME TO ${event.displayname.toUpperCase()}`}</Typography>
+              >{`Welcome to ${event.displayname}`}</Typography>
             </Grid>
             <Grid
               item
@@ -211,9 +211,9 @@ const Stations = props => {
                   justify="center"
                   alignItems="center"
                 >
-                  <Grid item>
+                  {/*<Grid item>
                     <LocationOnIcon style={{ color: '#8dc63f' }} />
-                  </Grid>
+                  </Grid>*/}
                   <Grid item>
                     <Typography>{event.location}</Typography>
                   </Grid>
@@ -239,7 +239,7 @@ const Stations = props => {
               </Grid>
             </Grid>
           </Grid>
-          <Typography>{stations[0].description}</Typography>
+          <Typography variant="h6">{stations[0].description}</Typography>
           {renderActionList(stations[0].actions, stations[0].name)}
         </Paper>
       </TabPanel>
