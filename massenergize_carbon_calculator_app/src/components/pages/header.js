@@ -199,11 +199,8 @@ function Header() {
               />
             </Link>
           </Typography>
-            Carbon Saver - Learn about the impact of actions you can take.
-        
-          {// If user is signed in display sign out and sign in otherwise
-          // TODO: May don't need to display sign in since prompt user sign in upon accessing a specific event.
-          authState && <MyButton onClick={onSignOutClick}>Sign Out</MyButton>}
+          <p>Carbon Saver - Learn about the impact of actions you can take.</p>
+          {authState && <MyButton onClick={onSignOutClick}>Sign Out</MyButton>}
         </Toolbar>
       </AppBar>
     </div>
