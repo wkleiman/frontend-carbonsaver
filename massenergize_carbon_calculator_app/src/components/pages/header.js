@@ -200,7 +200,7 @@ function Header() {
             </Link>
           </Typography>
           <p>Carbon Saver - Learn about the impact of actions you can take.</p>
-          authState && <MyButton onClick={onSignOutClick}>Sign Out</MyButton>}
+          {authState && <MyButton onClick={onSignOutClick}>Sign Out</MyButton>}
         </Toolbar>
       </AppBar>
     </div>
