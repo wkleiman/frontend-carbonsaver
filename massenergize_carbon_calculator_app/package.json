@@ -27,5 +27,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "description": "Frontend for the Carbon Calculator App Developed at Masssenergize",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC"
 }
