@@ -1,4 +1,4 @@
-# frontend-carbon-calculator
+# frontend-carbonsaver
 Frontend for the Carbon Calculator App Developed at Masssenergize
 
 ### Maintained by 
