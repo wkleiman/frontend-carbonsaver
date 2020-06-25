@@ -167,7 +167,7 @@ const LogInForm = () => {
   // Render Auth Form for user sign in with other options print out
   return (
     <Paper className={classes.container}>
-      <Typography variant="h3">
+      <Typography variant="h5">
         Please Enter Your Email and Password to Continue
       </Typography>
       <form noValidate autoComplete="off" onSubmit={signInFormik.handleSubmit}>

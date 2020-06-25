@@ -8,7 +8,7 @@ const Score = () => {
   const { scoreState } = useScoreState()
   return (
     <Typography
-      variant="h4"
+      variant="h6"
       style={{
         color: '#8dc63f',
         fontWeight: 'bold',
@@ -16,9 +16,8 @@ const Score = () => {
         justifyContent: 'center',
       }}
     >
-      Total Score: {scoreState ? scoreState.carbon_points : 0} Cost:{' '}
-      {scoreState ? scoreState.cost : 0} Saving:{' '}
-      {scoreState ? scoreState.savings : 0}
+      Carbon Points: {scoreState ? scoreState.carbon_points : 0} {'  '}
+      Savings: ${' '} {scoreState ? scoreState.savings : 0}
     </Typography>
   )
 }
