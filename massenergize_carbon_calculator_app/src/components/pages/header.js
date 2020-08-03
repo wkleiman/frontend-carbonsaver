@@ -51,6 +51,7 @@ const useStyles = makeStyles(theme => ({
       opacity: 0.1,
     },
     margin: '1vh',
+    
   },
   list: {
     width: 250,
@@ -177,23 +178,23 @@ function Header() {
   if (loading) return <CircularProgress />
   return (
     <div className={classes.root}>
-      <AppBar position="static" className={classes.appBar}>
+      <AppBar position="static" className={classes.appBar} styles={{width:"100px"}}>
         <Toolbar>
           <IconButton
             edge="start"
             onClick={toggleDrawer(true)}
             className={classes.menuButton}
-            stlye={{ color: '#8dc63f' }}
+            stlye={{ color: '#8dc63f'}}
             aria-label="menu"
           >
-            <MenuIcon />
+            <MenuIcon style={{width: "5vw", height: "5vh", margin: "0"}}/>
           </IconButton>
           <Drawer open={left} onClose={toggleDrawer(false)}>
             {sideList()}
           </Drawer>
           <Typography variant="h6" className={classes.logo}>
             <Link to="/about">
-              <img
+              <img style={{width: "80px"}}
                 src={`${process.env.PUBLIC_URL}/favicon.ico`}
                 alt="Cooler Communities banner"
               />
